@@ -4,7 +4,8 @@
 ![SZBigdata-Club](https://github.com/Jonathan-Wei/jonathan-wei.github.io/blob/master/images/GZH.jpeg)
 
 ### 微信群
-![WeChatTerm](https://github.com/Jonathan-Wei/jonathan-wei.github.io/blob/master/images/IMG_1864.JPG){:height="395px" width="310px"}
+<img src="https://github.com/Jonathan-Wei/jonathan-wei.github.io/blob/master/images/IMG_1864.JPG" height="395" width="310">
+
 
 ### QQ群
-![QQTerm](https://github.com/Jonathan-Wei/jonathan-wei.github.io/blob/master/images/IMG_1865.JPG){:height="421px" width="310px"}
+<img src="https://github.com/Jonathan-Wei/jonathan-wei.github.io/blob/master/images/IMG_1865.JPG" height="421" width="310">
