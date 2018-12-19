@@ -8,21 +8,23 @@
 
 使用以下命令之一来创建项目:
 
-* sbt模版
+{% tabs %}
+{% tab title="sbt模版" %}
+```text
+$ sbt new tillrohrmann/flink-project.g8
+```
 
-  ```bash
-  $ sbt new tillrohrmann/flink-project.g8
-  ```
+这里将提示您输入几个参数\(项目名称、flink版本…\)，然后从flink-project模板中创建flink项目。执行此命令需要sbt &gt;= 0.13.13。如果有必要，您可以遵循这个安装指南来获得它。
+{% endtab %}
 
-  这里将提示您输入几个参数\(项目名称、flink版本…\)，然后从flink-project模板中创建flink项目。执行此命令需要sbt &gt;= 0.13.13。如果有必要，您可以遵循这个安装指南来获得它。
+{% tab title="快速启动脚本" %}
+```text
+$ bash <(curl https://flink.apache.org/q/sbt-quickstart.sh)
+```
 
-* 快速开始脚本
-
-  ```bash
-  $ bash <(curl https://flink.apache.org/q/sbt-quickstart.sh)
-  ```
-
-  这将会在您指定的项目目录中创建一个Flink项目。
+这将会在您指定的项目目录中创建一个Flink项目。
+{% endtab %}
+{% endtabs %}
 
 ### 构建项目
 
@@ -70,23 +72,25 @@ addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "4.0.0")
 
 使用以下命令之一来创建项目:
 
-* Maven方式
+{% tabs %}
+{% tab title="Maven方式" %}
+```text
+$ mvn archetype:generate                               \
+   -DarchetypeGroupId=org.apache.flink              \
+   -DarchetypeArtifactId=flink-quickstart-scala     \
+   -DarchetypeCatalog=https://repository.apache.org/content/repositories/snapshots/ \
+   -DarchetypeVersion=1.8-SNAPSHOT
+```
 
-  ```bash
-  $ mvn archetype:generate                               \
-     -DarchetypeGroupId=org.apache.flink              \
-     -DarchetypeArtifactId=flink-quickstart-scala     \
-     -DarchetypeCatalog=https://repository.apache.org/content/repositories/snapshots/ \
-     -DarchetypeVersion=1.8-SNAPSHOT
-  ```
+这允许您命名新创建的项目。它将以交互式的方式询问您的groupId、artifactId和包名。
+{% endtab %}
 
-  这允许您命名新创建的项目。它将以交互式的方式询问您的groupId、artifactId和包名。
-
-* 快速开始脚本
-
-  ```bash
-  $ curl https://flink.apache.org/q/quickstart-scala-SNAPSHOT.sh | bash -s 1.8-SNAPSHOT
-  ```
+{% tab title="快速启动脚本" %}
+```text
+$ curl https://flink.apache.org/q/quickstart-scala-SNAPSHOT.sh | bash -s 1.8-SNAPSHOT
+```
+{% endtab %}
+{% endtabs %}
 
 ### 检查项目
 
