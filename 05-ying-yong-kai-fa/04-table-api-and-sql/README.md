@@ -1,2 +1,2 @@
-# 04 Table API & SQL
+# Table API & SQL
 
