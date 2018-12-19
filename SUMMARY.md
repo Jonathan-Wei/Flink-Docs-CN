@@ -12,6 +12,7 @@
     * [Scala项目模版](05-ying-yong-kai-fa/00-xiang-mu-gou-jian-pei-zhi/scala-xiang-mu-mo-ban.md)
     * [Java项目模版](05-ying-yong-kai-fa/00-xiang-mu-gou-jian-pei-zhi/java-xiang-mu-mo-ban.md)
     * [配置Dependencies, Connectors, Libraries](05-ying-yong-kai-fa/00-xiang-mu-gou-jian-pei-zhi/pei-zhi-dependencies-connectors-libraries.md)
+  * [API基础概念](05-ying-yong-kai-fa/api-ji-chu-gai-nian.md)
   * [Table API & SQL](05-ying-yong-kai-fa/04-table-api-and-sql/README.md)
     * [Streaming相关概念](05-ying-yong-kai-fa/04-table-api-and-sql/02-streaming-xiang-guan-gai-nian/README.md)
       * [Streaming 相关概念](05-ying-yong-kai-fa/04-table-api-and-sql/02-streaming-xiang-guan-gai-nian/00-gai-shu.md)
