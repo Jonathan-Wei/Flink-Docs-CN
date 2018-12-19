@@ -192,6 +192,10 @@ Starting execution of program
 
 程序连接到Socket并等待输入。您可以检查Web界面以验证作业是否按预期运行：
 
+![](../../.gitbook/assets/jobmanager-2.png)
+
+![](../../.gitbook/assets/jobmanager-3.png)
+
 * 单词每5秒统计一次（处理时间，翻滚窗口）并打印到`stdout`。监视TaskManager的输出文件并且在`nc`里有文本信息输出（输入在点击后逐行发送到Flink）：
 
 ```bash
