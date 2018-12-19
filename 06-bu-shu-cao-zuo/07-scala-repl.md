@@ -1,4 +1,4 @@
-# 07 Scala REPL
+# Scala REPL
 
 ## Scala REPL
 

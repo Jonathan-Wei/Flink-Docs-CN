@@ -17,5 +17,5 @@
     * [Java项目模版](05-ying-yong-kai-fa/00-xiang-mu-gou-jian-pei-zhi/java-xiang-mu-mo-ban.md)
     * [配置Dependencies, Connectors, Libraries](05-ying-yong-kai-fa/00-xiang-mu-gou-jian-pei-zhi/pei-zhi-dependencies-connectors-libraries.md)
 * [部署-操作](06-bu-shu-cao-zuo/README.md)
-  * [07 Scala REPL](06-bu-shu-cao-zuo/07-scala-repl.md)
+  * [Scala REPL](06-bu-shu-cao-zuo/07-scala-repl.md)
 
