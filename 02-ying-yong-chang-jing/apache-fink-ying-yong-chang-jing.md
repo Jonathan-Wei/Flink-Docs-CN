@@ -20,7 +20,7 @@ Apache Flink因其丰富的功能集而成为开发和运行多种不同类型�
 
 相反，事件驱动的应用程序基于有状态流处理应用程序。在这种设计中，数据和计算是共同定位的，这产生了本地（内存或磁盘）数据访问。通过定期将检查点写入远程持久存储来实现容错。下图描绘了传统应用程序体系结构和事件驱动应用程序之间的差异。
 
-![usecases-eventdrivenapps](https://github.com/Jonathan-Wei/Flink-Docs-CN/blob/master/02%20应用场景/images/usecases-eventdrivenapps.png)
+![](../.gitbook/assets/usecases-eventdrivenapps.png)
 
 ### 事件驱动的应用程序有哪些优点？
 
@@ -50,7 +50,7 @@ Apache Flink因其丰富的功能集而成为开发和运行多种不同类型�
 
 Apache Flink支持流式和批量分析应用程序，如下图所示。
 
-![usecases-analytics](https://github.com/Jonathan-Wei/Flink-Docs-CN/blob/master/02%20应用场景/images/usecases-analytics.png)
+![](../.gitbook/assets/usecases-analytics.png)
 
 ### 流式分析应用程序有哪些优势？
 
@@ -79,7 +79,7 @@ Flink为连续流式传输和批量分析提供了非常好的支持。具体来
 
 下图描述了定期ETL作业和连续数据管道之间的差异。
 
-![usecases-datapipelines](https://github.com/Jonathan-Wei/Flink-Docs-CN/blob/master/02%20应用场景/images/usecases-datapipelines.png)
+![](../.gitbook/assets/usecases-datapipelines.png)
 
 ### 数据管道有哪些优势？
 
