@@ -23,6 +23,8 @@
   * [数据类型&序列化](05-ying-yong-kai-fa/shu-ju-lei-xing-xu-lie-hua.md)
   * [管理执行](05-ying-yong-kai-fa/guan-li-zhi-hang.md)
   * [Libraries](05-ying-yong-kai-fa/libraries.md)
+  * [最佳实践](05-ying-yong-kai-fa/zui-jia-shi-jian.md)
+  * [API迁移向导](05-ying-yong-kai-fa/api-qian-yi-xiang-dao.md)
 * [部署-操作](06-bu-shu-cao-zuo/README.md)
   * [Scala REPL](06-bu-shu-cao-zuo/07-scala-repl.md)
 
