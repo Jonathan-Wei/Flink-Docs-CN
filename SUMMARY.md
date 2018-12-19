@@ -22,6 +22,7 @@
     * [Table API & SQL](05-ying-yong-kai-fa/04-table-api-and-sql/00-gai-shu.md)
   * [数据类型&序列化](05-ying-yong-kai-fa/shu-ju-lei-xing-xu-lie-hua.md)
   * [管理执行](05-ying-yong-kai-fa/guan-li-zhi-hang.md)
+  * [Libraries](05-ying-yong-kai-fa/libraries.md)
 * [部署-操作](06-bu-shu-cao-zuo/README.md)
   * [Scala REPL](06-bu-shu-cao-zuo/07-scala-repl.md)
 
