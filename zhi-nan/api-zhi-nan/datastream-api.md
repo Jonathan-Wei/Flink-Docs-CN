@@ -1,4 +1,4 @@
-# DataStream API指南
+# DataStream API教程
 
 在本指南中，我们将从头开始，从建立Flink项目到在Flink集群上运行流分析程序。
 
