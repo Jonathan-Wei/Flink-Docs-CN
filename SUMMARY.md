@@ -1,7 +1,7 @@
 # Table of contents
 
 * [README](README.md)
-* [01 介绍](01-jie-shao/README.md)
+* [介绍](01-jie-shao/README.md)
   * [运维](01-jie-shao/apache-flink-yun-wei-jie-shao.md)
   * [应用](01-jie-shao/apache-flink-ying-yong-jie-shao.md)
   * [架构](01-jie-shao/apache-flink-jia-gou-jie-shao.md)
