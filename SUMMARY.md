@@ -9,7 +9,7 @@
   * [Apache Fink应用场景](02-ying-yong-chang-jing/apache-fink-ying-yong-chang-jing.md)
 * [应用开发](05-ying-yong-kai-fa/README.md)
   * [Table API & SQL](05-ying-yong-kai-fa/04-table-api-and-sql/README.md)
-    * [02 Streaming相关概念](05-ying-yong-kai-fa/04-table-api-and-sql/02-streaming-xiang-guan-gai-nian/README.md)
+    * [Streaming相关概念](05-ying-yong-kai-fa/04-table-api-and-sql/02-streaming-xiang-guan-gai-nian/README.md)
       * [Streaming 相关概念](05-ying-yong-kai-fa/04-table-api-and-sql/02-streaming-xiang-guan-gai-nian/00-gai-shu.md)
     * [Table API & SQL](05-ying-yong-kai-fa/04-table-api-and-sql/00-gai-shu.md)
   * [项目构建配置](05-ying-yong-kai-fa/00-xiang-mu-gou-jian-pei-zhi/README.md)
