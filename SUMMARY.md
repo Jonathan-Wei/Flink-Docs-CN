@@ -16,8 +16,9 @@
   * [配置教程](zhi-nan/pei-zhi-jiao-cheng/README.md)
     * [本地配置](zhi-nan/pei-zhi-jiao-cheng/ben-di-pei-zhi.md)
     * [在Windows上运行Flink](zhi-nan/pei-zhi-jiao-cheng/zai-windows-shang-yun-hang-flink.md)
-* [Examples](examples/README.md)
+* [示例](examples/README.md)
   * [概述](examples/gai-shu.md)
+  * [批次示例](examples/pi-ci-shi-li.md)
 * [应用开发](05-ying-yong-kai-fa/README.md)
   * [项目构建配置](05-ying-yong-kai-fa/00-xiang-mu-gou-jian-pei-zhi/README.md)
     * [Scala项目模版](05-ying-yong-kai-fa/00-xiang-mu-gou-jian-pei-zhi/scala-xiang-mu-mo-ban.md)
@@ -90,4 +91,12 @@
   * [工作和调度](ji-shu-nei-mu/gong-zuo-he-tiao-du.md)
   * [任务生命周期](ji-shu-nei-mu/ren-wu-sheng-ming-zhou-qi.md)
   * [文件系统](ji-shu-nei-mu/wen-jian-xi-tong.md)
+
+## Others
+
+* [FAQ](others/faq.md)
+* [Blog](others/blog.md)
+* [获取帮助](others/huo-qu-bang-zhu.md)
+* [社区及项目信息](others/she-qu-ji-xiang-mu-xin-xi.md)
+* [How To Contribute](others/how-to-contribute.md)
 
