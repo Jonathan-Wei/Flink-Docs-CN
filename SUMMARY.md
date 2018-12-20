@@ -38,6 +38,7 @@
       * [时态表](05-ying-yong-kai-fa/04-table-api-and-sql/02-streaming-xiang-guan-gai-nian/shi-tai-biao.md)
       * [检测模式](05-ying-yong-kai-fa/04-table-api-and-sql/02-streaming-xiang-guan-gai-nian/jian-ce-mo-shi.md)
       * [查询配置](05-ying-yong-kai-fa/04-table-api-and-sql/02-streaming-xiang-guan-gai-nian/cha-xun-pei-zhi.md)
+    * [SQL客户端](05-ying-yong-kai-fa/04-table-api-and-sql/sql-ke-hu-duan.md)
   * [数据类型&序列化](05-ying-yong-kai-fa/shu-ju-lei-xing-xu-lie-hua.md)
   * [管理执行](05-ying-yong-kai-fa/guan-li-zhi-hang.md)
   * [Libraries](05-ying-yong-kai-fa/libraries.md)
