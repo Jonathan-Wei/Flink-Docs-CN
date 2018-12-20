@@ -1,4 +1,4 @@
-# Table API & SQL
+# 概述
 
 Apache Flink提供了两个关系型API——Table API和SQL——用于统一的流和批处理。Table API是面向Scala和Java的语言集成查询API，它允许以非常直观的方式组合来自关系操作符\(如选择、筛选和连接\)的查询。Flink的SQL支持基于[Apache Calcite](https://calcite.apache.org/)，它实现了SQL标准。无论输入是批处理输入\(数据集\)还是流输入\(DataStream\)，在这两个接口中指定的查询都具有相同的语义并指定相同的结果。
 
