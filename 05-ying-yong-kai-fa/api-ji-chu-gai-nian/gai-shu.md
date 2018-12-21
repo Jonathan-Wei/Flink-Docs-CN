@@ -1,6 +1,26 @@
-# 概述
+# Scala API拓展
+
+为了在Scala和Java API之间保持相当大的一致性，在批处理和流式传输的标准API中省略了一些允许Scala具有高级表达能力的功能。
+
+如果您想_享受完整的Scala体验_，可以选择选择加入通过隐式转换增强Scala API的扩展。
+
+要使用所有可用的扩展，您只需`import`为DataSet API 添加一个简单的扩展
+
+```text
+import org.apache.flink.api.scala.extensions._
+```
+
+或DataStream API
+
+```text
+import org.apache.flink.streaming.api.scala.extensions._
+```
+
+或者，您可以导入单独的扩展a-la-carte来只使用您喜欢的扩展。
 
 ## 接受部分功能
+
+通常，DataSet和DataStream API都不接受匿名模式匹配函数来解构元组，案例类或集合，如下所示：
 
 ```scala
 val data: DataSet[(Int, String, Double)] = // [...]
@@ -10,6 +30,8 @@ data.map {
   // "The argument types of an anonymous function must be fully known. (SLS 8.5)"
 }
 ```
+
+此扩展在DataSet和DataStream Scala API中引入了新方法，这些方法在扩展API中具有一对一的对应关系。这些委托方法确实支持匿名模式匹配功能。
 
 ### **DataSet API**
 
@@ -355,13 +377,21 @@ data.map {
       </td>
     </tr>
   </tbody>
-</table>```java
+</table>有关每种方法的语义的更多信息，请参阅 [DataSet](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/batch/index.html)和[DataStream](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/datastream_api.html) API文档。
+
+要完全使用此扩展，您可以添加以下`import`：
+
+```java
 import org.apache.flink.api.scala.extensions.acceptPartialFunctions
 ```
+
+对于DataSet扩展和
 
 ```java
 import org.apache.flink.streaming.api.scala.extensions.acceptPartialFunctions
 ```
+
+以下代码段显示了如何一起使用这些扩展方法的最小示例（使用DataSet API）：
 
 ```scala
 object Main {

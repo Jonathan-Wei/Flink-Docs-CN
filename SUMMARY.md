@@ -25,7 +25,7 @@
     * [Java项目模版](05-ying-yong-kai-fa/00-xiang-mu-gou-jian-pei-zhi/java-xiang-mu-mo-ban.md)
     * [配置Dependencies, Connectors, Libraries](05-ying-yong-kai-fa/00-xiang-mu-gou-jian-pei-zhi/pei-zhi-dependencies-connectors-libraries.md)
   * [API基础概念](05-ying-yong-kai-fa/api-ji-chu-gai-nian/README.md)
-    * [概述](05-ying-yong-kai-fa/api-ji-chu-gai-nian/gai-shu.md)
+    * [Scala API拓展](05-ying-yong-kai-fa/api-ji-chu-gai-nian/gai-shu.md)
   * [Streaming\(DataStream API\)](05-ying-yong-kai-fa/streaming-datastream-api.md)
   * [Batch\(DataSet API\)](05-ying-yong-kai-fa/batch-dataset-api.md)
   * [Table API & SQL](05-ying-yong-kai-fa/04-table-api-and-sql/README.md)
