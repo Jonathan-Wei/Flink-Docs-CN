@@ -12,7 +12,9 @@ Flink附带以下默认属性文件：
 * `log4j-yarn-session.properties`：启动YARN会话时由Flink命令行客户端使用（`yarn-session.sh`）
 * `log4j.properties`：JobManager / Taskmanager日志（独立和YARN）
 
-## 配置回溯
+## 配置logback
+
+对于用户和开发人员来说，控制日志框架非常重要。日志记录框架的配置仅由配置文件完成。配置文件必须通过设置环境属性-Dlogback.configurationFile=或通过将logback.xml放入类路径来指定。conf目录包含一个logback.xml文件，该文件可以被修改，如果Flink是在IDE之外启动的，并且带有提供的启动脚本，则使用该文件。提供的logback.xml具有以下形式：
 
 ```markup
 <configuration>
@@ -29,6 +31,8 @@ Flink附带以下默认属性文件：
     </root>
 </configuration>
 ```
+
+例如，为了控制org.apache.flink.runtime.job..JobGraph的日志记录级别，必须向配置文件添加以下行。
 
 ```text
 <logger name="org.apache.flink.runtime.jobgraph.JobGraph" level="DEBUG"/>
