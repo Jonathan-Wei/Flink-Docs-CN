@@ -133,7 +133,45 @@ DataStream<Tuple3<Tuple2<Integer, Float>,String,Long>> ds;
 
 指定keyBy\(0\)将导致系统使用完整的Tuple2作为键\(以整数和浮点数作为键\)。如果您想“导航”到嵌套的Tuple2中，您必须使用下面解释的字段表达式键。
 
-### 使用Field Expressions定义键
+### 使用字段表达式定义键
+
+您可以使用基于字符串的字段表达式来引用嵌套字段，并定义用于分组，排序，连接或coGrouping的键。
+
+字段表达式可以非常轻松地选择（嵌套）复合类型中的字段，例如Tuple和POJO类型。
+
+{% tabs %}
+{% tab title="Java" %}
+在下面的示例中，我们有一个`WC`POJO，其中包含两个字段“word”和“count”。要按字段分组`word`，我们只需将其名称传递给`keyBy()`函数即可。
+
+```java
+// some ordinary POJO (Plain old Java Object)
+public class WC {
+  public String word;
+  public int count;
+}
+DataStream<WC> words = // [...]
+DataStream<WC> wordCounts = words.keyBy("word").window(/*window specification*/);
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+在下面的示例中，我们有一个`WC`POJO，其中包含两个字段“word”和“count”。要按字段分组`word`，我们只需将其名称传递给`keyBy()`函数即可。
+
+```scala
+// some ordinary POJO (Plain old Java Object)
+class WC(var word: String, var count: Int) {
+  def this() { this("", 0L) }
+}
+val words: DataStream[WC] = // [...]
+val wordCounts = words.keyBy("word").window(/*window specification*/)
+
+// or, as a case class, which is less typing
+case class WC(word: String, count: Int)
+val words: DataStream[WC] = // [...]
+val wordCounts = words.keyBy("word").window(/*window specification*/)
+```
+{% endtab %}
+{% endtabs %}
 
 
 
