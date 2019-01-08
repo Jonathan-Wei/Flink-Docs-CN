@@ -145,7 +145,7 @@
   * [Source构建Flink](flink-development/source-gou-jian-flink.md)
 * [技术内幕](ji-shu-nei-mu/README.md)
   * [组件栈](ji-shu-nei-mu/zu-jian-dui-zhan.md)
-  * [数据流的容错](ji-shu-nei-mu/shu-ju-liu-de-rong-cuo.md)
+  * [数据流容错](ji-shu-nei-mu/shu-ju-liu-de-rong-cuo.md)
   * [任务和调度](ji-shu-nei-mu/gong-zuo-he-tiao-du.md)
   * [Task生命周期](ji-shu-nei-mu/ren-wu-sheng-ming-zhou-qi.md)
   * [文件系统](ji-shu-nei-mu/wen-jian-xi-tong.md)
