@@ -47,7 +47,7 @@
       * [概述](05-ying-yong-kai-fa/streaming-datastream-api/operators/gai-shu-1.md)
       * [Windows](05-ying-yong-kai-fa/streaming-datastream-api/operators/windows.md)
       * [Joining](05-ying-yong-kai-fa/streaming-datastream-api/operators/joining.md)
-      * [处理函数](05-ying-yong-kai-fa/streaming-datastream-api/operators/chu-li-han-shu.md)
+      * [处理函数\(低级操作\)](05-ying-yong-kai-fa/streaming-datastream-api/operators/chu-li-han-shu.md)
       * [异步I/O](05-ying-yong-kai-fa/streaming-datastream-api/operators/yi-bu-io.md)
     * [Connectors](05-ying-yong-kai-fa/streaming-datastream-api/connectors/README.md)
       * [概述](05-ying-yong-kai-fa/streaming-datastream-api/connectors/gai-shu-1.md)
