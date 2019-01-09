@@ -56,7 +56,7 @@
       * [Cassandra](05-ying-yong-kai-fa/streaming-datastream-api/connectors/cassandra.md)
       * [Kinesis](05-ying-yong-kai-fa/streaming-datastream-api/connectors/kinesis.md)
       * [Elasticsearch](05-ying-yong-kai-fa/streaming-datastream-api/connectors/elasticsearch.md)
-      * [滚动文件Sink](05-ying-yong-kai-fa/streaming-datastream-api/connectors/gun-dong-wen-jian-sink.md)
+      * [HDFS](05-ying-yong-kai-fa/streaming-datastream-api/connectors/gun-dong-wen-jian-sink.md)
       * [流文件Sink](05-ying-yong-kai-fa/streaming-datastream-api/connectors/liu-wen-jian-sink.md)
       * [RabbitMQ](05-ying-yong-kai-fa/streaming-datastream-api/connectors/rabbitmq.md)
       * [NiFi](05-ying-yong-kai-fa/streaming-datastream-api/connectors/nifi.md)
