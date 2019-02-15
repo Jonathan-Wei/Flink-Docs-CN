@@ -659,9 +659,15 @@ val dsTuple: DataSet[(String, Int)] = tableEnv.toDataSet[(String, Int)](table)
 
 ### 将数据类型映射到Table Schema
 
+Flink的DataStream和DataSet api支持非常不同的类型。复合类型，如元组\(内置Scala和Flink Java元组\)、pojo、Scala case类和Flink的Row类型，允许嵌套的数据结构具有多个字段，可以在Table表达式中访问这些字段。其他类型被视为原子类型。下面，我们将描述Table API如何将这些类型转换为内部行表示，并展示将DataStream转换为Table的示例。
+
 数据类型到Table Schema的映射可以以两种方式发生：**基于字段位置**或**基于字段名称**。
 
-**基于位置的映射**
+#### **基于位置的映射**
+
+基于位置的映射可用于在保持字段顺序的同时为字段指定更有意义的名称。此映射可用于具有已定义字段顺序的组合数据类型以及原子类型。`Tuple`、`Row`和`Case Class`等复合数据类型具有这样的字段顺序。但是，必须根据字段名映射POJO的字段\(参见下一节\)。
+
+在定义基于位置的映射时，输入数据类型中必须不存在指定的名称，否则API将假定映射应该基于字段名称进行。如果没有指定字段名，则使用组合类型的默认字段名和字段顺序，或者原子类型使用f0。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -695,7 +701,11 @@ val table: Table = tableEnv.fromDataStream(stream, 'myLong 'myInt)
 {% endtab %}
 {% endtabs %}
 
-**基于名称的映射**
+#### **基于名称的映射**
+
+基于名称的映射可以用于任何数据类型，包括**POJO**。这是定义表模式映射最灵活的方法。映射中的所有字段都由name引用，可以使用别名as重命名。字段可以重新排序并投影。
+
+如果没有指定字段名，则使用组合类型的默认字段名和字段顺序，或者原子类型使用f0。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -743,6 +753,8 @@ val table: Table = tableEnv.fromDataStream(stream, '_2 as 'myInt, '_1 as 'myLong
 
 #### **Atomic Types**
 
+Flink将原语\(**Integer**、**Double**、**String**\)或泛型类型\(无法分析和分解的类型\)视为原子类型。原子类型的DataStream或数据集转换为具有单个属性的表。属性的类型是从原子类型推断出来的，可以指定属性的名称。
+
 {% tabs %}
 {% tab title="Java" %}
 ```java
@@ -775,6 +787,8 @@ val table: Table = tableEnv.fromDataStream(stream, 'myLong)
 {% endtabs %}
 
 #### **Tuple（Scala和Java）和Case  Class（仅限Scala）**
+
+Flink支持Scala的内置元组，并为Java提供自己的元组类。两种元组的DataStream和DataSet都可以转换为表。可以通过为所有字段提供名称（基于位置的映射）来重命名字段。如果未指定字段名称，则使用默认字段名称。如果原始字段名（`f0`，`f1`，...为Flink元组和`_1`，`_2`..Scala元组）被引用时，API假设映射，而不是基于位置的基于域名的。基于名称的映射允许使用别名（`as`）重新排序字段和投影。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -841,6 +855,10 @@ val table: Table = tableEnv.fromDataStream(stream, 'age as 'myAge, 'name as 'myN
 
 #### **POJO（Java和Scala）**
 
+Flink支持POJO作为复合类型。[这里](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/api_concepts.html#pojos)记录了决定POJO的规则。
+
+在不指定字段名的情况下将`POJO DataStream`或`DataSet`转换为`Table`时，将使用原始POJO字段的名称。名称映射需要原始名称，不能按位置进行。字段可以使用别名\(使用as关键字\)重命名、重新排序和投影。
+
 {% tabs %}
 {% tab title="Java" %}
 ```java
@@ -888,6 +906,8 @@ val table: Table = tableEnv.fromDataStream(stream, 'name as 'myName)
 {% endtabs %}
 
 #### **Row**
+
+Row数据类型支持任意数量的字段和空值字段。字段名可以通过`RowTypeInfo`指定，也可以在将`Row DataStream`或`DataSet`转换为`Table`时指定。Row类型支持按位置和名称映射字段。可以通过为所有字段\(基于位置的映射\)提供名称来重命名字段，或者为投影/排序/重命名\(基于名称的映射\)单独选择字段。
 
 {% tabs %}
 {% tab title="Java" %}

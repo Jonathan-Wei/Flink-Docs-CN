@@ -16,7 +16,9 @@ Flink提供特殊的Kafka连接器，用于从/向Kafka Topic读取和写入数�
 </dependency>
 ```
 
+{% hint style="info" %}
 请注意，流连接器目前不是二进制发行版的一部分。在[这里](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/linking.html)查看如何与之关联以进行集群执行。
+{% endhint %}
 
 ## 安装Apache Kafka
 
