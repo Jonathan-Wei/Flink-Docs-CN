@@ -448,9 +448,78 @@ Table API和SQL查询可以轻松混合，因为它们都返回`Table`对象：
 * 可以在`Table`SQL查询返回的对象上定义Table API 查询。
 * 通过在TableEnvironment中[注册结果表](https://ci.apache.org/projects/flink/flink-docs-master/dev/table/common.html#register-a-table)并在SQL查询的FROM子句中引用它，可以在表API查询的结果上定义SQL查询。
 
-## Emit一张表
+## 发出一张表
+
+`Table`由`TableSink`写入发出。 `TableSink`是支持各种文件格式（例如CSV，Apache Parquet，Apache Avro），存储系统（例如，JDBC，Apache HBase，Apache Cassandra，Elasticsearch）或消息传递系统（例如，Apache Kafka，RabbitMQ）的通用接口。
+
+批处理`Table`只能`BatchTableSink`写入，而流式处理`Table`需要`AppendStreamTableSink`，`RetractStreamTableSink`或`UpsertStreamTableSink`。
+
+有关可用的Sink的详细信息和如何实现自定义Sink的说明，请参阅有关[Table Source和Sink](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/sourceSinks.html)的文档。
+
+ `Table.insertInto(String tableName)` 方法将表发送到已注册的 `TableSink`。方法按名称从目录中查找 `TableSink`，并验证表的架构是否与 `TableSink`的架构相同。
+
+以下示例展示如何发出`Table`：
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+// get a StreamTableEnvironment, works for BatchTableEnvironment equivalently
+StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
+
+// create a TableSink
+TableSink sink = new CsvTableSink("/path/to/file", fieldDelim = "|");
+
+// register the TableSink with a specific schema
+String[] fieldNames = {"a", "b", "c"};
+TypeInformation[] fieldTypes = {Types.INT, Types.STRING, Types.LONG};
+tableEnv.registerTableSink("CsvSinkTable", fieldNames, fieldTypes, sink);
+
+// compute a result Table using Table API operators and/or SQL queries
+Table result = ...
+// emit the result Table to the registered TableSink
+result.insertInto("CsvSinkTable");
+
+// execute the program
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+// get a TableEnvironment
+val tableEnv = TableEnvironment.getTableEnvironment(env)
+
+// create a TableSink
+val sink: TableSink = new CsvTableSink("/path/to/file", fieldDelim = "|")
+
+// register the TableSink with a specific schema
+val fieldNames: Array[String] = Array("a", "b", "c")
+val fieldTypes: Array[TypeInformation] = Array(Types.INT, Types.STRING, Types.LONG)
+tableEnv.registerTableSink("CsvSinkTable", fieldNames, fieldTypes, sink)
+
+// compute a result Table using Table API operators and/or SQL queries
+val result: Table = ...
+
+// emit the result Table to the registered TableSink
+result.insertInto("CsvSinkTable")
+
+// execute the program
+```
+{% endtab %}
+{% endtabs %}
 
 ## 转换并执行查询
+
+表API和SQL查询将转换为[DataStream](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/datastream_api.html)或[DataSet](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/batch)程序，具体取决于它们的输入是流式还是批量输入。查询在内部表示为逻辑查询计划，并分为两个阶段：
+
+1. 优化逻辑计划，
+2. 转换为DataStream或DataSet程序。
+
+在以下情况下转换Table API或SQL查询：
+
+* Table被发送到TableSink，即，当调用Table.insertInto\(\)时。 
+* 指定一个SQL更新查询，即，当调用`TableEnvironment.sqlUpdate()`时。 Table被转换为DataStream或DataSet\(请参阅[与DataStream和DataSet API集成](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/common.html#integration-with-dataStream-and-dataSet-api)\)。
+
+一旦翻译，Table API或SQL查询像一个普通的数据流中或数据集处理程序，当`StreamExecutionEnvironment.execute()`或者`ExecutionEnvironment.execute()`被执行时调用。
 
 ## 与DataStream和DataSet API集成
 

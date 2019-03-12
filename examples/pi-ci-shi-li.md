@@ -1,16 +1,32 @@
 # 批次示例
 
+以下示例程序展示了Flink的不同应用程序，从简单的字数统计到图形算法。代码示例说明了[Flink的DataSet API的使用](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/batch/index.html)。
+
+可以在Flink源存储库的[flink-examples-batch](https://github.com/apache/flink/blob/master/flink-examples/flink-examples-batch)模块中找到以下和更多示例的完整源代码。
+
 ## 运行一个示例
 
+为了运行Flink示例，我们假设您有一个正在运行的Flink实例。导航中的“快速入门”和“设置”选项卡描述了启动Flink的各种方法。
 
+最简单的方法是运行`./bin/start-cluster.sh`，默认情况下启动一个带有一个JobManager和一个TaskManager的本地集群。
+
+Flink的每个二进制版本都包含一个`examples`目录，其中包含此页面上每个示例的jar文件。
+
+要运行WordCount示例，请执行以下命令：
 
 ```text
 ./bin/flink run ./examples/batch/WordCount.jar
 ```
 
+其他示例可以以类似的方式启动。
+
+请注意，通过使用内置数据，许多示例在不传递任何参数的情况下运行。要使用实际数据运行WordCount，您必须将路径传递给数据：
+
 ```text
 ./bin/flink run ./examples/batch/WordCount.jar --input /path/to/some/text/data --output /path/to/result
 ```
+
+请注意，非本地文件系统需要模式前缀，例如`hdfs://`。
 
 ## WordCount
 
@@ -71,6 +87,10 @@ counts.writeAsCsv(outputPath, "\n", " ")
 该[WordCount示例](https://github.com/apache/flink/blob/master//flink-examples/flink-examples-batch/src/main/scala/org/apache/flink/examples/scala/wordcount/WordCount.scala)实现上述算法的输入参数：`--input <path> --output <path>`。作为测试数据，任何文本文件都可以。
 
 ## Page Rank
+
+PageRank算法计算链接定义的图中页面的“重要性”，链接从一个页面指向另一个页面。它是一种迭代图算法，即重复应用相同的计算。在每次迭代中，每个页面都将其当前的等级分布到所有相邻的页面上，并将其新等级计算为从相邻页面获得的等级的累加和。PageRank算法是由谷歌搜索引擎推广的，它利用网页的重要性对搜索查询结果进行排序。
+
+在这个简单的示例中，PageRank通过[批量迭代](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/batch/iterations.html)和固定数量的迭代来实现。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -212,7 +232,22 @@ result.writeAsCsv(outputPath, "\n", " ")
 {% endtab %}
 {% endtabs %}
 
+PageRank程序实现了上面的示例。它需要以下参数来运行:`——pages —links —output —numPages —iteration` 。
+
+输入文件是纯文本文件，必须格式如下：
+
+* 页面表示为由新行字符分隔的（长）ID。
+  * 例如，`"1\n2\n12\n42\n63\n"`给出五个页面ID为1,2,12,42和63的页面。
+* 链接表示为页面ID对，由空格字符分隔。链接由换行符分隔：
+  * 例如，`"1 2\n2 12\n1 12\n42 63\n"`给出四个（定向）链接\(1\)- &gt;\(2\),\(2\)- &gt;\(12\),\(1\)- &gt;\(12\)和\(42\)- &gt; \(63\)
+
+对于这个简单的实现，要求每个页面至少有一个传入和一个传出链接\(页面可以指向自己\)。
+
 ## Connected Components
+
+连通分量算法通过将同一连通部分中的所有顶点分配给相同的分量ID来识别一个较大图中的连通部分。与PageRank类似，连通分量是一种迭代算法。在每一步中，每个顶点将其当前的组件ID传播到它的所有邻居。如果一个顶点的组件ID小于它自己的组件ID，那么它接受来自邻居的组件ID。
+
+此实现使用[增量迭代](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/batch/iterations.html):没有更改其组件ID的顶点不参与下一步。这将具备更好的性能，因为后面的迭代通常只处理少数离群点。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -330,4 +365,13 @@ verticesWithComponents.writeAsCsv(outputPath, "\n", " ")
 ```
 {% endtab %}
 {% endtabs %}
+
+ConnectedComponents程序实现了上面的示例。需要以下参数来运行：`--vertices <path> --edges <path> --output <path> --iterations <n>`。
+
+输入文件是纯文本文件，必须格式化如下:
+
+* 顶点表示为ID并用换行符分隔。
+  * 例如，`"1\n2\n12\n42\n63\n"`给出五个顶点\(1\)、\(2\)、\(12\)、\(42\)和\(63\)
+* 边缘表示为顶点ID的对，由空格字符分隔。边线由换行符分隔：
+  * 例如，`"1 2\n2 12\n1 12\n42 63\n"`给出四个（无向）链路\(1\)-\(2\)，\(2\)-\(12\)，\(1\)-\(12\)，和\(42\)-\(63\)
 

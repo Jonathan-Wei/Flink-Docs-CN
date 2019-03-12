@@ -38,9 +38,9 @@ data.map {
 <table>
   <thead>
     <tr>
-      <th style="text-align:left">方法</th>
-      <th style="text-align:left">原型</th>
-      <th style="text-align:left">示例</th>
+      <th style="text-align:left">&#x65B9;&#x6CD5;</th>
+      <th style="text-align:left">&#x539F;&#x578B;</th>
+      <th style="text-align:left">&#x793A;&#x4F8B;</th>
     </tr>
   </thead>
   <tbody>
@@ -52,7 +52,7 @@ data.map {
       <td style="text-align:left">
         <p>data<b>.</b>mapWith <b>{</b>
         </p>
-        <p> <b>case</b> (<b>_</b>, value) <b>=></b> value<b>.</b>toString</p>
+        <p> <b>case</b> (<b>_</b>, value) <b>=&gt;</b> value<b>.</b>toString</p>
         <p><b>}</b>
         </p>
       </td>
@@ -65,7 +65,7 @@ data.map {
       <td style="text-align:left">
         <p>data<b>.</b>mapPartitionWith <b>{</b>
         </p>
-        <p> <b>case</b> head <b>#::</b>  <b>_</b>  <b>=></b> head</p>
+        <p> <b>case</b> head <b>#::</b>  <b>_</b>  <b>=&gt;</b> head</p>
         <p><b>}</b>
         </p>
       </td>
@@ -78,7 +78,7 @@ data.map {
       <td style="text-align:left">
         <p>data<b>.</b>flatMapWith <b>{</b>
         </p>
-        <p> <b>case</b> (<b>_</b>, name, visitTimes) <b>=></b> visitTimes<b>.</b>map(name <b>-></b>  <b>_</b>)</p>
+        <p> <b>case</b> (<b>_</b>, name, visitTimes) <b>=&gt;</b> visitTimes<b>.</b>map(name <b>-&gt;</b>  <b>_</b>)</p>
         <p><b>}</b>
         </p>
       </td>
@@ -91,7 +91,7 @@ data.map {
       <td style="text-align:left">
         <p>data<b>.</b>filterWith <b>{</b>
         </p>
-        <p> <b>case</b>  <b>Train</b>(<b>_</b>, isOnTime) <b>=></b> isOnTime</p>
+        <p> <b>case</b>  <b>Train</b>(<b>_</b>, isOnTime) <b>=&gt;</b> isOnTime</p>
         <p><b>}</b>
         </p>
       </td>
@@ -104,7 +104,7 @@ data.map {
       <td style="text-align:left">
         <p>data<b>.</b>reduceWith <b>{</b>
         </p>
-        <p> <b>case</b> ((<b>_</b>, amount1), (<b>_</b>, amount2)) <b>=></b> amount1 <b>+</b> amount2</p>
+        <p> <b>case</b> ((<b>_</b>, amount1), (<b>_</b>, amount2)) <b>=&gt;</b> amount1 <b>+</b> amount2</p>
         <p><b>}</b>
         </p>
       </td>
@@ -117,7 +117,7 @@ data.map {
       <td style="text-align:left">
         <p>data<b>.</b>reduceGroupWith <b>{</b>
         </p>
-        <p> <b>case</b> id <b>#::</b> value <b>#::</b>  <b>_</b>  <b>=></b> id <b>-></b> value</p>
+        <p> <b>case</b> id <b>#::</b> value <b>#::</b>  <b>_</b>  <b>=&gt;</b> id <b>-&gt;</b> value</p>
         <p><b>}</b>
         </p>
       </td>
@@ -130,7 +130,7 @@ data.map {
       <td style="text-align:left">
         <p>data<b>.</b>groupingBy <b>{</b>
         </p>
-        <p> <b>case</b> (id, <b>_</b>, <b>_</b>) <b>=></b> id</p>
+        <p> <b>case</b> (id, <b>_</b>, <b>_</b>) <b>=&gt;</b> id</p>
         <p><b>}</b>
         </p>
       </td>
@@ -143,7 +143,7 @@ data.map {
       <td style="text-align:left">
         <p>grouped<b>.</b>sortGroupWith(<b>Order.ASCENDING</b>) <b>{</b>
         </p>
-        <p> <b>case</b>  <b>House</b>(<b>_</b>, value) <b>=></b> value</p>
+        <p> <b>case</b>  <b>House</b>(<b>_</b>, value) <b>=&gt;</b> value</p>
         <p><b>}</b>
         </p>
       </td>
@@ -156,7 +156,7 @@ data.map {
       <td style="text-align:left">
         <p>grouped<b>.</b>combineGroupWith <b>{</b>
         </p>
-        <p> <b>case</b> header <b>#::</b> amounts <b>=></b> amounts<b>.</b>sum</p>
+        <p> <b>case</b> header <b>#::</b> amounts <b>=&gt;</b> amounts<b>.</b>sum</p>
         <p><b>}</b>
         </p>
       </td>
@@ -169,18 +169,18 @@ data.map {
       <td style="text-align:left">
         <p>data1<b>.</b>join(data2)<b>.</b>
         </p>
-        <p>whereClause(<b>case</b> (pk, <b>_</b>) <b>=></b> pk)<b>.</b>
+        <p>whereClause(<b>case</b> (pk, <b>_</b>) <b>=&gt;</b> pk)<b>.</b>
         </p>
-        <p>isEqualTo(<b>case</b> (<b>_</b>, fk) <b>=></b> fk)<b>.</b>
+        <p>isEqualTo(<b>case</b> (<b>_</b>, fk) <b>=&gt;</b> fk)<b>.</b>
         </p>
         <p>projecting <b>{</b>
         </p>
-        <p> <b>case</b> ((pk, tx), (products, fk)) <b>=></b> tx <b>-></b> products</p>
+        <p> <b>case</b> ((pk, tx), (products, fk)) <b>=&gt;</b> tx <b>-&gt;</b> products</p>
         <p> <b>}</b>
         </p>
         <p>data1<b>.</b>cross(data2)<b>.</b>projecting <b>{</b>
         </p>
-        <p> <b>case</b> ((a, <b>_</b>), (<b>_</b>, b) <b>=></b> a <b>-></b> b</p>
+        <p> <b>case</b> ((a, <b>_</b>), (<b>_</b>, b) <b>=&gt;</b> a <b>-&gt;</b> b</p>
         <p><b>}</b>
         </p>
       </td>
@@ -193,13 +193,13 @@ data.map {
       <td style="text-align:left">
         <p>data1<b>.</b>coGroup(data2)<b>.</b>
         </p>
-        <p>whereClause(<b>case</b> (pk, <b>_</b>) <b>=></b> pk)<b>.</b>
+        <p>whereClause(<b>case</b> (pk, <b>_</b>) <b>=&gt;</b> pk)<b>.</b>
         </p>
-        <p>isEqualTo(<b>case</b> (<b>_</b>, fk) <b>=></b> fk)<b>.</b>
+        <p>isEqualTo(<b>case</b> (<b>_</b>, fk) <b>=&gt;</b> fk)<b>.</b>
         </p>
         <p>projecting <b>{</b>
         </p>
-        <p> <b>case</b> (head1 <b>#::</b>  <b>_</b>, head2 <b>#::</b>  <b>_</b>) <b>=></b> head1 <b>-></b> head2</p>
+        <p> <b>case</b> (head1 <b>#::</b>  <b>_</b>, head2 <b>#::</b>  <b>_</b>) <b>=&gt;</b> head1 <b>-&gt;</b> head2</p>
         <p> <b>}</b>
         </p>
         <p><b>}</b>
@@ -212,9 +212,9 @@ data.map {
 <table>
   <thead>
     <tr>
-      <th style="text-align:left">方法</th>
-      <th style="text-align:left">原型</th>
-      <th style="text-align:left">示例</th>
+      <th style="text-align:left">&#x65B9;&#x6CD5;</th>
+      <th style="text-align:left">&#x539F;&#x578B;</th>
+      <th style="text-align:left">&#x793A;&#x4F8B;</th>
     </tr>
   </thead>
   <tbody>
@@ -226,7 +226,7 @@ data.map {
       <td style="text-align:left">
         <p>data<b>.</b>mapWith <b>{</b>
         </p>
-        <p> <b>case</b> (<b>_</b>, value) <b>=></b> value<b>.</b>toString</p>
+        <p> <b>case</b> (<b>_</b>, value) <b>=&gt;</b> value<b>.</b>toString</p>
         <p><b>}</b>
         </p>
       </td>
@@ -239,7 +239,7 @@ data.map {
       <td style="text-align:left">
         <p>data<b>.</b>mapPartitionWith <b>{</b>
         </p>
-        <p> <b>case</b> head <b>#::</b>  <b>_</b>  <b>=></b> head</p>
+        <p> <b>case</b> head <b>#::</b>  <b>_</b>  <b>=&gt;</b> head</p>
         <p><b>}</b>
         </p>
       </td>
@@ -252,7 +252,7 @@ data.map {
       <td style="text-align:left">
         <p>data<b>.</b>flatMapWith <b>{</b>
         </p>
-        <p> <b>case</b> (<b>_</b>, name, visits) <b>=></b> visits<b>.</b>map(name <b>-></b>  <b>_</b>)</p>
+        <p> <b>case</b> (<b>_</b>, name, visits) <b>=&gt;</b> visits<b>.</b>map(name <b>-&gt;</b>  <b>_</b>)</p>
         <p><b>}</b>
         </p>
       </td>
@@ -265,7 +265,7 @@ data.map {
       <td style="text-align:left">
         <p>data<b>.</b>filterWith <b>{</b>
         </p>
-        <p> <b>case</b>  <b>Train</b>(<b>_</b>, isOnTime) <b>=></b> isOnTime</p>
+        <p> <b>case</b>  <b>Train</b>(<b>_</b>, isOnTime) <b>=&gt;</b> isOnTime</p>
         <p><b>}</b>
         </p>
       </td>
@@ -278,7 +278,7 @@ data.map {
       <td style="text-align:left">
         <p>data<b>.</b>keyingBy <b>{</b>
         </p>
-        <p> <b>case</b> (id, <b>_</b>, <b>_</b>) <b>=></b> id</p>
+        <p> <b>case</b> (id, <b>_</b>, <b>_</b>) <b>=&gt;</b> id</p>
         <p><b>}</b>
         </p>
       </td>
@@ -290,8 +290,8 @@ data.map {
       </td>
       <td style="text-align:left">
         <p>data<b>.</b>mapWith(</p>
-        <p>map1 <b>=</b>  <b>case</b> (<b>_</b>, value) <b>=></b> value<b>.</b>toString,</p>
-        <p>map2 <b>=</b>  <b>case</b> (<b>_</b>, <b>_</b>, value, <b>_</b>) <b>=></b> value <b>+</b> 1</p>
+        <p>map1 <b>=</b>  <b>case</b> (<b>_</b>, value) <b>=&gt;</b> value<b>.</b>toString,</p>
+        <p>map2 <b>=</b>  <b>case</b> (<b>_</b>, <b>_</b>, value, <b>_</b>) <b>=&gt;</b> value <b>+</b> 1</p>
         <p>)</p>
       </td>
     </tr>
@@ -302,8 +302,8 @@ data.map {
       </td>
       <td style="text-align:left">
         <p>data<b>.</b>flatMapWith(</p>
-        <p>flatMap1 <b>=</b>  <b>case</b> (<b>_</b>, json) <b>=></b> parse(json),</p>
-        <p>flatMap2 <b>=</b>  <b>case</b> (<b>_</b>, <b>_</b>, json, <b>_</b>) <b>=></b> parse(json)</p>
+        <p>flatMap1 <b>=</b>  <b>case</b> (<b>_</b>, json) <b>=&gt;</b> parse(json),</p>
+        <p>flatMap2 <b>=</b>  <b>case</b> (<b>_</b>, <b>_</b>, json, <b>_</b>) <b>=&gt;</b> parse(json)</p>
         <p>)</p>
       </td>
     </tr>
@@ -314,8 +314,8 @@ data.map {
       </td>
       <td style="text-align:left">
         <p>data<b>.</b>keyingBy(</p>
-        <p>key1 <b>=</b>  <b>case</b> (<b>_</b>, timestamp) <b>=></b> timestamp,</p>
-        <p>key2 <b>=</b>  <b>case</b> (id, <b>_</b>, <b>_</b>) <b>=></b> id</p>
+        <p>key1 <b>=</b>  <b>case</b> (<b>_</b>, timestamp) <b>=&gt;</b> timestamp,</p>
+        <p>key2 <b>=</b>  <b>case</b> (id, <b>_</b>, <b>_</b>) <b>=&gt;</b> id</p>
         <p>)</p>
       </td>
     </tr>
@@ -327,7 +327,7 @@ data.map {
       <td style="text-align:left">
         <p>data<b>.</b>reduceWith <b>{</b>
         </p>
-        <p> <b>case</b> ((<b>_</b>, sum1), (<b>_</b>, sum2) <b>=></b> sum1 <b>+</b> sum2</p>
+        <p> <b>case</b> ((<b>_</b>, sum1), (<b>_</b>, sum2) <b>=&gt;</b> sum1 <b>+</b> sum2</p>
         <p><b>}</b>
         </p>
       </td>
@@ -340,7 +340,7 @@ data.map {
       <td style="text-align:left">
         <p>data<b>.</b>foldWith(<b>User</b>(bought <b>=</b> 0)) <b>{</b>
         </p>
-        <p> <b>case</b> (<b>User</b>(b), (<b>_</b>, items)) <b>=></b>  <b>User</b>(b <b>+</b> items<b>.</b>size)</p>
+        <p> <b>case</b> (<b>User</b>(b), (<b>_</b>, items)) <b>=&gt;</b>  <b>User</b>(b <b>+</b> items<b>.</b>size)</p>
         <p><b>}</b>
         </p>
       </td>
@@ -352,8 +352,8 @@ data.map {
       </td>
       <td style="text-align:left">
         <p>data<b>.</b>applyWith(0)(</p>
-        <p>foldFunction <b>=</b>  <b>case</b> (sum, amount) <b>=></b> sum <b>+</b> amount</p>
-        <p>windowFunction <b>=</b>  <b>case</b> (k, w, sum) <b>=></b> // [...]</p>
+        <p>foldFunction <b>=</b>  <b>case</b> (sum, amount) <b>=&gt;</b> sum <b>+</b> amount</p>
+        <p>windowFunction <b>=</b>  <b>case</b> (k, w, sum) <b>=&gt;</b> // [...]</p>
         <p>)</p>
       </td>
     </tr>
@@ -365,13 +365,13 @@ data.map {
       <td style="text-align:left">
         <p>data1<b>.</b>join(data2)<b>.</b>
         </p>
-        <p>whereClause(<b>case</b> (pk, <b>_</b>) <b>=></b> pk)<b>.</b>
+        <p>whereClause(<b>case</b> (pk, <b>_</b>) <b>=&gt;</b> pk)<b>.</b>
         </p>
-        <p>isEqualTo(<b>case</b> (<b>_</b>, fk) <b>=></b> fk)<b>.</b>
+        <p>isEqualTo(<b>case</b> (<b>_</b>, fk) <b>=&gt;</b> fk)<b>.</b>
         </p>
         <p>projecting <b>{</b>
         </p>
-        <p> <b>case</b> ((pk, tx), (products, fk)) <b>=></b> tx <b>-></b> products</p>
+        <p> <b>case</b> ((pk, tx), (products, fk)) <b>=&gt;</b> tx <b>-&gt;</b> products</p>
         <p> <b>}</b>
         </p>
       </td>

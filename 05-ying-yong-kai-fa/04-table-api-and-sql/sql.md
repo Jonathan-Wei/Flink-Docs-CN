@@ -1,5 +1,13 @@
 # SQL
 
+使用`TableEnvironment`的`sqlQuery()`方法指定SQL查询。该方法以表的形式返回SQL查询的结果。表可以用于后续的[SQL和表API查询](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/common.html#mixing-table-api-and-sql)，可以[转换为`DataSet`或`DataStream`](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/common.html#integration-with-datastream-and-dataset-api)，也可以写入[TableSink](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/common.html#emit-a-table)\)。可以无缝地混合SQL和Table API查询，并对其进行整体优化，并将其转换为单个程序。
+
+为了访问SQL查询中的表，必须在`TableEnvironment`中注册表。可以从[TableSource](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/common.html#register-a-tablesource), [Table](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/common.html#register-a-table), [DataStream, 或 DataSet](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/common.html#register-a-datastream-or-dataset-as-table).注册表。另外，用户还可以在`TableEnvironment`中注册外部目录，以指定数据源的位置。
+
+为了方便起见，`Table.toString()`在`TableEnvironment`中以惟一的名称自动注册表并返回该名称。因此，表对象可以直接内联到SQL查询中\(通过字符串连接\)，如下面的示例所示。
+
+**注意**:Flink的SQL支持还不够完善。包含不受支持的SQL特性的查询会导致`TableException`。下面几节列出了批处理表和流表上的SQL支持的特性。
+
 ## 指定查询
 
 下面的示例展示如何在注册表和内联表上指定SQL查询。
@@ -200,6 +208,18 @@ patternQuantifier:
   |   '{' repeat '}'
 ```
 
+Flink SQL对标识符\(表、属性、函数名\)使用类似于Java的词汇策略:
+
+无论是否引用标识符，都会保留标识符的大小写。
+
+* 之后，标识符区分大小写。
+* 与Java不同，反向标记允许标识符包含非字母数字字符（例如``"SELECT a AS `my field` FROM t"``）。
+
+字符串文字必须用单引号括起来\(例如，选择“Hello World”\)。复制一个转义单引号\(例如，选择'It' s me.'\)。字符串文本支持Unicode字符。如果需要显式unicode代码点，请使用以下语法:
+
+* 使用反斜杠\(\\)作为转义字符\(默认\):`SELECT U&'\263A'`
+* 使用自定义转义字符:`SELECT U&'#263A' UESCAPE '#'`
+
 ## 操作
 
 ### ​扫描，投影，过滤\(Scan, Projection, and Filter\)
@@ -207,14 +227,14 @@ patternQuantifier:
 <table>
   <thead>
     <tr>
-      <th style="text-align:left">操作</th>
-      <th style="text-align:left">描述</th>
+      <th style="text-align:left">&#x64CD;&#x4F5C;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align:left"><b>Scan / Select / As</b>
-        <br />Batch、Streaming</td>
+        <br />Batch&#x3001;Streaming</td>
       <td style="text-align:left">
         <p><code>SELECT * FROM Orders</code>
         </p>
@@ -224,7 +244,7 @@ patternQuantifier:
     </tr>
     <tr>
       <td style="text-align:left"><b>Where / Filter</b>
-        <br />Batch、Streaming</td>
+        <br />Batch&#x3001;Streaming</td>
       <td style="text-align:left">
         <p><code>SELECT * FROM Orders WHERE b = &apos;red&apos;</code>
         </p>
@@ -234,9 +254,11 @@ patternQuantifier:
     </tr>
     <tr>
       <td style="text-align:left"><b>User-defined Scalar Functions (Scalar UDF)</b>
-        <br />Batch、Streaming</td>
+        <br />Batch&#x3001;Streaming</td>
       <td style="text-align:left">
-        <p>UDF必须在TableEnvironment中注册。有关如何指定和注册标量UDF的详细信息，请参阅<a href="https://ci.apache.org/projects/flink/flink-docs-master/dev/table/udfs.html">UDF</a>文档。</p>
+        <p>UDF&#x5FC5;&#x987B;&#x5728;TableEnvironment&#x4E2D;&#x6CE8;&#x518C;&#x3002;&#x6709;&#x5173;&#x5982;&#x4F55;&#x6307;&#x5B9A;&#x548C;&#x6CE8;&#x518C;&#x6807;&#x91CF;UDF&#x7684;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;&#x53C2;&#x9605;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-master/dev/table/udfs.html">UDF</a>&#x6587;&#x6863;&#x3002;</p>
         <p><code>SELECT PRETTY_PRINT(user)FROM Orders</code>
         </p>
       </td>
@@ -247,17 +269,19 @@ patternQuantifier:
 <table>
   <thead>
     <tr>
-      <th style="text-align:left">操作</th>
-      <th style="text-align:left">描述</th>
+      <th style="text-align:left">&#x64CD;&#x4F5C;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align:left"><b>GroupBy Aggregation</b>
-        <br />Batch、Streaming、
+        <br />Batch&#x3001;Streaming&#x3001;
         <br />Result Updating</td>
       <td style="text-align:left">
-        <p>注意：流表上的GroupBy会生成更新结果。有关详细信息，请参阅<a href="https://ci.apache.org/projects/flink/flink-docs-master/dev/table/streaming/dynamic_tables.html">Dynamic Tables Streaming Concepts</a>页面。</p>
+        <p>&#x6CE8;&#x610F;&#xFF1A;&#x6D41;&#x8868;&#x4E0A;&#x7684;GroupBy&#x4F1A;&#x751F;&#x6210;&#x66F4;&#x65B0;&#x7ED3;&#x679C;&#x3002;&#x6709;&#x5173;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;&#x53C2;&#x9605;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-master/dev/table/streaming/dynamic_tables.html">Dynamic Tables Streaming Concepts</a>&#x9875;&#x9762;&#x3002;</p>
         <p><code>SELECT a, SUM(b) as d </code>
         </p>
         <p><code>FROM Orders </code>
@@ -270,7 +294,7 @@ patternQuantifier:
       <td style="text-align:left"><b>GroupBy Window Aggregation</b>
         <br />Batch Streaming</td>
       <td style="text-align:left">
-        <p>使用组窗口计算每个组的单个结果行。有关详细信息，请参阅组窗口部分。</p>
+        <p>&#x4F7F;&#x7528;&#x7EC4;&#x7A97;&#x53E3;&#x8BA1;&#x7B97;&#x6BCF;&#x4E2A;&#x7EC4;&#x7684;&#x5355;&#x4E2A;&#x7ED3;&#x679C;&#x884C;&#x3002;&#x6709;&#x5173;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;&#x53C2;&#x9605;&#x7EC4;&#x7A97;&#x53E3;&#x90E8;&#x5206;&#x3002;</p>
         <p><code>SELECT user, SUM(amount) </code>
         </p>
         <p><code>FROM Orders </code>
@@ -283,8 +307,9 @@ patternQuantifier:
       <td style="text-align:left"><b>Over Window aggregation</b>
         <br />Streaming</td>
       <td style="text-align:left">
-        <p><b>注意</b>：必须在同一窗口中定义所有聚合，即相同的分区，排序和范围。目前，仅支持具有PRREDING（UNBOUNDED和有界）到CURRENT
-          ROW范围的窗口。尚不支持使用FOLLOWING的范围。必须在单个时间属性上指定ORDER BY</p>
+        <p><b>&#x6CE8;&#x610F;</b>&#xFF1A;&#x5FC5;&#x987B;&#x5728;&#x540C;&#x4E00;&#x7A97;&#x53E3;&#x4E2D;&#x5B9A;&#x4E49;&#x6240;&#x6709;&#x805A;&#x5408;&#xFF0C;&#x5373;&#x76F8;&#x540C;&#x7684;&#x5206;&#x533A;&#xFF0C;&#x6392;&#x5E8F;&#x548C;&#x8303;&#x56F4;&#x3002;&#x76EE;&#x524D;&#xFF0C;&#x4EC5;&#x652F;&#x6301;&#x5177;&#x6709;PRREDING&#xFF08;UNBOUNDED&#x548C;&#x6709;&#x754C;&#xFF09;&#x5230;CURRENT
+          ROW&#x8303;&#x56F4;&#x7684;&#x7A97;&#x53E3;&#x3002;&#x5C1A;&#x4E0D;&#x652F;&#x6301;&#x4F7F;&#x7528;FOLLOWING&#x7684;&#x8303;&#x56F4;&#x3002;&#x5FC5;&#x987B;&#x5728;&#x5355;&#x4E2A;&#x65F6;&#x95F4;&#x5C5E;&#x6027;&#x4E0A;&#x6307;&#x5B9A;ORDER
+          BY</p>
         <p><code>SELECT COUNT(amount) OVER ( </code>
         </p>
         <p><code>    PARTITION BY user </code>
@@ -317,8 +342,8 @@ patternQuantifier:
 <table>
   <thead>
     <tr>
-      <th style="text-align:left">操作</th>
-      <th style="text-align:left">描述</th>
+      <th style="text-align:left">&#x64CD;&#x4F5C;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
     </tr>
   </thead>
   <tbody>
@@ -326,7 +351,9 @@ patternQuantifier:
       <td style="text-align:left"><b>Order By</b>
         <br />Batch Streaming</td>
       <td style="text-align:left">
-        <p>注意：流式查询的结果必须主要按升序<a href="https://ci.apache.org/projects/flink/flink-docs-master/dev/table/streaming/time_attributes.html">时间属性</a>排序。支持其他排序属性。</p>
+        <p>&#x6CE8;&#x610F;&#xFF1A;&#x6D41;&#x5F0F;&#x67E5;&#x8BE2;&#x7684;&#x7ED3;&#x679C;&#x5FC5;&#x987B;&#x4E3B;&#x8981;&#x6309;&#x5347;&#x5E8F;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-master/dev/table/streaming/time_attributes.html">&#x65F6;&#x95F4;&#x5C5E;&#x6027;</a>&#x6392;&#x5E8F;&#x3002;&#x652F;&#x6301;&#x5176;&#x4ED6;&#x6392;&#x5E8F;&#x5C5E;&#x6027;&#x3002;</p>
         <p><code>SELECT * </code>
         </p>
         <p><code>FROM Orders </code>
@@ -353,8 +380,8 @@ patternQuantifier:
 <table>
   <thead>
     <tr>
-      <th style="text-align:left">操作</th>
-      <th style="text-align:left">描述</th>
+      <th style="text-align:left">&#x64CD;&#x4F5C;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
     </tr>
   </thead>
   <tbody>
@@ -362,9 +389,9 @@ patternQuantifier:
       <td style="text-align:left"><b>Insert Into</b>
         <br />Batch Streaming</td>
       <td style="text-align:left">
-        <p>输出表必须在TableEnvironment中<a href="https://ci.apache.org/projects/flink/flink-docs-master/dev/table/common.html#register-a-tablesink">注册</a>（请参阅
+        <p>&#x8F93;&#x51FA;&#x8868;&#x5FC5;&#x987B;&#x5728;TableEnvironment&#x4E2D;
           <a
-          href="https://ci.apache.org/projects/flink/flink-docs-master/dev/table/common.html#register-a-tablesink">注册TableSink</a>）。此外，已注册表的模式必须与查询的模式匹配。</p>
+          href="https://ci.apache.org/projects/flink/flink-docs-master/dev/table/common.html#register-a-tablesink">&#x6CE8;&#x518C;</a>&#xFF08;&#x8BF7;&#x53C2;&#x9605;<a href="https://ci.apache.org/projects/flink/flink-docs-master/dev/table/common.html#register-a-tablesink">&#x6CE8;&#x518C;TableSink</a>&#xFF09;&#x3002;&#x6B64;&#x5916;&#xFF0C;&#x5DF2;&#x6CE8;&#x518C;&#x8868;&#x7684;&#x6A21;&#x5F0F;&#x5FC5;&#x987B;&#x4E0E;&#x67E5;&#x8BE2;&#x7684;&#x6A21;&#x5F0F;&#x5339;&#x914D;&#x3002;</p>
         <p><code>INSERT INTO OutputTable</code>
         </p>
         <p><code>SELECT users, tag</code>
@@ -376,24 +403,79 @@ patternQuantifier:
   </tbody>
 </table>### 组窗口\(Group Windows\)
 
+组窗口是在SQL查询的`Group BY`子句中定义的。就像使用常规的`GROUP BY`子句查询一样，使用包含`GROUP`窗口函数的`GROUP BY`子句查询可以计算每个组的单个结果行。批处理表和流表上的SQL支持以下组`windows`函数。
+
 | 组窗口函数 | 描述 |
 | :--- | :--- |
-| TUMBLE\(time\_attr, interval\) |  |
-| HOP\(time\_attr, interval, interval\) |  |
-| SESSION\(time\_attr, interval\) |  |
+| TUMBLE\(time\_attr, interval\) | 定义滚动时间窗口。滚动时间窗口将行分配给具有固定持续时间（`interval`）的非重叠连续窗口。例如，5分钟的滚动窗口以5分钟为间隔对行进行分组。可以在事件时间（流+批处理）或处理时间（流）上定义滚动窗口。 |
+| HOP\(time\_attr, interval, interval\) | 定义一个跳跃时间窗口\(在表API中称为滑动窗口\)。一个跳转时间窗口有一个固定的持续时间\(第二个间隔参数\)和一个指定的跳转时间间隔\(第一个间隔参数\)。如果跳转间隔小于窗口大小，则跳转窗口是重叠的。因此，可以将行分配给多个窗口。例如，一个15分钟大小和5分钟跳跃间隔的跳跃窗口将每一行分配给3个15分钟大小的不同窗口，这些窗口在5分钟的间隔内计算。可以在事件时间\(流+批处理\)或处理时间\(流\)上定义跳转窗口。 |
+| SESSION\(time\_attr, interval\) | 定义会话时间窗口。会话时间窗口没有固定的持续时间，但它们的界限由`interval`不活动时间定义，即如果在定义的间隙期间没有出现事件，则会话窗口关闭。例如，在30分钟不活动后观察到一行时，会有一个30分钟间隙的会话窗口（否则该行将被添加到现有窗口中），如果在30分钟内未添加任何行，则会关闭。会话窗口可以在事件时间（流+批处理）或处理时间（流）上工作。 |
 
 #### 时间属性
 
+对于流表上的SQL查询，组窗口函数的`time_attr`参数必须引用一个有效的time属性，该属性指定行的处理时间或事件时间。参见时间属性文档了解如何定义时间属性。
+
+对于批处理表上的SQL，组窗口函数的`time_attr`参数必须是`TIMESTAMP`类型的属性。
+
 #### **选择组窗口开始和结束时间戳**
 
-| **辅助函数** | 描述 |
-| :--- | :--- |
-| `TUMBLE_START(time_attr, interval)` `HOP_START(time_attr, interval, interval)` `SESSION_START(time_attr, interval)` |  |
-| `TUMBLE_END(time_attr, interval)` `HOP_END(time_attr, interval, interval)` `SESSION_END(time_attr, interval)` |  |
-| `TUMBLE_ROWTIME(time_attr, interval)` `HOP_ROWTIME(time_attr, interval, interval)` `SESSION_ROWTIME(time_attr, interval)` |  |
-| `TUMBLE_PROCTIME(time_attr, interval)` `HOP_PROCTIME(time_attr, interval, interval)` `SESSION_PROCTIME(time_attr, interval)` |  |
+组窗口的开始和结束时间戳以及时间属性可以通过以下辅助函数选择:
 
-{% hint style="info" %}
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left"><b>&#x8F85;&#x52A9;&#x51FD;&#x6570;</b>
+      </th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><code>TUMBLE_START(time_attr, interval)</code>
+        <br /><code>HOP_START(time_attr, interval, interval)</code>
+        <br /><code>SESSION_START(time_attr, interval)</code>
+      </td>
+      <td style="text-align:left">&#x8FD4;&#x56DE;&#x76F8;&#x5E94;&#x7684;&#x6EDA;&#x52A8;&#x3001;&#x8DF3;&#x8F6C;&#x6216;&#x4F1A;&#x8BDD;&#x7A97;&#x53E3;&#x7684;&#x5305;&#x542B;&#x4E0B;&#x9650;&#x7684;&#x65F6;&#x95F4;&#x6233;&#x3002;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><code>TUMBLE_END(time_attr, interval)</code>
+        <br /><code>HOP_END(time_attr, interval, interval)</code>
+        <br /><code>SESSION_END(time_attr, interval)</code>
+      </td>
+      <td style="text-align:left">
+        <p>&#x8FD4;&#x56DE;&#x76F8;&#x5E94;&#x7684;&#x6EDA;&#x52A8;&#xFF0C;&#x8DF3;&#x8DC3;&#x6216;&#x4F1A;&#x8BDD;&#x7A97;&#x53E3;&#x7684;&#x72EC;&#x5360;&#x4E0A;&#x9650;&#x7684;&#x65F6;&#x95F4;&#x6233;&#x3002;</p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x72EC;&#x6709;&#x7684;&#x4E0A;&#x9650;&#x65F6;&#x95F4;&#x6233;&#x4E0D;&#x80FD;&#x5728;&#x540E;&#x7EED;&#x57FA;&#x4E8E;&#x65F6;&#x95F4;&#x7684;&#x64CD;&#x4F5C;&#x4E2D;&#x7528;&#x4F5C;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/streaming/time_attributes.html">&#x884C;&#x65F6;&#x5C5E;&#x6027;</a>&#xFF0C;&#x4F8B;&#x5982;<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/sql.html#joins">&#x65F6;&#x95F4;&#x7A97;&#x53E3;&#x8FDE;&#x63A5;</a>&#x548C;
+            <a
+            href="https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/sql.html#aggregations">&#x7EC4;&#x7A97;&#x53E3;&#x6216;&#x7A97;&#x53E3;&#x805A;&#x5408;</a>&#x3002;</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><code>TUMBLE_ROWTIME(time_attr, interval)</code>
+        <br /><code>HOP_ROWTIME(time_attr, interval, interval)</code>
+        <br /><code>SESSION_ROWTIME(time_attr, interval)</code>
+      </td>
+      <td style="text-align:left">
+        <p>&#x8FD4;&#x56DE;&#x76F8;&#x5E94;&#x7684;&#x6EDA;&#x52A8;&#xFF0C;&#x8DF3;&#x8DC3;&#x6216;&#x4F1A;&#x8BDD;&#x7A97;&#x53E3;&#x7684;&#x5305;&#x542B;&#x4E0A;&#x9650;&#x7684;&#x65F6;&#x95F4;&#x6233;&#x3002;</p>
+        <p>&#x7ED3;&#x679C;&#x5C5E;&#x6027;&#x662F;<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/streaming/time_attributes.html">rowtime&#x5C5E;&#x6027;</a>&#xFF0C;&#x53EF;&#x4EE5;&#x5728;&#x540E;&#x7EED;&#x57FA;&#x4E8E;&#x65F6;&#x95F4;&#x7684;&#x64CD;&#x4F5C;&#x4E2D;&#x4F7F;&#x7528;&#xFF0C;&#x4F8B;&#x5982;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/sql.html#joins">&#x65F6;&#x95F4;&#x7A97;&#x53E3;&#x8FDE;&#x63A5;</a>&#x548C;<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/sql.html#aggregations">&#x7EC4;&#x7A97;&#x53E3;&#x6216;&#x7A97;&#x53E3;&#x805A;&#x5408;</a>&#x3002;</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><code>TUMBLE_PROCTIME(time_attr, interval)</code>
+        <br /><code>HOP_PROCTIME(time_attr, interval, interval)</code>
+        <br /><code>SESSION_PROCTIME(time_attr, interval)</code>
+      </td>
+      <td style="text-align:left">&#x8FD4;&#x56DE;<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/streaming/time_attributes.html#processing-time">proctime&#x5C5E;&#x6027;</a>&#xFF0C;&#x8BE5;
+        <a
+        href="https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/streaming/time_attributes.html#processing-time">&#x5C5E;&#x6027;</a>&#x53EF;&#x7528;&#x4E8E;&#x540E;&#x7EED;&#x57FA;&#x4E8E;&#x65F6;&#x95F4;&#x7684;&#x64CD;&#x4F5C;&#xFF0C;&#x4F8B;&#x5982;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/sql.html#joins">&#x65F6;&#x95F4;&#x7A97;&#x53E3;&#x8FDE;&#x63A5;</a>&#x548C;<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/sql.html#aggregations">&#x7EC4;&#x7A97;&#x53E3;&#x6216;&#x7A97;&#x53E3;&#x805A;&#x5408;</a>&#x3002;</td>
+    </tr>
+  </tbody>
+</table>{% hint style="info" %}
 注意:必须使用与group BY子句中的group window函数完全相同的参数调用辅助函数
 {% endhint %}
 
@@ -487,8 +569,8 @@ SQL运行时构建于Flink的DataSet和DataStream API之上。在内部，它还
 <table>
   <thead>
     <tr>
-      <th style="text-align:left">操作</th>
-      <th style="text-align:left">描述</th>
+      <th style="text-align:left">&#x64CD;&#x4F5C;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
     </tr>
   </thead>
   <tbody>
@@ -496,8 +578,10 @@ SQL运行时构建于Flink的DataSet和DataStream API之上。在内部，它还
       <td style="text-align:left"><b>MATCH_RECOGNIZE</b>
         <br />Streaming</td>
       <td style="text-align:left">
-        <p>根据MATCH_RECOGNIZE<a href="https://standards.iso.org/ittf/PubliclyAvailableStandards/c065143_ISO_IEC_TR_19075-5_2016.zip"> ISO标准</a>在流表中搜索给定模式。这使得在SQL查询中表达复杂事件处理（CEP）逻辑成为可能。</p>
-        <p>有关更详细的说明，请参阅<a href="https://ci.apache.org/projects/flink/flink-docs-master/dev/table/streaming/match_recognize.html">检测表中模式</a>的专用页面。</p>
+        <p>&#x6839;&#x636E;MATCH_RECOGNIZE<a href="https://standards.iso.org/ittf/PubliclyAvailableStandards/c065143_ISO_IEC_TR_19075-5_2016.zip"> ISO&#x6807;&#x51C6;</a>&#x5728;&#x6D41;&#x8868;&#x4E2D;&#x641C;&#x7D22;&#x7ED9;&#x5B9A;&#x6A21;&#x5F0F;&#x3002;&#x8FD9;&#x4F7F;&#x5F97;&#x5728;SQL&#x67E5;&#x8BE2;&#x4E2D;&#x8868;&#x8FBE;&#x590D;&#x6742;&#x4E8B;&#x4EF6;&#x5904;&#x7406;&#xFF08;CEP&#xFF09;&#x903B;&#x8F91;&#x6210;&#x4E3A;&#x53EF;&#x80FD;&#x3002;</p>
+        <p>&#x6709;&#x5173;&#x66F4;&#x8BE6;&#x7EC6;&#x7684;&#x8BF4;&#x660E;&#xFF0C;&#x8BF7;&#x53C2;&#x9605;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-master/dev/table/streaming/match_recognize.html">&#x68C0;&#x6D4B;&#x8868;&#x4E2D;&#x6A21;&#x5F0F;</a>&#x7684;&#x4E13;&#x7528;&#x9875;&#x9762;&#x3002;</p>
         <p><code>SELECT T.aid, T.bid, T.cid </code>
         </p>
         <p><code>FROM MyTable </code>
@@ -532,6 +616,8 @@ SQL运行时构建于Flink的DataSet和DataStream API之上。在内部，它还
     </tr>
   </tbody>
 </table>## 数据类型
+
+SQL运行时构建在Flink的DataSet和DataStream API之上。在内部，它还使用Flink的类型信息来定义数据类型。所有支持的类型列在`org.apache.flink.table.api.Types`中。下表总结了SQL类型、表API类型和生成的Java类之间的关系。
 
 | Table API | SQL | Java类型 |
 | :--- | :--- | :--- |
