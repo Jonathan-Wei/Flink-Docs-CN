@@ -4,11 +4,15 @@ Flink公开了一个指标系统，允许收集和公开指标到外部系统。
 
 ## 注册指标
 
+可以通过调用`getRuntimeContext().getMetricGroup()`从任何扩展[`RichFunction`](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/api_concepts.html#rich-functions)的用户函数访问度量系统。 此方法返回`MetricGroup`对象，可以在该对象上创建和注册新指标。
+
 ### 指标类型
 
 Flink支持`Counters`，`Gauges`，`Histograms`和`Meters`。
 
 #### **计数器**
+
+计数器用于计算某些东西。 可以使用`inc()`/ `inc(long n)`或`dec()`/ `dec(long n)`来减小或减小当前值。 可以通过在MetricGroup上调用`counter(String name)`来创建和注册Counter。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -96,7 +100,9 @@ class MyMapper extends RichMapFunction[String,String] {
 {% endtab %}
 {% endtabs %}
 
-#### **计量器**
+#### **计量器\(**Gauge**\)**
+
+`Gauge`根据需要提供任何类型的值。 要使用`Gauge`，必须首先创建一个实现`org.apache.flink.metrics.Gauge`接口的类。 返回值的类型没有限制。 可以通过在`MetricGroup`上调用`gauge(String name，Gauge gauge)`来注册仪表。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -145,7 +151,11 @@ new class MyMapper extends RichMapFunction[String,String] {
 {% endtab %}
 {% endtabs %}
 
+请注意，高爆会将公开的对象转换为String，这意味着需要一个有意义的`toString()`实现。
+
 #### **直方图**
+
+直方图测量长值的分布。 可以通过在`MetricGroup`上调用`histogram(String name, Histogram histogram)`来注册。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -188,6 +198,8 @@ class MyMapper extends RichMapFunction[Long,Long] {
 ```
 {% endtab %}
 {% endtabs %}
+
+Flink没有提供默认实现`Histogram`，但提供了一个允许使用Codahale / DropWizard直方图的[Wrapper](https://github.com/apache/flink/blob/master/flink-metrics/flink-metrics-dropwizard/src/main/java/org/apache/flink/dropwizard/metrics/DropwizardHistogramWrapper.java)。要使用此包装，请在以下内容中添加以下依赖项`pom.xml`：
 
 ```markup
 <dependency>
@@ -249,6 +261,8 @@ class MyMapper extends RichMapFunction[Long, Long] {
 
 #### **仪表**
 
+仪表测量平均吞吐量。 可以使用`markEvent()`方法注册事件的发生。 可以使用`markEvent(long n)`方法注册多个事件同时发生。 可以通过在`MetricGroup`上调用`meter(String name，Meter meter)`来注册仪表。
+
 {% tabs %}
 {% tab title="Java" %}
 ```java
@@ -290,6 +304,8 @@ class MyMapper extends RichMapFunction[Long,Long] {
 ```
 {% endtab %}
 {% endtabs %}
+
+Flink提供了一个允许使用Codahale / DropWizard表的[包装器](https://github.com/apache/flink/blob/master/flink-metrics/flink-metrics-dropwizard/src/main/java/org/apache/flink/dropwizard/metrics/DropwizardMeterWrapper.java)。要使用此包装，请在以下内容中添加以下依赖项`pom.xml`：
 
 ```markup
 <dependency>
@@ -349,7 +365,15 @@ class MyMapper extends RichMapFunction[Long,Long] {
 
 ## 范围
 
+每个指标都被分配一个标识符和一组键值对，在这些键值对下将报告度量。
+
+标识符基于3个组件：注册指标时的用户定义名称、可选的用户定义范围和系统提供的范围。例如，如果`a.b`是系统范围，`c.d`是用户范围，`e`是名称，那么指标的标识符将是`a.b.c.d.e`。
+
+通过在`conf/flink-conf.yaml`中设置`metrics.scope.delimiter`键，可以配置要用于标识符的分隔符（默认为）。
+
 ### 用户范围
+
+你可以通过调用`MetricGroup#addGroup(String name)`，`MetricGroup#addGroup(int name)`或`Metric#addGroup(String key，String value)`来定义用户范围。 这些方法会影响`MetricGroup#getMetricIdentifier`和`MetricGroup#getScopeComponents`返回的内容。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -383,9 +407,56 @@ counter = getRuntimeContext()
 
 ### 系统范围
 
+系统范围包含有关度量标准的上下文信息，例如，它在哪个任务中注册或该任务属于哪个作业。
+
+可以通过在`conf / flink-conf.yaml`中设置以下属性来配置应包含哪些上下文信息。 这些属性中的每一个都期望格式字符串可以包含常量（例如“taskmanager”）和变量（例如“”），它们将在运行时被替换。
+
+* `metrics.scope.jm`
+  * 默认值：&lt;host&gt; .jobmanager
+  * 应用于作用域作业管理器的所有指标。
+* `metrics.scope.jm.job`
+  * 默认值：&lt;host&gt; .jobmanager.&lt;job\_name&gt;
+  * 应用于作用于作业管理器和作业的所有度量标准。
+* `metrics.scope.tm`
+  * 默认值：&lt;host&gt; .taskmanager.&lt;tm\_id&gt;
+  * 应用于作用于任务管理器的所有度量标准。
+* `metrics.scope.tm.job`
+  * 默认值：&lt;host&gt; .taskmanager.&lt;tm\_id&gt;.&lt;job\_name&gt;
+  * 应用于作用于任务管理器和作业的所有度量标准。
+* `metrics.scope.task`
+  * 默认值：&lt;host&gt; .taskmanager.&lt;tm\_id&gt;.&lt;job\_name&gt;.&lt;task\_name&gt;.&lt;subtask\_index&gt;
+  * 应用于作用于任务的所有指标。
+* `metrics.scope.operator`
+  * 默认值：&lt;host&gt; .taskmanager.&lt;tm\_id&gt;.&lt;job\_name&gt;.&lt;operator\_name&gt;.&lt;subtask\_index&gt;
+  * 应用于作用域的所有指标。
+
+变量的数量或顺序没有限制。 变量区分大小写。
+
+操作符符度量标准的默认范围将生成类似于`localhost.taskmanager.1234.MyJob.MyOperator.0.MyMetric`的标识符
+
+如果您还想包含任务名称但省略任务管理器信息，则可以指定以下格式：
+
+`metrics.scope.operator: <host>.<job_name>.<task_name>.<operator_name>.<subtask_index>`
+
+这可以创建标识符`localhost.MyJob.MySource_->_MyOperator.MyOperator.0.MyMetric`
+
+请注意，对于此格式字符串，如果同时多次运行同一作业，则可能发生标识符冲突，这可能导致度量标准数据不一致。 因此，建议使用通过包含ID（例如）或通过为作业和运算符分配唯一名称来提供一定程度的唯一性的格式字符串。
+
 ### 所有变量列表
 
+* JobManager: &lt;host&gt;
+* TaskManager: &lt;host&gt;, &lt;tm\_id&gt;
+* Job: &lt;job\_id&gt;, &lt;job\_name&gt;
+* Task: &lt;task\_id&gt;, &lt;task\_name&gt;, &lt;task\_attempt\_id&gt;, &lt;task\_attempt\_num&gt;, &lt;subtask\_index&gt;
+* Operator: &lt;operator\_id&gt;,&lt;operator\_name&gt;, &lt;subtask\_index&gt;
+
+**要点：**对于Batch API，&lt;operator\_id&gt;始终等于&lt;task\_id&gt;。
+
 ### 用户变量
+
+可以通过调用`MetricGroup＃addGroup(String key,String value)`来定义用户变量。 此方法会影响`MetricGroup#getMetricIdentifier`，`MetricGroup#getScopeComponents`和`MetricGroup#getAllVariables()`返回的内容。
+
+**重要提示**：用户变量不能用于范围格式。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -409,6 +480,19 @@ counter = getRuntimeContext()
 {% endtabs %}
 
 ## 报告
+
+通过在`conf/flink-conf.yaml`中配置一个或多个报告器，可以将指标公开给外部系统。 这些报告将在每个工作和任务管理器启动时进行实例化。
+
+* `metrics.reporter.<name>.<config>`: 报告名称为`<name>`
+
+   的通用设置`<config>` 
+
+* `metrics.reporter.<name>.class`: 报告类用于名称为`<name>`的报告。
+* `metrics.reporter.<name>.interval`: 报告名称为`<name>`的报告间隔时间
+* `metrics.reporter.<name>.scope.delimiter`: 用于名称`<name>`的报告标识符（默认值使用`metrics.scope.delimiter`）的分隔符。
+* `metrics.reporters`:\(可选）以逗号分隔的包含报告名称列表。默认情况下，将使用所有已配置的报告。
+
+所有报告必须至少拥有类属性，有些允许指定报告间隔。 下面，我们将列出针对每位记者的更多设置。
 
 示例报表配置，指定多个报告：
 
@@ -706,15 +790,277 @@ metrics.reporter.slf4j.interval: 60 SECONDS
 
 ### RocksDB
 
-
+某些RocksDB本机指标是可用的，但默认情况下已禁用，您可以[在此处](https://ci.apache.org/projects/flink/flink-docs-release-1.7/ops/config.html#rocksdb-native-metrics)找到完整文档
 
 ### IO
 
-### 连接器
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">Scope</th>
+      <th style="text-align:left">Metrics</th>
+      <th style="text-align:left">Description</th>
+      <th style="text-align:left">Type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><b>Job (&#x4EC5;&#x5728; TaskManager&#x4E0A;&#x53EF;&#x7528;)</b>
+      </td>
+      <td style="text-align:left">&lt;SOURCE_ID&gt; &lt;source_subtask_index&gt; &lt;operator_id&gt; &lt;operator_subtask_index&gt;
+        .latency</td>
+      <td style="text-align:left">&#x4ECE;&#x7ED9;&#x5B9A;&#x6E90;&#x5B50;&#x4EFB;&#x52A1;&#x5230;&#x8FD0;&#x7B97;&#x7B26;&#x5B50;&#x4EFB;&#x52A1;&#x7684;&#x5EF6;&#x8FDF;&#x5206;&#x5E03;&#xFF08;&#x4EE5;&#x6BEB;&#x79D2;&#x4E3A;&#x5355;&#x4F4D;&#xFF09;&#x3002;</td>
+      <td
+      style="text-align:left">&#x76F4;&#x65B9;&#x56FE;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>Task</b>
+      </td>
+      <td style="text-align:left">numBytesInLocal</td>
+      <td style="text-align:left">&#x6B64;&#x4EFB;&#x52A1;&#x4ECE;&#x672C;&#x5730;&#x6E90;&#x8BFB;&#x53D6;&#x7684;&#x603B;&#x5B57;&#x8282;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x8BA1;&#x6570;&#x5668;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numBytesInLocalPerSecond</td>
+      <td style="text-align:left">&#x6B64;&#x4EFB;&#x52A1;&#x6BCF;&#x79D2;&#x4ECE;&#x672C;&#x5730;&#x6E90;&#x8BFB;&#x53D6;&#x7684;&#x5B57;&#x8282;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x4EEA;&#x8868;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numBytesInRemote</td>
+      <td style="text-align:left">&#x6B64;&#x4EFB;&#x52A1;&#x4ECE;&#x8FDC;&#x7A0B;&#x6E90;&#x8BFB;&#x53D6;&#x7684;&#x603B;&#x5B57;&#x8282;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x8BA1;&#x6570;&#x5668;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numBytesInRemotePerSecond</td>
+      <td style="text-align:left">&#x6B64;&#x4EFB;&#x52A1;&#x6BCF;&#x79D2;&#x4ECE;&#x8FDC;&#x7A0B;&#x6E90;&#x8BFB;&#x53D6;&#x7684;&#x5B57;&#x8282;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x4EEA;&#x8868;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numBuffersInLocal</td>
+      <td style="text-align:left">&#x6B64;&#x4EFB;&#x52A1;&#x4ECE;&#x672C;&#x5730;&#x6E90;&#x8BFB;&#x53D6;&#x7684;&#x7F51;&#x7EDC;&#x7F13;&#x51B2;&#x533A;&#x603B;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x8BA1;&#x6570;&#x5668;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numBuffersInLocalPerSecond</td>
+      <td style="text-align:left">&#x6B64;&#x4EFB;&#x52A1;&#x6BCF;&#x79D2;&#x4ECE;&#x672C;&#x5730;&#x6E90;&#x8BFB;&#x53D6;&#x7684;&#x7F51;&#x7EDC;&#x7F13;&#x51B2;&#x533A;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x4EEA;&#x8868;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numBuffersInRemote</td>
+      <td style="text-align:left">&#x6B64;&#x4EFB;&#x52A1;&#x4ECE;&#x8FDC;&#x7A0B;&#x6E90;&#x8BFB;&#x53D6;&#x7684;&#x7F51;&#x7EDC;&#x7F13;&#x51B2;&#x533A;&#x603B;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x8BA1;&#x6570;&#x5668;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numBuffersInRemotePerSecond</td>
+      <td style="text-align:left">&#x6B64;&#x4EFB;&#x52A1;&#x6BCF;&#x79D2;&#x4ECE;&#x8FDC;&#x7A0B;&#x6E90;&#x8BFB;&#x53D6;&#x7684;&#x7F51;&#x7EDC;&#x7F13;&#x51B2;&#x533A;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x4EEA;&#x8868;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numBytesOut</td>
+      <td style="text-align:left">&#x6B64;&#x4EFB;&#x52A1;&#x5DF2;&#x53D1;&#x51FA;&#x7684;&#x603B;&#x5B57;&#x8282;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x8BA1;&#x6570;&#x5668;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numBytesOutPerSecond</td>
+      <td style="text-align:left">&#x6B64;&#x4EFB;&#x52A1;&#x6BCF;&#x79D2;&#x53D1;&#x51FA;&#x7684;&#x5B57;&#x8282;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x4EEA;&#x8868;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numBuffersOut</td>
+      <td style="text-align:left">&#x6B64;&#x4EFB;&#x52A1;&#x5DF2;&#x53D1;&#x51FA;&#x7684;&#x7F51;&#x7EDC;&#x7F13;&#x51B2;&#x533A;&#x603B;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x8BA1;&#x6570;&#x5668;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numBuffersOutPerSecond</td>
+      <td style="text-align:left">&#x6B64;&#x4EFB;&#x52A1;&#x6BCF;&#x79D2;&#x53D1;&#x51FA;&#x7684;&#x7F51;&#x7EDC;&#x7F13;&#x51B2;&#x533A;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x4EEA;&#x8868;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>Task/Operator</b>
+      </td>
+      <td style="text-align:left">numRecordsIn</td>
+      <td style="text-align:left">&#x6B64;&#x64CD;&#x4F5C;&#x7B26;/&#x4EFB;&#x52A1;&#x5DF2;&#x6536;&#x5230;&#x7684;&#x8BB0;&#x5F55;&#x603B;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x8BA1;&#x6570;&#x5668;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numRecordsInPerSecond</td>
+      <td style="text-align:left">&#x6B64;&#x64CD;&#x4F5C;&#x7B26;/&#x4EFB;&#x52A1;&#x6BCF;&#x79D2;&#x63A5;&#x6536;&#x7684;&#x8BB0;&#x5F55;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x4EEA;&#x8868;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numRecordsOut</td>
+      <td style="text-align:left">&#x6B64;&#x64CD;&#x4F5C;&#x7B26;/&#x4EFB;&#x52A1;&#x5DF2;&#x53D1;&#x51FA;&#x7684;&#x8BB0;&#x5F55;&#x603B;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x8BA1;&#x6570;&#x5668;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numRecordsOutPerSecond</td>
+      <td style="text-align:left">&#x6B64;&#x64CD;&#x4F5C;&#x7B26;/&#x4EFB;&#x52A1;&#x6BCF;&#x79D2;&#x53D1;&#x9001;&#x7684;&#x8BB0;&#x5F55;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x4EEA;&#x8868;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numLateRecordsDropped</td>
+      <td style="text-align:left">&#x6B64;&#x64CD;&#x4F5C;&#x7B26;/&#x4EFB;&#x52A1;&#x56E0;&#x8FDF;&#x5230;&#x800C;&#x4E22;&#x5931;&#x7684;&#x8BB0;&#x5F55;&#x6570;&#x3002;</td>
+      <td
+      style="text-align:left">&#x8BA1;&#x6570;&#x5668;</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">currentInputWatermark</td>
+      <td style="text-align:left">
+        <p>&#x6B64;&#x64CD;&#x4F5C;&#x7B26;/&#x4EFB;&#x52A1;&#x6536;&#x5230;&#x7684;&#x200B;&#x200B;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x6C34;&#x5370;&#xFF08;&#x4EE5;&#x6BEB;&#x79D2;&#x4E3A;&#x5355;&#x4F4D;&#xFF09;&#x3002;</p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x5BF9;&#x4E8E;&#x5177;&#x6709;2&#x4E2A;&#x8F93;&#x5165;&#x7684;&#x64CD;&#x4F5C;&#x7B26;/&#x4EFB;&#x52A1;&#xFF0C;&#x8FD9;&#x662F;&#x6700;&#x540E;&#x6536;&#x5230;&#x7684;&#x6C34;&#x5370;&#x7684;&#x6700;&#x5C0F;&#x503C;&#x3002;</p>
+      </td>
+      <td style="text-align:left">Gauge</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>Operator</b>
+      </td>
+      <td style="text-align:left">currentInput1Watermark</td>
+      <td style="text-align:left">
+        <p>&#x6B64;&#x64CD;&#x4F5C;&#x7B26;&#x5728;&#x5176;&#x7B2C;&#x4E00;&#x4E2A;&#x8F93;&#x5165;&#x4E2D;&#x63A5;&#x6536;&#x7684;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x6C34;&#x5370;&#xFF08;&#x4EE5;&#x6BEB;&#x79D2;&#x4E3A;&#x5355;&#x4F4D;&#xFF09;&#x3002;</p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x4EC5;&#x9002;&#x7528;&#x4E8E;&#x5177;&#x6709;2&#x4E2A;&#x8F93;&#x5165;&#x7684;&#x64CD;&#x4F5C;&#x7B26;&#x3002;</p>
+      </td>
+      <td style="text-align:left">Gauge</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">currentInput2Watermark</td>
+      <td style="text-align:left">
+        <p>&#x6B64;&#x64CD;&#x4F5C;&#x7B26;&#x5728;&#x5176;&#x7B2C;&#x4E8C;&#x4E2A;&#x8F93;&#x5165;&#x4E2D;&#x63A5;&#x6536;&#x7684;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x6C34;&#x5370;&#xFF08;&#x4EE5;&#x6BEB;&#x79D2;&#x4E3A;&#x5355;&#x4F4D;&#xFF09;&#x3002;</p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x4EC5;&#x9002;&#x7528;&#x4E8E;&#x5177;&#x6709;2&#x4E2A;&#x8F93;&#x5165;&#x7684;&#x64CD;&#x4F5C;&#x7B26;&#x3002;</p>
+      </td>
+      <td style="text-align:left">Gauge</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">currentOutputWatermark</td>
+      <td style="text-align:left">&#x6B64;&#x64CD;&#x4F5C;&#x7B26;&#x53D1;&#x51FA;&#x7684;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x6C34;&#x5370;&#xFF08;&#x4EE5;&#x6BEB;&#x79D2;&#x4E3A;&#x5355;&#x4F4D;&#xFF09;&#x3002;</td>
+      <td
+      style="text-align:left">Gauge</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"></td>
+      <td style="text-align:left">numSplitsProcessed</td>
+      <td style="text-align:left">&#x6B64;&#x6570;&#x636E;&#x6E90;&#x5DF2;&#x5904;&#x7406;&#x7684;InputSplits&#x603B;&#x6570;&#xFF08;&#x5982;&#x679C;&#x8FD0;&#x7B97;&#x7B26;&#x662F;&#x6570;&#x636E;&#x6E90;&#xFF09;&#x3002;</td>
+      <td
+      style="text-align:left">Gauge</td>
+    </tr>
+  </tbody>
+</table>### 连接器
+
+#### **Kafka连接器**
+
+| Scope | Metrics | User Variables | Description | Type |
+| :--- | :--- | :--- | :--- | :--- |
+| Operator | commitsSucceeded | n/a | 如果启用了偏移提交并且启用了检查点，则是成功向Kafka提交的偏移提交总数。 | 计数器 |
+| Operator | commitsFailed | n/a | 如果启用了偏移提交并且启用了检查点，则是Kafka的偏移提交失败总数。请注意，将偏移量提交回Kafka只是暴露消费者进度的一种方法，因此提交失败不会影响Flink的检查点分区偏移的完整性。 | 计数器 |
+| Operator | committedOffsets | topic, partition | 对于每个分区，最后成功提交到Kafka的偏移量。可以通过主题名称和分区ID指定特定分区的度量标准。 | Gauge |
+| Operator | currentOffsets | topic, partition | 消费者对每个分区的当前读取偏移量。可以通过主题名称和分区ID指定特定分区的度量标准。 | Gauge |
+
+#### **Kinesis连接器**
+
+| Scope | Metrics | User Variables | Description | Type |
+| :--- | :--- | :--- | :--- | :--- |
+| Operator | millisBehindLatest | stream，shardId | 消费者在流的头部后面的毫秒数，表示每个Kinesis分片的消费者当前时间落后多少。 可以通过流名称和分片ID指定特定分片的指标。 值为0表示记录处理被捕获，此时没有要处理的新记录。 值-1表示该指标尚未报告。 | Gauge |
+| Operator | sleepTimeMillis | stream，shardId | 消费者在从Kinesis获取记录之前花费的毫秒数。可以通过流名称和分片ID指定特定分片的**指标**。 | Gauge |
+| Operator | maxNumberOfRecordsPerFetch | stream，shardId | 消费者在单个getRecords调用Kinesis时请求的最大记录数。如果ConsumerConfigConstants.SHARD\_USE\_ADAPTIVE\_READS设置为true，则自适应地计算此值以最大化Kinesis的2 Mbps读取限制。 | Gauge |
+| Operator | numberOfAggregatedRecordsPerFetch | stream，shardId | 消费者在单个getRecords调用Kinesis时获取的聚合Kinesis记录数。 | Gauge |
+| Operator | numberOfDeggregatedRecordsPerFetch | stream，shardId | 消费者在一次getRecords调用Kinesis时获取的分解Kinesis记录的数量。 | Gauge |
+| Operator | averageRecordSizeBytes | stream，shardId | Kinesis记录的平均大小（以字节为单位），由消费者在单个getRecords调用中获取。 | Gauge |
+| Operator | runLoopTimeNanos | stream，shardId | 消费者在运行循环中花费的实际时间（以纳秒为单位） | Gauge |
+| Operator | loopFrequencyHz | stream，shardId | 一秒钟内调用getRecords的次数。 | Gauge |
+| Operator | bytesRequestedPerFetch | stream，shardId | 在一次调用getRecords中请求的字节数（2 Mbps / loopFrequencyHz）。 | Gauge |
 
 ### 系统资源
 
+默认情况下禁用系统资源报告。 启用`metrics.system-resource`时，下面列出的其他度量标准将在`Job-`和`TaskManager`上可用。 系统资源度量标准会定期更新，并显示已配置时间间隔的平均值（`metrics.system-resource-probing-interval`）。
+
+系统资源报告要求在类路径上存在可选的依赖项（例如，放在Flink的`lib`目录中）：
+
+* `com.github.oshi:oshi-core:3.4.0` （根据EPL 1.0许可证授权）
+
+包括它的传递依赖：
+
+* `net.java.dev.jna:jna-platform:jar:4.2.2`
+* `net.java.dev.jna:jna:jar:4.2.2`
+
+这方面的失败将被报告为启动期间`NoClassDefFoundError` 记录的警告消息`SystemResourcesMetricsInitializer`。
+
+#### 系统CPU
+
+| Scope | Infix | Metrics | Description |
+| :--- | :--- | :--- | :--- |
+| **Job-/TaskManager** | System.CPU | Usage | CPU使用率的总体百分比。 |
+|  |  | Idle | CPU空闲使用率的百分比。 |
+|  |  | Sys | 系统CPU使用率的百分比。 |
+|  |  | User | 用户CPU使用率的百分比 |
+|  |  | IOWait | IOWait CPU使用率的百分比。 |
+|  |  | Irq | Irq CPU使用率的百分比。 |
+|  |  | SoftIrq | SoftIrq CPU使用率的百分比。 |
+|  |  | Nice | 空闲使用百分比。 |
+|  |  | Load1min | 平均CPU负载超过1分钟 |
+|  |  | Load5min | 平均CPU负载超过5分钟 |
+|  |  | Load15min | 平均CPU负载超过15分钟 |
+|  |  | UsageCPU**\*** | 每个处理器的CPU使用率百分比 |
+
+#### **系统内存**
+
+| Scope | Infix | Metrics | Description |
+| :--- | :--- | :--- | :--- |
+| **Job-/TaskManager** | System.Memory | Available | 可用内存以字节为单位 |
+|  |  | Total | 总内存（字节） |
+|  | System.Swap | Used | 使用的交换字节 |
+|  |  | Total | 总交换字节数 |
+
+#### **系统网络**
+
+| Scope | Infix | Metrics | Description |
+| :--- | :--- | :--- | :--- |
+| **Job-/TaskManager** | System.Network.INTERFACE\_NAME | ReceiveRate | 平均接收速率，以每秒字节数为单位 |
+|  |  | SendRate | 平均发送速率，以字节/秒为单位 |
+
 ## 延迟跟踪
+
+Flink允许跟踪通过系统传输的记录的延迟。默认情况下禁用此功能。要启用延迟跟踪，必须在Flink配置或`ExecutionConfig`中将`latencyTrackingInterval`设置为正数。
+
+在`latencyTrackingInterval`中，源将定期发出一个称为`LatencyMarker`的特殊记录。标记包含从源处发出记录的时间戳。延迟标记不能超过常规用户记录，因此如果记录在操作符面前排队，则会增加标记跟踪的延迟。
+
+请注意，延迟标记不会考虑用户记录在绕过它们时在操作符中花费的时间。特别是标记不考虑记录在窗口缓冲区中花费的时间。只有当操作符无法接受新记录，致使他们排队时，使用标记测量的延迟才会反映出来。
+
+`LatencyMarkers`用于导出拓扑源和每个下游操作符之间的延迟分布。这些分布报告为直方图度量。这些发行版的粒度可以在\[Flink配置\]中控制（// ci.apache.org/projects/flink/flink-docs-release-1.7/ops/config.html\#metrics-latency-interval。最高粒度子任务Flink将导出每个源子任务和每个下游子任务之间的延迟分布，这导致二次（在并行性方面）直方图的数量。
+
+目前，Flink假定群集中所有计算机的时钟都是同步的。我们建议设置自动时钟同步服务（如NTP）以避免错误的延迟结果。
 
 {% hint style="danger" %}
 警告：启用延迟指标可能会显著影响群集的性能（特别是对于`subtask`粒度）。强烈建议仅将它们用于调试目的。

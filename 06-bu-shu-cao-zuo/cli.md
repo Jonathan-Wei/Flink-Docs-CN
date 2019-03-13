@@ -1,5 +1,202 @@
 # CLI
 
+Flink提供了一个命令行界面（CLI），用于运行打包为JAR文件的程序，并控制它们的执行。CLI是任何Flink设置的一部分，在本地单节点设置和分布式设置中都可用。它位于`/bin/flink`下，默认情况下连接到从同一安装目录启动的正在运行的Flink Master（JobManager）。
+
+使用命令行界面的先决条件是Flink Master（JobManager）已启动（通过`/bin/start cluster.sh`）或有可用的Yarn环境。
+
+命令行可用于
+
+## 例子
+
+* 运行没有参数的示例程序：
+
+  ```text
+  ./bin/flink run ./examples/batch/WordCount.jar
+  ```
+
+* 使用输入和结果文件的参数运行示例程序：
+
+  ```text
+  ./bin/flink run ./examples/batch/WordCount.jar \
+                       --input file:///home/user/hamlet.txt --output file:///home/user/wordcount_out
+  ```
+
+* 运行带有并行性16的示例程序以及输入和结果文件的参数：
+
+  ```text
+  ./bin/flink run -p 16 ./examples/batch/WordCount.jar \
+                       --input file:///home/user/hamlet.txt --output file:///home/user/wordcount_out
+  ```
+
+* 运行禁用flink日志输出的示例程序：
+
+  ```text
+      ./bin/flink run -q ./examples/batch/WordCount.jar
+  ```
+
+* 以分离模式运行示例程序：
+
+  ```text
+      ./bin/flink run -d ./examples/batch/WordCount.jar
+  ```
+
+* 在特定的JobManager上运行示例程序：
+
+  ```text
+  ./bin/flink run -m myJMHost:8081 \
+                         ./examples/batch/WordCount.jar \
+                         --input file:///home/user/hamlet.txt --output file:///home/user/wordcount_out
+  ```
+
+* 以特定类作为入口点运行示例程序：
+
+  ```text
+  ./bin/flink run -c org.apache.flink.examples.java.wordcount.WordCount \
+                         ./examples/batch/WordCount.jar \
+                         --input file:///home/user/hamlet.txt --output file:///home/user/wordcount_out
+  ```
+
+* 使用具有2个TaskManagers 的[每作业YARN集群](https://ci.apache.org/projects/flink/flink-docs-release-1.7/ops/deployment/yarn_setup.html#run-a-single-flink-job-on-hadoop-yarn)运行示例程序：
+
+  ```text
+  ./bin/flink run -m yarn-cluster -yn 2 \
+                         ./examples/batch/WordCount.jar \
+                         --input hdfs:///user/hamlet.txt --output hdfs:///user/wordcount_out
+  ```
+
+* 将WordCount示例程序的优化执行计划展示为JSON：
+
+  ```text
+  ./bin/flink info ./examples/batch/WordCount.jar \
+                          --input file:///home/user/hamlet.txt --output file:///home/user/wordcount_out
+  ```
+
+* 列出计划和正在运行的作业（包括其JobID）：
+
+  ```text
+  ./bin/flink list
+  ```
+
+* 列出预定作业（包括其作业ID）：
+
+  ```text
+  ./bin/flink list -s
+  ```
+
+* 列出正在运行的作业（包括其作业ID）：
+
+  ```text
+  ./bin/flink list -r
+  ```
+
+* 列出所有现有工作（包括其工作ID）：
+
+  ```text
+  ./bin/flink list -a
+  ```
+
+* 列出在Flink YARN会话中运行Flink作业：
+
+  ```text
+  ./bin/flink list -m yarn-cluster -yid <yarnApplicationID> -r
+  ```
+
+* 取消工作：
+
+  ```text
+  ./bin/flink cancel <jobID>
+  ```
+
+* 使用保存点取消作业：
+
+  ```text
+  ./bin/flink cancel -s [targetDirectory] <jobID>
+  ```
+
+* 停止工作（仅限流媒体工作）：
+
+  ```text
+  ./bin/flink stop <jobID>
+  ```
+
+* 修改正在运行的作业（仅限流式处理作业）:. / bin/flink modify -p
+
+**注意**：取消和停止（流媒体）作业的区别如下：
+
+在`cancel`调用中，作业中的操作符立即接收`cancel()`方法调用，以尽快取消它们。如果操作符在`cancel`调用后没有停止，Flink将开始周期性地中断线程，直到它停止。
+
+`“stop”`调用是停止正在运行的流作业的更优雅的方法。Stop只适用于使用实现`StoppableFunction`接口的源的作业。当用户请求停止作业时，所有源都将收到`stop()`方法调用。在所有资源正常关闭之前，该工作将继续运行。这允许作业完成对所有飞行数据的处理。
+
+### 保存点
+
+[保存点](https://ci.apache.org/projects/flink/flink-docs-release-1.7/ops/state/savepoints.html)通过命令行客户端控制：
+
+#### **触发保存点**
+
+```text
+./bin/flink savepoint <jobId> [savepointDirectory]
+```
+
+这将触发具有ID的作业的保存点`jobId`，并返回创建的保存点的路径。你需要此路径来还原和部署保存点。
+
+此外，可以选择指定目标文件系统目录以存储保存点。该目录需要由JobManager访问。
+
+如果未指定目标目录，则需要[配置默认目录](https://ci.apache.org/projects/flink/flink-docs-release-1.7/ops/state/savepoints.html#configuration)。否则，触发保存点将失败。
+
+**使用YARN触发保存点**
+
+```text
+./bin/flink savepoint <jobId> [savepointDirectory] -yid <yarnAppId>
+```
+
+这将触发具有ID `jobId`和YARN应用程序ID 的作业的保存点`yarnAppId`，并返回创建的保存点的路径。
+
+其他所有内容与上面**触发保存点**部分中描述的相同。
+
+**使用保存点取消**
+
+你可以自动触发保存点并取消作业。
+
+```text
+./bin/flink cancel -s [savepointDirectory] <jobID>
+```
+
+如果未配置保存点目录，则需要为Flink安装配置默认保存点目录（请参阅[保存点](https://ci.apache.org/projects/flink/flink-docs-release-1.7/ops/state/savepoints.html#configuration)）。
+
+只有保存点成功，才会取消该作业。
+
+**恢复保存点**
+
+```text
+./bin/flink run -s <savepointPath> ...
+```
+
+run命令具有提交作业的保存点标志，该标志将从保存点恢复其状态。保存点触发命令返回保存点路径。
+
+默认情况下，我们尝试将所有保存点状态与提交的作业匹配。如果希望允许跳过无法通过新作业恢复的保存点状态，可以设置allowNonRestoredState标志。如果从程序中删除了一个操作符，而该操作符在触发保存点时是程序的一部分，并且仍然希望使用保存点，那么需要允许这样做。
+
+```text
+./bin/flink run -s <savepointPath> -n ...
+```
+
+如果程序删除了属于保存点的运算符，这将非常有用。
+
+**配置保存点**
+
+```text
+./bin/flink savepoint -d <savepointPath>
+```
+
+在给定路径处置保存点。保存点 触发命令返回保存点路径。
+
+如果使用自定义状态实例（例如自定义还原状态或RocksDB状态），则必须指定触发保存点的程序JAR的路径，以便使用用户代码类加载器处置保存点：
+
+```text
+./bin/flink savepoint -d <savepointPath> -j <jarFile>
+```
+
+否则，你会遇到一个`ClassNotFoundException`。
+
 ## 用法
 
 ```text
