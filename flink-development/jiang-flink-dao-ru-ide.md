@@ -6,7 +6,7 @@
 
 ## 准备
 
-首先，请先从我们的某个[存储库中](https://flink.apache.org/community.html#source-code)获取Flink源代码 ，例如：
+首先，请先从我们的GitHub[存储库中](https://flink.apache.org/community.html#source-code)获取Flink源代码 ，例如：
 
 ```text
 git clone https://github.com/apache/flink.git
