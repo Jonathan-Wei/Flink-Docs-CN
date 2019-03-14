@@ -6,7 +6,7 @@
   * [应用](01-jie-shao/apache-flink-ying-yong-jie-shao.md)
   * [架构](01-jie-shao/apache-flink-jia-gou-jie-shao.md)
 * [应用场景](02-ying-yong-chang-jing/README.md)
-  * [Apache Fink应用场景](02-ying-yong-chang-jing/apache-fink-ying-yong-chang-jing.md)
+  * [Apache Flink应用场景](02-ying-yong-chang-jing/apache-fink-ying-yong-chang-jing.md)
 * [概念](gai-nian/README.md)
   * [数据流编程模型](gai-nian/shu-ju-liu-bian-cheng-mo-xing.md)
   * [分布式运行环境](gai-nian/fen-bu-shi-yun-hang-huan-jing.md)

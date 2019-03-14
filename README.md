@@ -9,7 +9,7 @@
 
 **翻译不易，希望大家能关注下微信公众号，同时我也会定期给大伙推送更多的大数据相关咨询以及技术解决方案等内容。谢谢！（本文档完全是我一个人耗时2个月进行翻译，基于Apache Flink1.7版本）**
 
-![](.gitbook/assets/image%20%287%29.png)
+![](.gitbook/assets/image%20%289%29.png)
 
 ## Flink中文文档（基于Flink 1.7版本）
 
@@ -35,5 +35,5 @@
 
 ## 赞助
 
-![](.gitbook/assets/image%20%2823%29.png)
+![](.gitbook/assets/image%20%2827%29.png)
 

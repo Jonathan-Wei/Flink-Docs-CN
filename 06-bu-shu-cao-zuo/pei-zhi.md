@@ -657,11 +657,11 @@ Flink通过将程序拆分为子任务并将这些子任务调度到处理槽来
 
 启动Flink应用程序时，用户可以提供用于该作业的默认插槽数。因此调用命令行值`-p`（用于并行）。此外，可以为整个应用程序和各个操作员[设置编程API中的插槽数](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/parallel.html)。
 
+![](../.gitbook/assets/image%20%2814%29.png)
+
 ![](../.gitbook/assets/image%20%2812%29.png)
 
-![](../.gitbook/assets/image%20%2810%29.png)
+![](../.gitbook/assets/image%20%286%29.png)
 
-![](../.gitbook/assets/image%20%285%29.png)
-
-![](../.gitbook/assets/image%20%2815%29.png)
+![](../.gitbook/assets/image%20%2817%29.png)
 
