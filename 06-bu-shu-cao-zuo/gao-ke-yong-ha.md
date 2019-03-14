@@ -226,5 +226,5 @@ server.X=addressX:peerPort:leaderPort
 server.Y=addressY:peerPort:leaderPort
 ```
 
-该脚本`bin/start-zookeeper-quorum.sh`将在每个配置的主机上启动ZooKeeper服务器。启动的进程通过Flink包装器启动ZooKeeper服务器，该包装器从中读取配置`conf/zoo.cfg`并确保为方便起见设置一些必需的配置值。在生产设置中，建议构建单独的zookeeper集群管理。
+`bin/start-zookeeper-quorum.sh`脚本将在每个配置的主机上启动ZooKeeper服务器。启动的进程通过Flink包装器启动ZooKeeper服务器，该包装器从中读取配置`conf/zoo.cfg`并确保为方便起见设置一些必需的配置值。在生产设置中，建议构建单独的zookeeper集群管理。
 
