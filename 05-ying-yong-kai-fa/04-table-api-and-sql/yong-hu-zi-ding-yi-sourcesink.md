@@ -150,7 +150,7 @@ DefinedProctimeAttribute {
 
 * 字段的名称，
 * `TimestampExtractor`计算属性的实际值（通常来自一个或多个其他字段）
-* `WatermarkStrategy`指定如何为`RowTime`属性生成水印。
+* `WatermarkStrategy`指定如何为`RowTime`属性生成水位线。
 
 `TableSource`通过实现`DefinedRowtimeAttributes`接口来定义`RowTime`属性。界面如下：
 
@@ -177,7 +177,7 @@ DefinedRowtimeAttributes {
 * `getRowtimeAttributeDescriptors()`：返回`RowtimeAttributeDescriptor`的列表。 `RowtimeAttributeDescriptor`描述具有以下属性的`RowTime`属性：
   * `attributeName`: 表模式中的rowtime属性的名称。 必须使用Types.SQL\_TIMESTAMP类型定义该字段。
   * `timestampExtractor`: 时间戳提取器从具有返回类型的记录中提取时间戳。 例如，它可以将Long字段转换为时间戳或解析字符串编码的时间戳。 Flink附带了一组针对常见用例的内置`TimestampExtractor`实现。 还可以提供自定义实现。
-  * `watermarkStrategy`：水印策略定义了如何为`RowTime`属性生成水印。 Flink附带了一组针对常见用例的内置`WatermarkStrategy`实现。 还可以提供自定义实现。
+  * `watermarkStrategy`：水位线策略定义了如何为`RowTime`属性生成水位线。 Flink附带了一组针对常见用例的内置`WatermarkStrategy`实现。 还可以提供自定义实现。
 
 {% hint style="danger" %}
 **注意：**虽然`getRowtimeAttributeDescriptors()`方法返回一个描述符列表，但目前只支持单个`Rowtime`属性。我们计划在将来取消这个限制，并支持具有多个`Rowtime`属性的表。
@@ -198,17 +198,17 @@ Flink提供`TimestampExtractor`常见用例的实现。
 
 自定义时间戳提取器\(`TimestampExtractor`\)可以通过实现相应的接口来定义
 
-**提供水印策略**
+**提供**水位线**策略**
 
 Flink提供`WatermarkStrategy`常见用例的实现。
 
 `WatermarkStrategy`目前提供以下实现：
 
-* `AscendingTimestamps`：用于提升时间戳的水印策略。带有时间戳的记录如果顺序错误，将被认为是延迟的。
-* `BoundedOutOfOrderTimestamps(delay)`：时间戳的水印策略，其最多在指定的延迟之外是无序的。
-* `PreserveWatermarks()`：一种表示水印应该从基础数据流中保留的策略。
+* `AscendingTimestamps`：用于提升时间戳的水位线策略。带有时间戳的记录如果顺序错误，将被认为是延迟的。
+* `BoundedOutOfOrderTimestamps(delay)`：时间戳的水位线策略，其最多在指定的延迟之外是无序的。
+* `PreserveWatermarks()`：一种表示水位线应该从基础数据流中保留的策略。
 
-自定义水印策略\(`WatermarkStrategy`\)可以通过实现相应的接口来定义。
+自定义水位线策略\(`WatermarkStrategy`\)可以通过实现相应的接口来定义。
 
 ### 使用Projection Push-Down定义TableSource
 

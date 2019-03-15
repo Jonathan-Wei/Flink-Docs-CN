@@ -306,11 +306,11 @@ Flink Kafka Consumer允许配置如何将偏移提交回Kafka代理（或0.8中�
 * _禁用_检查_点：_如果禁用了检查点，则Flink Kafka Consumer依赖于内部使用的Kafka客户端的自动定期偏移提交功能。因此，要禁用或启用偏移提交，只需将`enable.auto.commit`（或`auto.commit.enable` Kafka 0.8）/ `auto.commit.interval.ms`键设置为所提供`Properties`配置中的适当值。
 * _启用_检查_点：_如果启用了检查点，则Flink Kafka Consumer将在检查点完成时提交存储在检查点状态中的偏移量。这可确保Kafka broker中的提交偏移量与检查点状态中的偏移量一致。用户可以通过调用消费者的方法来选择禁用或启用偏移提交`setCommitOffsetsOnCheckpoints(boolean)`（默认情况下，行为是`true`）。请注意，在此方案中，`Properties`完全忽略自动定期偏移提交设置。
 
-### Kafka消费者和时间戳提取/水印排放
+### Kafka消费者和时间戳提取/水位线排放
 
-在许多情况下，记录的时间戳（显式或隐式）嵌入记录本身。另外，用户可能想要周期性地或以不规则的方式发送水印，例如基于包含当前事件时间水印的Kafka流中的特殊记录。对于这些情况，Flink Kafka Consumer允许指定一个`AssignerWithPeriodicWatermarks`或一个`AssignerWithPunctuatedWatermarks`。
+在许多情况下，记录的时间戳（显式或隐式）嵌入记录本身。另外，用户可能想要周期性地或以不规则的方式发送水位线，例如基于包含当前事件时间水位线的Kafka流中的特殊记录。对于这些情况，Flink Kafka Consumer允许指定一个`AssignerWithPeriodicWatermarks`或一个`AssignerWithPunctuatedWatermarks`。
 
-可以按[此处](https://ci.apache.org/projects/flink/flink-docs-release-1.7/apis/streaming/event_timestamps_watermarks.html)所述指定自定义时间戳提取器/水印发射器，或使用 [预定义的](https://ci.apache.org/projects/flink/flink-docs-release-1.7/apis/streaming/event_timestamp_extractors.html)时间戳提取器/水印发射器 。完成后，可以通过以下方式将其传递给消费者：
+可以按[此处](https://ci.apache.org/projects/flink/flink-docs-release-1.7/apis/streaming/event_timestamps_watermarks.html)所述指定自定义时间戳提取器/水位线发射器，或使用 [预定义的](https://ci.apache.org/projects/flink/flink-docs-release-1.7/apis/streaming/event_timestamp_extractors.html)时间戳提取器/水位线发射器 。完成后，可以通过以下方式将其传递给消费者：
 
 {% tabs %}
 {% tab title="Java" %}
@@ -349,9 +349,9 @@ stream = env
 {% endtab %}
 {% endtabs %}
 
-在内部，每个Kafka分区执行一个分配器实例。当指定这样的分配器时，对于从Kafka读取的每个记录，调用`extractTimestamp(T element, long previousElementTimestamp)`为记录分配时间戳， 并且调用`Watermark getCurrentWatermark()`（用于定期）或`Watermark checkAndGetNextWatermark(T lastElement, long extractedTimestamp)`（用于标点符号）以确定是否应该发出新的水印并且时间戳。
+在内部，每个Kafka分区执行一个分配器实例。当指定这样的分配器时，对于从Kafka读取的每个记录，调用`extractTimestamp(T element, long previousElementTimestamp)`为记录分配时间戳， 并且调用`Watermark getCurrentWatermark()`（用于定期）或`Watermark checkAndGetNextWatermark(T lastElement, long extractedTimestamp)`（用于标点符号）以确定是否应该发出新的水位线并且时间戳。
 
-**注意**：如果水印分配器依赖于从Kafka读取的记录来推进其水印（通常是这种情况），则所有主题和分区都需要具有连续的记录流。否则，整个应用程序的水印无法前进，并且所有基于时间的操作（例如时间窗口或具有计时器的功能）都无法取得进展。单个空闲Kafka分区会导致此行为。计划进行Flink改进以防止这种情况发生（参见[FLINK-5479：FlinkKafkaConsumer中的每分区水印应考虑空闲分区](https://issues.apache.org/jira/browse/FLINK-5479)）。同时，可能的解决方法是将_心跳消息发送_到所有消耗的分区，从而推进空闲分区的水印。
+**注意**：如果水位线分配器依赖于从Kafka读取的记录来推进其水位线（通常是这种情况），则所有主题和分区都需要具有连续的记录流。否则，整个应用程序的水位线无法前进，并且所有基于时间的操作（例如时间窗口或具有计时器的功能）都无法取得进展。单个空闲Kafka分区会导致此行为。计划进行Flink改进以防止这种情况发生（参见[FLINK-5479：FlinkKafkaConsumer中的每分区水位线应考虑空闲分区](https://issues.apache.org/jira/browse/FLINK-5479)）。同时，可能的解决方法是将_心跳消息发送_到所有消耗的分区，从而推进空闲分区的水位线。
 
 ## Kafka Producer
 
@@ -469,7 +469,7 @@ Kafka代理在默认情况下具有`transaction.max.timeout.ms`设置为15分钟
 
 如果Flink中的时间特征设置为`TimeCharacteristic.EventTime`（`StreamExecutionEnvironment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)`），那么`FlinkKafkaConsumer010`将发出带有时间戳的记录。
 
-Kafka的消费者不排放水印。要发出水印，可以使用`assignTimestampsAndWatermarks`方法，使用“Kafka消费者和时间戳提取/水印排放”中描述的机制。
+Kafka的消费者不排放水位线。要发出水位线，可以使用`assignTimestampsAndWatermarks`方法，使用“Kafka消费者和时间戳提取/水位线排放”中描述的机制。
 
 使用Kafka的时间戳时，无需定义时间戳提取器。`extractTimestamp()`方法的`previousElementTimestamp`参数包含Kafka消息携带的时间戳。
 

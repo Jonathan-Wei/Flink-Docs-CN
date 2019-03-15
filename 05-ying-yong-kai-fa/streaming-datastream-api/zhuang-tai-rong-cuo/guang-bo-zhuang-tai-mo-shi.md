@@ -101,7 +101,7 @@ public abstract class KeyedBroadcastProcessFunction<KS, IN1, IN2, OUT> {
 
 1. 允许访问广播状态： `ctx.getBroadcastState(MapStateDescriptor<K, V> stateDescriptor)`
 2. 允许查询元素的时间戳：`ctx.timestamp()`，
-3. 获取当前水印： `ctx.currentWatermark()`
+3. 获取当前水位线： `ctx.currentWatermark()`
 4. 得到当前的处理时间：`ctx.currentProcessingTime()`和
 5. 向侧面输出发射元素：`ctx.output(OutputTag<X> outputTag, X value)`。
 

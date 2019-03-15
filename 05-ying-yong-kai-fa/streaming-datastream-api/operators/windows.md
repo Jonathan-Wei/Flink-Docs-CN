@@ -35,9 +35,9 @@ stream
 
 ## 窗口生命周期
 
-简而言之，当属于该窗口的第一个元素到达时，就会创建一个窗口，当时间（事件或处理时间）超过其结束时间戳加上用户指定的允许延迟（请参见[允许延迟](https://ci.apache.org/projects/flink/flink-docs-master/dev/stream/operators/windows.html#allowed-lateness)）时，该窗口将被完全删除。Flink保证只删除基于时间的窗口，而不删除其他类型的窗口，例如全局窗口（请参见[窗口分配程序](https://ci.apache.org/projects/flink/flink-docs-master/dev/stream/operators/windows.html#window-assigners)）。例如，使用基于事件时间的窗口策略，每5分钟创建一个不重叠（或翻滚）窗口，允许延迟1分钟，Flink将为`12:00`到`12:05`之间的间隔创建一个新窗口，当第一个时间戳属于此间隔的元素到达时，它将在水印通过`12:06` 时间戳时将其删除。
+简而言之，当属于该窗口的第一个元素到达时，就会创建一个窗口，当时间（事件或处理时间）超过其结束时间戳加上用户指定的允许延迟（请参见[允许延迟](https://ci.apache.org/projects/flink/flink-docs-master/dev/stream/operators/windows.html#allowed-lateness)）时，该窗口将被完全删除。Flink保证只删除基于时间的窗口，而不删除其他类型的窗口，例如全局窗口（请参见[窗口分配程序](https://ci.apache.org/projects/flink/flink-docs-master/dev/stream/operators/windows.html#window-assigners)）。例如，使用基于事件时间的窗口策略，每5分钟创建一个不重叠（或翻滚）窗口，允许延迟1分钟，Flink将为`12:00`到`12:05`之间的间隔创建一个新窗口，当第一个时间戳属于此间隔的元素到达时，它将在水位线通过`12:06` 时间戳时将其删除。
 
-此外，每个窗口都有一个触发器\(Trigger\)（参见[触发器](https://ci.apache.org/projects/flink/flink-docs-master/dev/stream/operators/windows.html#triggers)）和一个附加的函数（ProcessWindowFunction，ReduceFunction，AggregateFunction或FoldFunction）（请参阅[窗口函数](https://ci.apache.org/projects/flink/flink-docs-master/dev/stream/operators/windows.html#window-functions)）。 该函数将包含要应用于窗口内容的计算，而触发器指定窗口被认为准备好应用该函数的条件。 触发策略可能类似于“当窗口中的元素数量大于4”时，或“当水印通过窗口结束时”。 触发器还可以决定在创建和删除之间的任何时间清除窗口的内容。 在这种情况下，清除仅涉及窗口中的元素，而不是窗口元数据。 这意味着仍然可以将新数据添加到该窗口。
+此外，每个窗口都有一个触发器\(Trigger\)（参见[触发器](https://ci.apache.org/projects/flink/flink-docs-master/dev/stream/operators/windows.html#triggers)）和一个附加的函数（ProcessWindowFunction，ReduceFunction，AggregateFunction或FoldFunction）（请参阅[窗口函数](https://ci.apache.org/projects/flink/flink-docs-master/dev/stream/operators/windows.html#window-functions)）。 该函数将包含要应用于窗口内容的计算，而触发器指定窗口被认为准备好应用该函数的条件。 触发策略可能类似于“当窗口中的元素数量大于4”时，或“当水位线通过窗口结束时”。 触发器还可以决定在创建和删除之间的任何时间清除窗口的内容。 在这种情况下，清除仅涉及窗口中的元素，而不是窗口元数据。 这意味着仍然可以将新数据添加到该窗口。
 
 除了上述之外，您还可以指定一个Evictor（参见[Evictors](https://ci.apache.org/projects/flink/flink-docs-master/dev/stream/operators/windows.html#evictors)），它可以在触发器触发后以及应用函数之前和/或之后从窗口中删除元素。
 
@@ -55,7 +55,7 @@ stream
 
 指定流是否键控之后，下一步是定义一个窗口分配器。窗口分配器定义如何将元素分配给窗口。这是通过`WindowAssigner` 在`window(...)`（对于_键控_流）或`windowAll()`（对于_非键控_流）调用中指定您的选择来完成的。
 
-`WindowAssigner`负责将每个传入元素分配给一个或多个窗口。 Flink带有预定义的窗口分配器，用于最常见的用例，即翻滚窗口，滑动窗口，会话窗口和全局窗口。您还可以通过扩展`WindowAssigner`类来实现自定义窗口分配器。所有内置窗口分配器（全局窗口除外）都根据时间为窗口分配元素，这可以是处理时间或事件时间。请查看关于[事件时间](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_time.html)的部分，了解处理时间和事件时间之间的差异以及时间戳和水印的生成方式。
+`WindowAssigner`负责将每个传入元素分配给一个或多个窗口。 Flink带有预定义的窗口分配器，用于最常见的用例，即翻滚窗口，滑动窗口，会话窗口和全局窗口。您还可以通过扩展`WindowAssigner`类来实现自定义窗口分配器。所有内置窗口分配器（全局窗口除外）都根据时间为窗口分配元素，这可以是处理时间或事件时间。请查看关于[事件时间](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_time.html)的部分，了解处理时间和事件时间之间的差异以及时间戳和水位线的生成方式。
 
 基于时间的窗口具有开始时间戳（包括）和结束时间戳（不包括），它们一起描述窗口的大小。在代码中，Flink在使用基于时间的窗口时使用TimeWindow，该窗口具有查询开始和结束时间戳的方法，以及返回给定窗口的最大允许时间戳的附加方法`maxTimestamp()`。
 
@@ -1003,7 +1003,7 @@ input
 
 ### WindowAssigners的默认触发器
 
-默认值`Trigger`a `WindowAssigner`适用于许多用例。例如，所有事件时间窗口分配器都具有`EventTimeTrigger`默认触发器。一旦水印通过窗口的末端，该触发器就会触发。
+默认值`Trigger`a `WindowAssigner`适用于许多用例。例如，所有事件时间窗口分配器都具有`EventTimeTrigger`默认触发器。一旦水位线通过窗口的末端，该触发器就会触发。
 
 {% hint style="danger" %}
 注意：默认触发器`GlobalWindow`是`NeverTrigger`从不触发的。因此，在使用时必须定义自定义触发器`GlobalWindow`。
@@ -1017,7 +1017,7 @@ input
 
 Flink附带了一些内置触发器。
 
-* （已经提到的）`EventTimeTrigger`基于水印测量的事件时间的进展进行触发。
+* （已经提到的）`EventTimeTrigger`基于水位线测量的事件时间的进展进行触发。
 * `ProcessingTimeTrigger`基于处理时间触发。
 * `CountTrigger`一旦窗口中的元素数量超过给定限制，就会触发。
 * `PurgingTrigger`将另一个触发器作为参数作为参数并将其转换为清除触发器。
@@ -1072,14 +1072,14 @@ Flink附带了三个预先实现的驱逐者。这些都是:
 
 ## 允许延迟
 
-当使用_事件时间_窗口时，可能会发生元素迟到的情况，_即_ Flink用于跟踪事件时间进度的水印已经超过元素所属的窗口的结束时间戳。查看[EventTime](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/event_time.html)，特别是 [Late elements](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/event_time.html#late-elements) [，](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/event_time.html#late-elements)以便更全面地讨论Flink如何处理EventTime。
+当使用_事件时间_窗口时，可能会发生元素迟到的情况，_即_ Flink用于跟踪事件时间进度的水位线已经超过元素所属的窗口的结束时间戳。查看[EventTime](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/event_time.html)，特别是 [Late elements](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/event_time.html#late-elements) [，](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/event_time.html#late-elements)以便更全面地讨论Flink如何处理EventTime。
 
-默认情况下，当水印超过窗口末尾时，会删除延迟元素。但是，Flink允许为窗口操作符指定允许的最大迟到时间。Allowed lateness指定元素在被删除之前的延迟时间，默认值为0。在水印通过窗口末尾之后到达的元素，在水印通过窗口末尾之前到达的元素，加上允许的延迟，仍然被添加到窗口中。根据所使用的触发器，延迟但未删除的元素可能导致窗口再次触发。这是`EventTimeTrigger`的情况。
+默认情况下，当水位线超过窗口末尾时，会删除延迟元素。但是，Flink允许为窗口操作符指定允许的最大迟到时间。Allowed lateness指定元素在被删除之前的延迟时间，默认值为0。在水位线通过窗口末尾之后到达的元素，在水位线通过窗口末尾之前到达的元素，加上允许的延迟，仍然被添加到窗口中。根据所使用的触发器，延迟但未删除的元素可能导致窗口再次触发。这是`EventTimeTrigger`的情况。
 
 为了使其工作，Flink将保持窗口的状态，直到允许的延迟过期。一旦发生这种情况，Flink将删除窗口并删除其状态，正如[窗口生命周期](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/stream/operators/windows.html#window-lifecycle)部分中所描述的那样。
 
 {% hint style="info" %}
-默认：默认情况下，允许的延迟设置为 `0`。也就是说，到达水印后面的元素将被丢弃。
+默认：默认情况下，允许的延迟设置为 `0`。也就是说，到达水位线后面的元素将被丢弃。
 {% endhint %}
 
 可以指定允许的延迟，如下所示：
@@ -1158,7 +1158,7 @@ val lateStream = result.getSideOutput(lateOutputTag)
 
 ### 迟到元素考虑因素
 
-当指定允许的延迟大于0时，在水印通过窗口的末尾之后，窗口及其内容将保持不变。在这些情况下，当一个迟到但未删除的元素到达时，它可能触发窗口的另一个触发。这些触发称为延迟触发，因为它们是由延迟事件触发的，而主触发是窗口的第一次触发。对于会话窗口，延迟触发可能进一步导致窗口合并，因为它们可能“桥接”两个已存在的未合并窗口之间的差距。
+当指定允许的延迟大于0时，在水位线通过窗口的末尾之后，窗口及其内容将保持不变。在这些情况下，当一个迟到但未删除的元素到达时，它可能触发窗口的另一个触发。这些触发称为延迟触发，因为它们是由延迟事件触发的，而主触发是窗口的第一次触发。对于会话窗口，延迟触发可能进一步导致窗口合并，因为它们可能“桥接”两个已存在的未合并窗口之间的差距。
 
 {% hint style="info" %}
 注意：你应该知道，延迟触发发出的元素应该被视为以前计算的更新结果，即，数据流将包含相同计算的多个结果。根据应用程序，需要考虑这些重复的结果，或者消除它们的重复。
@@ -1166,18 +1166,18 @@ val lateStream = result.getSideOutput(lateOutputTag)
 
 ## 使用窗口结果
 
-窗口化操作的结果也是一个DataStream，结果元素中不保留关于窗口化操作的信息，因此如果想保留关于窗口的元信息，必须在`ProcessWindowFunction`的结果元素中手动编码该信息。在结果元素上设置的唯一相关信息是元素时间戳。将其设置为处理后的窗口允许的最大时间戳，即结束时间戳- 1，因为窗口结束时间戳是独占的。注意，这对于事件时间窗口和处理时间窗口都是正确的。例如，在窗口操作之后，元素总是有一个时间戳，但是这个时间戳可以是事件时间戳或处理时间时间戳。对于处理时间窗口，这没有特殊的含义，但是对于事件时间窗口，以及水印如何与窗口交互，使得具有相同窗口大小的[连续窗口操作](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/stream/operators/windows.html#consecutive-windowed-operations)成为可能。我们将在看完水印如何与窗口交互后讨论这个问题。
+窗口化操作的结果也是一个DataStream，结果元素中不保留关于窗口化操作的信息，因此如果想保留关于窗口的元信息，必须在`ProcessWindowFunction`的结果元素中手动编码该信息。在结果元素上设置的唯一相关信息是元素时间戳。将其设置为处理后的窗口允许的最大时间戳，即结束时间戳- 1，因为窗口结束时间戳是独占的。注意，这对于事件时间窗口和处理时间窗口都是正确的。例如，在窗口操作之后，元素总是有一个时间戳，但是这个时间戳可以是事件时间戳或处理时间时间戳。对于处理时间窗口，这没有特殊的含义，但是对于事件时间窗口，以及水位线如何与窗口交互，使得具有相同窗口大小的[连续窗口操作](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/stream/operators/windows.html#consecutive-windowed-operations)成为可能。我们将在看完水位线如何与窗口交互后讨论这个问题。
 
-### 水印和窗口的交互
+### 水位线和窗口的交互
 
-在继续本节之前，您可能需要查看有关 [事件时间和水印的部分](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/event_time.html)。
+在继续本节之前，您可能需要查看有关 [事件时间和水位鲜的部分](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/event_time.html)。
 
-当水印到达窗口操作符时，会触发两件事：
+当水位线到达窗口操作符时，会触发两件事：
 
-* 水印触发计算所有窗口，其中最大时间戳（即 _结束时间戳-1_）小于新水印
-* 水印被转发（按原样）到下游操作
+* 水位线触发计算所有窗口，其中最大时间戳（即 _结束时间戳-1_）小于新水位线
+* 水位线被转发（按原样）到下游操作
 
-直观地，水印“冲出（flushes）”任何窗口，一旦接收到该水印，将在下游操作中被认为是迟到的。
+直观地，水位线“冲出（flushes）”任何窗口，一旦接收到该水位线，将在下游操作中被认为是迟到的。
 
 ### 连续窗口操作
 
