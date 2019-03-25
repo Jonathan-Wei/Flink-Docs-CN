@@ -546,6 +546,18 @@ connector:
 {% endtab %}
 {% endtabs %}
 
+**指定开始读取位置：**默认情况下，Kafka源将开始从Zookeeper或Kafka代理中的已提交组偏移量中读取数据。您可以指定其他起始位置，这些位置对应于[Kafka消费者起始位置配置](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/connectors/kafka.html#kafka-consumers-start-position-configuration)部分中的[配置](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/connectors/kafka.html#kafka-consumers-start-position-configuration)。
+
+**Flink-Kafka Sink Partitioning：**默认情况下，**Kafka接收**器最多写入与其自身并行性一样多的分区（接收器的每个并行实例只写入一个分区）。为了将写入分发到更多分区或控制行路由到分区，可以提供自定义接收器分区器。循环分区器可用于避免不平衡的分区。但是，它会在所有Flink实例和所有Kafka代理之间产生大量网络连接。
+
+**一致性保证：**默认情况下，如果在[启用](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/stream/state/checkpointing.html#enabling-and-configuring-checkpointing)了[检查点的](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/stream/state/checkpointing.html#enabling-and-configuring-checkpointing)情况下执行查询，则Kafka接收器会使用至少一次保证将数据提取到Kafka主题中。
+
+**Kafka 0.10+时间戳：**自Kafka 0.10起，Kafka消息的时间戳作为元数据，指定记录何时写入Kafka主题。通过分别在YAML和Java / Scala中选择，可以将这些时间戳用于[行时属性](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/connect.html#defining-the-schema)。`timestamps: from-sourcetimestampsFromSource()`
+
+**Kafka 0.11+版本控制：**自Flink 1.7起，Kafka连接器定义应独立于硬编码的Kafka版本。使用连接器版本`universal`作为Flink的Kafka连接器的通配符，该连接器与从0.11开始的所有Kafka版本兼容。
+
+确保添加特定于版本的Kafka依赖项。此外，需要指定相应的格式以便从Kafka读取和写入行。
+
 ### Elasticsearch连接器
 
 {% hint style="info" %}
@@ -635,6 +647,16 @@ connector:
 {% endtab %}
 {% endtabs %}
 
+**批量刷新：**有关可选刷新参数特征的更多信息，请参阅[相应的低级文档](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/connectors/elasticsearch.html)。
+
+**禁用检查点上的刷新：**禁用时，接收器不会等待Elasticsearch在检查点上确认所有待处理的操作请求。因此，接收器不会为至少一次传递动作请求提供任何强有力的保证。
+
+**关键字提取：** Flink自动从查询中提取有效关键字。例如，查询`SELECT a, b, c FROM t GROUP BY a, b`定义组合键的字段`a`和`b`。Elasticsearch连接器通过使用键分隔符连接查询中定义的顺序中的所有键字段，为每一行生成文档ID字符串。可以定义关键字段的空文字的自定义表示。
+
+{% hint style="danger" %}
+**注意** JSON格式定义了如何为外部系统编码文档，因此，必须将其添加为[依赖项](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/connect.html#formats)。
+{% endhint %}
+
 ## 表格式
 
 Flink提供了一组可与表连接器一起使用的表格式。
@@ -693,6 +715,10 @@ CSV格式包含在Flink中，不需要其他依赖项。
 **格式：**序列化架构   
 **格式：**反序列化架构
 {% endhint %}
+
+JSON格式允许读写与给定格式模式对应的JSON数据。格式模式可以定义为Flink类型、JSON模式，也可以从所需的表模式派生。Flink类型支持更类似SQL的定义，并映射到相应的SQL数据类型。JSON模式允许更复杂和嵌套的结构。
+
+如果格式模式等于表模式，还可以自动派生模式。这只允许定义模式信息一次。格式的名称、类型和字段顺序由表的模式决定。如果时间属性的原点不是字段，则忽略它们。表模式中的from定义被解释为按格式重命名的字段。
 
 {% tabs %}
 {% tab title="Java/Scala" %}
@@ -822,7 +848,18 @@ format:
 }
 ```
 
+缺少字段处理:默认情况下，缺少的JSON字段被设置为null。您可以启用严格的JSON解析，如果缺少字段，它将取消源\(和查询\)。
+
+确保将JSON格式添加为依赖项。
+
 ### Apache Avro格式
+
+{% hint style="info" %}
+**格式：**序列化架构   
+**格式：**反序列化架构
+{% endhint %}
+
+[Apache的Avro](https://avro.apache.org/)格式允许读取和写入对应于给定的Avro格式模式的数据。格式模式可以定义为Avro特定记录的完全限定类名，也可以定义为Avro架构字符串。如果使用类名，则在运行时期间类必须在类路径中可用。
 
 {% tabs %}
 {% tab title="Java/Scala" %}
