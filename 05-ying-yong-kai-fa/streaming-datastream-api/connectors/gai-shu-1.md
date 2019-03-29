@@ -29,7 +29,7 @@ Flink内置了一些基本的数据Source和Sink，并且总是可用的。预�
 
 Flink的其他流媒体连接器正在通过[Apache Bahir](https://bahir.apache.org/)发布，包括：
 
-* [Apache ActiveMQ](https://bahir.apache.org/docs/flink/current/flink-streaming-activemq/)（Source/汇）
+* [Apache ActiveMQ](https://bahir.apache.org/docs/flink/current/flink-streaming-activemq/)（Source/Sink）
 * [Apache Flume](https://bahir.apache.org/docs/flink/current/flink-streaming-flume/)（Sink）
 * [Redis](https://bahir.apache.org/docs/flink/current/flink-streaming-redis/)（Sink）
 * [Akka](https://bahir.apache.org/docs/flink/current/flink-streaming-akka/)（Sink）
