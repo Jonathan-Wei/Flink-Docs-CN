@@ -1073,7 +1073,7 @@ Flink还通过以下函数对转换后的精确流分区进行低级别控制（
       </td>
     </tr>
   </tbody>
-</table>![&#x91CD;&#x65B0;&#x8C03;&#x6574;&#x7684;&#x793A;&#x4F8B;&#x53EF;&#x89C6;&#x5316;&#x56FE;&#x5F62;](../../../.gitbook/assets/image%20%2815%29.png)
+</table>![&#x91CD;&#x65B0;&#x8C03;&#x6574;&#x7684;&#x793A;&#x4F8B;&#x53EF;&#x89C6;&#x5316;&#x56FE;&#x5F62;](../../../.gitbook/assets/image%20%2817%29.png)
 
 ## 任务链和资源组 <a id="task-chaining-and-resource-groups"></a>
 

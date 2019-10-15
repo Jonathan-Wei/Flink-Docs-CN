@@ -100,6 +100,8 @@
       * [读取和写入Hive表](05-ying-yong-kai-fa/04-table-api-and-sql/hive/du-qu-he-xie-ru-hive-biao.md)
       * [Hive函数](05-ying-yong-kai-fa/04-table-api-and-sql/hive/hive-han-shu.md)
       * [在scala shell中使用Hive连接器](05-ying-yong-kai-fa/04-table-api-and-sql/hive/zai-scala-shell-zhong-shi-yong-hive-lian-jie-qi.md)
+    * [性能优化](05-ying-yong-kai-fa/04-table-api-and-sql/xing-neng-you-hua/README.md)
+      * [流式聚合](05-ying-yong-kai-fa/04-table-api-and-sql/xing-neng-you-hua/liu-shi-ju-he.md)
   * [数据类型&序列化](05-ying-yong-kai-fa/shu-ju-lei-xing-xu-lie-hua/README.md)
     * [概述](05-ying-yong-kai-fa/shu-ju-lei-xing-xu-lie-hua/gai-shu.md)
     * [自定义序列化](05-ying-yong-kai-fa/shu-ju-lei-xing-xu-lie-hua/zi-ding-yi-xu-lie-hua.md)

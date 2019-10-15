@@ -6,7 +6,7 @@
 
 下图中的示例数据流由五个子任务执行，因此具有五个并行线程。
 
-![](../.gitbook/assets/image%20%2819%29.png)
+![](../.gitbook/assets/image%20%2822%29.png)
 
 ## Job Managers, Task Managers, Clients
 
@@ -39,7 +39,7 @@ JobManagers和TaskManagers可以通过多种方式启动：作为[独立集群](
 * Flink集群需要的任务插槽与作业中使用的最高并行度一样多。不需要计算一个程序总共包含多少任务\(具有不同的并行度\)。
 * 更容易得到更好的资源利用。如果没有插槽共享，非密集型source/map\(\)子任务将阻塞与资源密集型窗口子任务一样多的资源。使用插槽共享，将我们示例中的基本并行度从2提高到6，可以充分利用插槽资源，同时确保繁重的子任务在任务管理器中得到公平分配。
 
-![](../.gitbook/assets/image%20%287%29.png)
+![](../.gitbook/assets/image%20%289%29.png)
 
 API还包括一个资源组机制，可用于防止不需要的插槽共享。
 
@@ -49,7 +49,7 @@ API还包括一个资源组机制，可用于防止不需要的插槽共享。
 
 存储键/值索引的确切数据结构取决于所选的[状态后端](https://ci.apache.org/projects/flink/flink-docs-release-1.7/ops/state/state_backends.html)。一个状态后端将数据存储在内存中的哈希映射中，另一个状态后端使用[RocksDB](http://rocksdb.org/)作为键/值存储。除了定义保存状态的数据结构之外，状态后端还实现逻辑以获取键/值状态的时间点快照，并将该快照存储为检查点的一部分。
 
-![](../.gitbook/assets/image%20%2825%29.png)
+![](../.gitbook/assets/image%20%2828%29.png)
 
 ## 保存点\(Savepoints\)
 
