@@ -1,5 +1,9 @@
 # SQL
 
+这是Flink支持的数据定义语言（DDL）和数据操作语言（DML）结构的完整列表。
+
+## Query
+
 使用`TableEnvironment`的`sqlQuery()`方法指定SQL查询。该方法以表的形式返回SQL查询的结果。表可以用于后续的[SQL和表API查询](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/common.html#mixing-table-api-and-sql)，可以[转换为`DataSet`或`DataStream`](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/common.html#integration-with-datastream-and-dataset-api)，也可以写入[TableSink](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/common.html#emit-a-table)\)。可以无缝地混合SQL和Table API查询，并对其进行整体优化，并将其转换为单个程序。
 
 为了访问SQL查询中的表，必须在`TableEnvironment`中注册表。可以从[TableSource](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/common.html#register-a-tablesource), [Table](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/common.html#register-a-table), [DataStream, 或 DataSet](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/common.html#register-a-datastream-or-dataset-as-table).注册表。另外，用户还可以在`TableEnvironment`中注册外部目录，以指定数据源的位置。
@@ -8,7 +12,7 @@
 
 **注意**:Flink的SQL支持还不够完善。包含不受支持的SQL特性的查询会导致`TableException`。下面几节列出了批处理表和流表上的SQL支持的特性。
 
-## 指定查询
+### 指定查询
 
 下面的示例展示如何在注册表和内联表上指定SQL查询。
 
@@ -78,7 +82,7 @@ tableEnv.sqlUpdate(
 {% endtab %}
 {% endtabs %}
 
-## 支持语法
+### 支持语法
 
 Flink使用[Apache Calcite](https://calcite.apache.org/docs/reference.html)解析SQL ，它支持标准的ANSI SQL。Flink不支持DDL语句。
 
@@ -220,9 +224,9 @@ Flink SQL对标识符\(表、属性、函数名\)使用类似于Java的词汇策
 * 使用反斜杠\(\\)作为转义字符\(默认\):`SELECT U&'\263A'`
 * 使用自定义转义字符:`SELECT U&'#263A' UESCAPE '#'`
 
-## 操作
+### 操作
 
-### ​扫描，投影，过滤\(Scan, Projection, and Filter\)
+#### ​扫描，投影，过滤\(Scan, Projection, and Filter\)
 
 <table>
   <thead>
@@ -264,7 +268,7 @@ Flink SQL对标识符\(表、属性、函数名\)使用类似于Java的词汇策
       </td>
     </tr>
   </tbody>
-</table>### 聚合\(Aggregations\)
+</table>#### 聚合\(Aggregations\)
 
 <table>
   <thead>
@@ -333,11 +337,104 @@ Flink SQL对标识符\(表、属性、函数名\)使用类似于Java的词汇策
       </td>
     </tr>
   </tbody>
-</table>### 关联\(Joins\)
+</table>#### 关联\(Joins\)
 
-### 集合操作\(Set Operations\)
+| 操作 | 描述 |
+| :--- | :--- |
+| **Inner Equi-join** |  |
+| **Outer Equi-join** |  |
+| 时间窗口关联 |  |
+| **将数组扩展为**关联 |  |
+| 表函数关联 |  |
+| 时态表关联 |  |
 
-### OrderBy & Limit
+#### 集合操作\(Set Operations\)
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">&#x64CD;&#x4F5C;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><b>Union</b>
+        <br />Batch</td>
+      <td style="text-align:left">
+        <p><b>SELECT</b>  <b>*</b>
+        </p>
+        <p><b>FROM</b> (</p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> a <b>%</b> 2 <b>=</b> 0)</p>
+        <p> <b>UNION</b>
+        </p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> b <b>=</b> 0)</p>
+        <p>)</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left">
+        <p><b>UnionAll</b>
+          <br />Batch</p>
+        <p>Streaming</p>
+      </td>
+      <td style="text-align:left">
+        <p><b>SELECT</b>  <b>*</b>
+        </p>
+        <p><b>FROM</b> (</p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> a <b>%</b> 2 <b>=</b> 0)</p>
+        <p> <b>UNION</b>  <b>ALL</b>
+        </p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> b <b>=</b> 0)</p>
+        <p>)</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left">
+        <p><b>Intersect / Except</b>
+        </p>
+        <p>Batch</p>
+      </td>
+      <td style="text-align:left">
+        <p><b>SELECT</b>  <b>*</b>
+        </p>
+        <p><b>FROM</b> (</p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> a <b>%</b> 2 <b>=</b> 0)</p>
+        <p> <b>INTERSECT</b>
+        </p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> b <b>=</b> 0)</p>
+        <p>)</p>
+        <p></p>
+        <p><b>SELECT</b>  <b>*</b>
+        </p>
+        <p><b>FROM</b> (</p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> a <b>%</b> 2 <b>=</b> 0)</p>
+        <p> <b>EXCEPT</b>
+        </p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> b <b>=</b> 0)</p>
+        <p>)</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left">
+        <p><b>In</b>
+        </p>
+        <p>Batch</p>
+        <p>Streaming</p>
+      </td>
+      <td style="text-align:left"></td>
+    </tr>
+    <tr>
+      <td style="text-align:left">
+        <p><b>Exists</b>
+        </p>
+        <p>Batch</p>
+        <p>Streaming</p>
+      </td>
+      <td style="text-align:left"></td>
+    </tr>
+  </tbody>
+</table>#### OrderBy & Limit
 
 <table>
   <thead>
@@ -375,7 +472,7 @@ Flink SQL对标识符\(表、属性、函数名\)使用类似于Java的词汇策
       </td>
     </tr>
   </tbody>
-</table>### 插入\(Insert\)
+</table>#### 插入\(Insert\)
 
 <table>
   <thead>
@@ -401,7 +498,7 @@ Flink SQL对标识符\(表、属性、函数名\)使用类似于Java的词汇策
       </td>
     </tr>
   </tbody>
-</table>### 组窗口\(Group Windows\)
+</table>#### 组窗口\(Group Windows\)
 
 组窗口是在SQL查询的`Group BY`子句中定义的。就像使用常规的`GROUP BY`子句查询一样，使用包含`GROUP`窗口函数的`GROUP BY`子句查询可以计算每个组的单个结果行。批处理表和流表上的SQL支持以下组`windows`函数。
 
@@ -562,7 +659,7 @@ val result4 = tableEnv.sqlQuery(
 {% endtab %}
 {% endtabs %}
 
-### 模式识别\(Pattern Recognition\)
+#### 模式识别\(Pattern Recognition\)
 
 SQL运行时构建于Flink的DataSet和DataStream API之上。在内部，它还使用Flink `TypeInformation`来定义数据类型。完全支持的类型列在`org.apache.flink.table.api.Types`。下表总结了SQL类型，表API类型和生成的Java类之间的关系。
 
@@ -615,7 +712,107 @@ SQL运行时构建于Flink的DataSet和DataStream API之上。在内部，它还
       </td>
     </tr>
   </tbody>
-</table>## 数据类型
+</table>## DDL
+
+
+
+{% hint style="info" %}
+**注意：** Flink的DDL支持尚未完成。包含不受支持的SQL功能的查询会导致`TableException`。以下各节列出了批处理和流表上SQL DDL支持的功能。
+{% endhint %}
+
+### 指定DDL
+
+以下示例显示如何指定SQL DDL。
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+
+// SQL query with a registered table
+// register a table named "Orders"
+tableEnv.sqlUpdate("CREATE TABLE Orders (`user` BIGINT, product VARCHAR, amount INT) WITH (...)");
+// run a SQL query on the Table and retrieve the result as a new Table
+Table result = tableEnv.sqlQuery(
+  "SELECT product, amount FROM Orders WHERE product LIKE '%Rubber%'");
+
+// SQL update with a registered table
+// register a TableSink
+tableEnv.sqlUpdate("CREATE TABLE RubberOrders(product VARCHAR, amount INT) WITH (...)");
+// run a SQL update query on the Table and emit the result to the TableSink
+tableEnv.sqlUpdate(
+  "INSERT INTO RubberOrders SELECT product, amount FROM Orders WHERE product LIKE '%Rubber%'");
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+val env = StreamExecutionEnvironment.getExecutionEnvironment
+val tableEnv = StreamTableEnvironment.create(env)
+
+// SQL query with a registered table
+// register a table named "Orders"
+tableEnv.sqlUpdate("CREATE TABLE Orders (`user` BIGINT, product VARCHAR, amount INT) WITH (...)");
+// run a SQL query on the Table and retrieve the result as a new Table
+val result = tableEnv.sqlQuery(
+  "SELECT product, amount FROM Orders WHERE product LIKE '%Rubber%'");
+
+// SQL update with a registered table
+// register a TableSink
+tableEnv.sqlUpdate("CREATE TABLE RubberOrders(product VARCHAR, amount INT) WITH ('connector.path'='/path/to/file' ...)");
+// run a SQL update query on the Table and emit the result to the TableSink
+tableEnv.sqlUpdate(
+  "INSERT INTO RubberOrders SELECT product, amount FROM Orders WHERE product LIKE '%Rubber%'")
+```
+{% endtab %}
+
+{% tab title="Python" %}
+```python
+env = StreamExecutionEnvironment.get_execution_environment()
+table_env = StreamTableEnvironment.create(env)
+
+# SQL update with a registered table
+# register a TableSink
+table_env.sql_update("CREATE TABLE RubberOrders(product VARCHAR, amount INT) with (...)")
+# run a SQL update query on the Table and emit the result to the TableSink
+table_env \
+    .sql_update("INSERT INTO RubberOrders SELECT product, amount FROM Orders WHERE product LIKE '%Rubber%'")
+```
+{% endtab %}
+{% endtabs %}
+
+**PARTITIONED BY**
+
+按指定的列对创建的表进行分区。如果此表用作文件系统接收器，则为每个分区创建一个目录。
+
+**WITH OPTIONS**
+
+用于创建表源/接收器的表属性。这些属性通常用于查找和创建基础连接器。
+
+### 创建表
+
+```sql
+CREATE TABLE [catalog_name.][db_name.]table_name
+  [(col_name1 col_type1 [COMMENT col_comment1], ...)]
+  [COMMENT table_comment]
+  [PARTITIONED BY (col_name1, col_name2, ...)]
+  WITH (key1=val1, key2=val2, ...)
+```
+
+### 删除表
+
+```sql
+DROP TABLE [IF EXISTS] [catalog_name.][db_name.]table_name
+```
+
+删除具有给定表名的表。如果要删除的表不存在，则抛出异常。
+
+**如果存在**
+
+如果表不存在，则不会发生任何事情。
+
+## 数据类型
 
 SQL运行时构建在Flink的DataSet和DataStream API之上。在内部，它还使用Flink的类型信息来定义数据类型。所有支持的类型列在`org.apache.flink.table.api.Types`中。下表总结了SQL类型、表API类型和生成的Java类之间的关系。
 
