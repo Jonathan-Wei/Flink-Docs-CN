@@ -189,6 +189,8 @@
 
 * [FAQ](others/faq.md)
 * [Blog](others/blog.md)
+* [Release Notes](others/release-notes/README.md)
+  * [Flink 1.9](others/release-notes/flink-1.9.md)
 * [获取帮助](others/huo-qu-bang-zhu.md)
 * [社区及项目信息](others/she-qu-ji-xiang-mu-xin-xi.md)
 * [How To Contribute](others/how-to-contribute.md)
