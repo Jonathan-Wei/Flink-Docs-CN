@@ -66,3 +66,42 @@ $ mvn archetype:generate \
 
 你可以根据你的喜好去修改`groupId`, `artifactId` 和`package`。使用上述参数，Maven将创建一个具有所有依赖项的项目以完成本教程。将项目导入编辑器后，您将看到一个包含以下代码的文件，可以直接在IDE中运行。
 
+{% tabs %}
+{% tab title="Java" %}
+```text
+ExecutionEnvironment env   = ExecutionEnvironment.getExecutionEnvironment();
+BatchTableEnvironment tEnv = BatchTableEnvironment.create(env);
+
+tEnv.registerTableSource("transactions", new BoundedTransactionTableSource());
+tEnv.registerTableSink("spend_report", new SpendReportTableSink());
+tEnv.registerFunction("truncateDateToHour", new TruncateDateToHour());
+
+tEnv
+    .scan("transactions")
+    .insertInto("spend_report");
+
+env.execute("Spend Report");
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```text
+val env  = ExecutionEnvironment.getExecutionEnvironment
+val tEnv = BatchTableEnvironment.create(env)
+
+tEnv.registerTableSource("transactions", new BoundedTransactionTableSource)
+tEnv.registerTableSink("spend_report", new SpendReportTableSink)
+
+val truncateDateToHour = new TruncateDateToHour
+
+tEnv
+    .scan("transactions")
+    .insertInto("spend_report")
+
+env.execute("Spend Report")
+```
+{% endtab %}
+{% endtabs %}
+
+
+
