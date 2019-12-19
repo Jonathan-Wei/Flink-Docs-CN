@@ -96,9 +96,11 @@ env.setRestartStrategy(RestartStrategies.fixedDelayRestart(
 
 通过在`flink-conf.yaml`中设置以下配置参数，可以默认启用此策略。
 
+{% code title="" %}
 ```text
 restart-strategy: failure-rate
 ```
+{% endcode %}
 
 | 配置参数 | 描述 | 默认值 |
 | :--- | :--- | :--- |

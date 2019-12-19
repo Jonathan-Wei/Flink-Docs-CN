@@ -11,7 +11,7 @@
 
 **持续更新中...**
 
-![](.gitbook/assets/image%20%2811%29.png)
+![](.gitbook/assets/qrcode_for_gh_2b08e1f9f8d9_258.jpg)
 
 ## Flink中文文档（基于Flink 1.9版本）
 
