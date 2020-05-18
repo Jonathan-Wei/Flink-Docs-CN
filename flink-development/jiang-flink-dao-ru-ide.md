@@ -61,13 +61,61 @@ IntelliJ使用Checkstyle-IDEA插件支持IDE中的checkstyle。
 一些模块没有完全被CheckStyle的，其中包括`flink-core`，`flink-optimizer`和`flink-runtime`。不过请确保您在这些模块中添加/修改的代码仍然符合checkstyle规则。
 {% endhint %}
 
-### 适用于Scala的Checkstyle
+### Scala Checkstyle
 
 通过选择“Settings -&gt; Editor -&gt; Inspections”，然后搜索“Scala样式检查”，在Intellij中启用scalastyle。也`"tools/maven/scalastyle_config.xml"`放在`"<root>/.idea"`或`"<root>/project"`目录中。
+
+### 常问问题
+
+本节列出了开发人员过去使用IntelliJ时遇到的问题：
+
+* 编译失败 `invalid flag: --add-expots=java.base/sun.net.util=ALL-UNNAMED`
+
+这意味着IntelliJ激活了java11配置文件，尽管使用的是一个更老的JDK。打开Maven工具窗口\(View -&gt; tool Windows -&gt; Maven\)，取消选中java11概要文件并重新导入项目。
+
+*  编译失败 `cannot find symbol: symbol: method defineClass(...) location: class sun.misc.Unsafe`
+
+这意味着IntelliJ在项目中使用的是JDK 11，而你使用的是一个不支持Java 11的Flink版本。当你将IntelliJ设置为使用JDK 11并签出较老版本的Flink\(&lt;= 1.9\)时，通常会发生这种情况。打开项目设置窗口\(文件-&gt;项目结构-&gt;项目设置:项目\)，选择JDK 8作为项目SDK。如果您想使用JDK 11，那么在切换回新的Flink版本之后，您可能需要恢复这个设置。
+
+*  使用Flink类`NoClassDefFoundError`失败示例。
+
+ 这可能是由于将Flink依赖项设置为“Provided”，导致它们未自动放置在类路径上。您可以在运行配置中勾选“包括具有'Provided'作用域的依赖关系”框，也可以创建一个调用`main()`示例方法的测试（`provided`依赖关系在测试类路径中可用）。
 
 ## Eclipse
 
 **注意：**根据我们的经验，由于与Scala IDE 3.0.3捆绑在一起的旧Eclipse版本的不足或者与Scala IDE 4.4.1中捆绑的Scala版本的版本不兼容，此设置不适用于Flink。
 
 **我们建议改用IntelliJ（见**[**上文**](https://ci.apache.org/projects/flink/flink-docs-release-1.7/flinkDev/ide_setup.html#intellij-idea)**）**
+
+## PyCharm
+
+关于如何为开发flink-python模块设置PyCharm的简要指南。
+
+以下文档介绍了使用Flink Python源设置PyCharm 2019.1.3（[https://www.jetbrains.com/pycharm/download/](https://www.jetbrains.com/pycharm/download/)）的步骤。
+
+### 导入flink-python
+
+如果您位于PyCharm启动界面中：
+
+1. 启动PyCharm，然后选择“打开”
+2. 在克隆的Flink存储库中选择flink-python文件夹
+
+如果您使用PyCharm打开了一个项目：
+
+1. 选择“文件-&gt;打开”
+2. 在克隆的Flink存储库中选择flink-python文件夹
+
+### Python ****Checkstyle
+
+Apache Flink的Python代码checkstyle应该在项目中创建一个flake8外部工具。
+
+1. 将flake8安装在使用的Python解释器中（请参阅（[https://pypi.org/project/flake8/](https://pypi.org/project/flake8/)）。
+2. 选择“ PyCharm-&gt;首选项...-&gt;工具-&gt;外部工具-&gt; +（右侧页面的左下角）”，然后配置外部工具。
+3. 将“名称”设置为“ flake8”。
+4. 将“描述”设置为“代码样式检查”。
+5. 将“程序”设置为Python解释器路径（例如/ usr / bin / python）。
+6. 将“参数”设置为“ -m flake8 --config = tox.ini”
+7. 将“工作目录”设置为“ $ ProjectFileDir $”
+
+现在，您可以通过以下操作检查您的Python代码样式：“右键单击flink-python项目中的任何文件或文件夹-&gt;外部工具-&gt; flake8”
 

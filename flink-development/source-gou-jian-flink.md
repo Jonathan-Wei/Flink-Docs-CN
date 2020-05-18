@@ -30,6 +30,24 @@ mvn clean install -DskipTests -Dfast
 
 默认构建为Hadoop 2添加了特定于Flink的JAR，以允许将Flink与HDFS和YARN一起使用。
 
+## 构建PyFlink
+
+ 如果要构建可用于pip安装的PyFlink软件包，则需要首先构建Flink jar，如[Build Flink中所述](https://ci.apache.org/projects/flink/flink-docs-release-1.10/flinkDev/building.html#build-flink)。然后转到flink源代码的根目录，并运行以下命令来构建sdist包和wheel包：
+
+```text
+cd flink-python; python setup.py sdist bdist_wheel
+```
+
+{% hint style="info" %}
+构建PyFlink需要Python版本（3.5、3.6或3.7）。
+{% endhint %}
+
+sdist和wheel package可以在./flink-python/dist/下找到。它们中的任何一个都可用于安装pip，例如:
+
+```text
+python -m pip install dist/*.tar.gz
+```
+
 ## 依赖遮蔽
 
 Flink[遮挡](https://maven.apache.org/plugins/maven-shade-plugin/)一些使用的库中，以避免与使用不同版本的这些库的用户程序版本冲突。遮蔽的库包括_Google Guava_，_Asm_，_Apache Curator_，_Apache HTTP Components_，_Netty_等。
@@ -50,27 +68,7 @@ _注意：_要检查Maven版本，请运行`mvn --version`。
 
 ## Hadoop版本
 
-{% hint style="info" %}
-大多数用户不需要手动执行此操作。该[下载页面](http://flink.apache.org/downloads.html)包含了常见的Hadoop版本的二进制软件包。
-{% endhint %}
-
-Flink依赖于HDFS和YARN，它们都是来自[Apache Hadoop的](http://hadoop.apache.org/)依赖项。存在许多不同版本的Hadoop（来自上游项目和不同的Hadoop发行版）。如果使用错误的版本组合，则可能发生异常。
-
-Hadoop仅从2.4.0版本开始支持。您还可以指定要构建的特定Hadoop版本：
-
-```text
-mvn clean install -DskipTests -Dhadoop.version=2.6.1
-```
-
-### 供应商特定版本
-
-要针对特定​​于供应商的Hadoop版本构建Flink，请执行以下命令：
-
-```text
-mvn clean install -DskipTests -Pvendor-repos -Dhadoop.version=2.6.1-cdh5.0.0
-```
-
-在`-Pvendor-repos`激活一个Maven [构建Profile](http://maven.apache.org/guides/introduction/introduction-to-profiles.html)，其包括流行的Hadoop厂商如Cloudera的，Hortonworks，或MAPR的存储库。
+ 请参阅有关如何处理Hadoop类和版本的[Hadoop集成部分](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/deployment/hadoop.html)。
 
 ## Scala版本
 
