@@ -69,7 +69,7 @@ web.checkpoints.history: 15
 
 单击检查点的“ _更多详细信息”_链接时，将获得所有运算符的“最小/平均/最大”摘要以及每个子任务的详细数字。
 
-![](../.gitbook/assets/image%20%2837%29.png)
+![](../.gitbook/assets/image%20%2838%29.png)
 
 **每个操作符摘要**
 
