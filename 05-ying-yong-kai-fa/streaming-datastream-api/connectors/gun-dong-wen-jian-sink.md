@@ -1,4 +1,8 @@
-# HDFS
+# Hadoop文件系统
+
+{% hint style="info" %}
+ 注意：Flink 1.9已弃用`BucketingSink`，将在后续版本中被删除。请改用[**StreamingFileSink**](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/connectors/streamfile_sink.html)。
+{% endhint %}
 
 此连接器提供一个Sink，用于将分区文件写入[Hadoop FileSystem](http://hadoop.apache.org/)支持的任何文件系统 。要使用此连接器，请将以下依赖项添加到项目中：
 

@@ -50,7 +50,7 @@ web.checkpoints.history: 15
 
 摘要计算在对齐期间缓冲的端到端持续时间，状态大小和字节的所有已完成检查点的简单最小/平均/最大统计数据（有关这些含义的详细信息，请参阅[历史记录](https://ci.apache.org/projects/flink/flink-docs-release-1.7/monitoring/checkpoint_monitoring.html#history)）。
 
-![](../.gitbook/assets/image%20%2821%29.png)
+![](../.gitbook/assets/image%20%2822%29.png)
 
 请注意，这些统计数据不会在JobManager丢失后继续存在，并且会在JobManager故障时重置。
 
@@ -69,7 +69,7 @@ web.checkpoints.history: 15
 
 单击检查点的“ _更多详细信息”_链接时，将获得所有运算符的“最小/平均/最大”摘要以及每个子任务的详细数字。
 
-![](../.gitbook/assets/image%20%2836%29.png)
+![](../.gitbook/assets/image%20%2837%29.png)
 
 **每个操作符摘要**
 

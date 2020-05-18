@@ -663,5 +663,5 @@ Flink通过将程序拆分为子任务并将这些子任务调度到处理槽来
 
 ![](../.gitbook/assets/image%20%286%29.png)
 
-![](../.gitbook/assets/image%20%2824%29.png)
+![](../.gitbook/assets/image%20%2825%29.png)
 
