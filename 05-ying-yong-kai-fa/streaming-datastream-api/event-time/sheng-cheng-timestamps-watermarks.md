@@ -18,6 +18,13 @@ val env = StreamExecutionEnvironment.getExecutionEnvironment
 env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 ```
 {% endtab %}
+
+{% tab title="" %}
+```python
+env = StreamExecutionEnvironment.get_execution_environment()
+env.set_stream_time_characteristic(TimeCharacteristic.EventTime)
+```
+{% endtab %}
 {% endtabs %}
 
 ## 分配时间戳

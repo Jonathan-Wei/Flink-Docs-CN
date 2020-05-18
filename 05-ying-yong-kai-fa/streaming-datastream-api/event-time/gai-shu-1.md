@@ -74,6 +74,18 @@ stream
     .addSink(...)
 ```
 {% endtab %}
+
+{% tab title="Python" %}
+```python
+env = StreamExecutionEnvironment.get_execution_environment()
+
+env.set_stream_time_characteristic(TimeCharacteristic.ProcessingTime)
+
+# alternatively:
+# env.set_stream_time_characteristic(TimeCharacteristic.IngestionTime)
+# env.set_stream_time_characteristic(TimeCharacteristic.EventTime)
+```
+{% endtab %}
 {% endtabs %}
 
 请注意，为了在事件时间运行此示例，程序需要使用直接为数据定义事件时间的源并自行发出水位线，或者程序必须在源之后注入时间戳分配器和水位线生成器。 这些函数描述了如何访问事件时间戳，以及事件流表现出的无序程度。

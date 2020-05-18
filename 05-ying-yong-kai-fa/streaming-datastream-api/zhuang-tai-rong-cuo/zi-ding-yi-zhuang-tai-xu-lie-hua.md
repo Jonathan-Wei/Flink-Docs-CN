@@ -42,6 +42,16 @@ checkpointedState = getRuntimeContext.getListState(descriptor)
 
 本节介绍与状态序列化和模式演变相关的面向用户的抽象，以及有关Flink如何与这些抽象交互的必要内部详细信息。
 
+从SavePoint还原时，Flink允许更改用于读取和写入先前注册状态的序列化器，这样用户就不会被锁定在任何特定的序列化模式中。恢复状态后，将为该状态注册一个新的序列化器（即，`StateDescriptor`用于访问已恢复作业中的状态的序列化器）。此新的序列化器可能具有与以前的序列化器不同的架构。因此，在实现状态序列化器时，除了读取/写入数据的基本逻辑外，还要牢记的另一件事是将来如何更改序列化架构。
+
+在谈到_模式时_，在此上下文中，该术语在引用状态类型的_数据模型_与状态类型的_序列化二进制格式_之间是可以互换的。一般来说，该模式可以在以下几种情况下进行更改：
+
+1. 状态类型的数据模式已得到发展，即从用作状态的POJO中添加或删除字段。
+2. 一般来说，更改数据模式后，需要升级序列化程序的序列化格式。
+3. 串行器的配置已更改。
+
+为了使新执行具有有关_书面_状态_模式_的信息并检测_模式_是否已更改，在获取操作员状态的保存点时，需要将状态序列化器的_快照_与状态字节一起写入。这是抽象的`TypeSerializerSnapshot`，将在下一部分中进行说明。
+
 ### `TypeSerializerSnapshot`抽象
 
 ```java
@@ -114,7 +124,151 @@ public abstract class TypeSerializer<T> {
 5. **拿另一个保存点，使用模式**_**B**_**序列化所有状态**
    * 与步骤2相同，但现在状态字节都在模式_B中_。
 
-## 实施说明和最佳做法
+## 预定义的便捷`TypeSerializerSnapshot`类
+
+Flink提供了两个抽象`TypeSerializerSnapshot`基类，它们可用于典型方案： `SimpleTypeSerializerSnapshot`和`CompositeTypeSerializerSnapshot`。
+
+提供这些预定义快照作为其序列化程序快照的序列化程序必须始终具有自己的独立子类实现。这与不跨不同序列化程序共享快照类的最佳做法相对应，这将在下一节中进行更详细的说明。
+
+### 实现`SimpleTypeSerializerSnapshot`
+
+SimpleTypeSerializerSnapshot适用于没有任何状态或配置的序列化器，本质上意味着序列化器的序列化模式仅由序列化器的类定义。
+
+当使用SimpleTypeSerializerSnapshot作为你的序列化器的快照类时，只有2种可能的兼容性结果:
+
+* `TypeSerializerSchemaCompatibility.compatibleAsIs()`，如果新的序列化器类保持相同，或者
+* `TypeSerializerSchemaCompatibility.incompatible()`，如果新的序列化程序类与前一个不同。
+
+ 以下是使用方法的示例`SimpleTypeSerializerSnapshot`，以Flink `IntSerializer`为例：
+
+```java
+public class IntSerializerSnapshot extends SimpleTypeSerializerSnapshot<Integer> {
+    public IntSerializerSnapshot() {
+        super(() -> IntSerializer.INSTANCE);
+    }
+}
+```
+
+`IntSerializer`没有状态或配置。序列化格式仅由序列化器类本身定义，并且只能由另一个IntSerializer读取。因此，它适合`SimpleTypeSerializerSnapshot`的场景。
+
+`SimpleTypeSerializerSnapshot`的基本超级构造函数需要相应的序列化器实例的提供者，不管快照当前是被恢复还是在快照期间被写入。该供应商用于创建恢复序列化器，以及用于验证新序列化器是否属于预期的序列化器类的类型检查。
+
+### 实现`CompositeTypeSerializerSnapshot`
+
+ `CompositeTypeSerializerSnapshot`适用于依靠系列化多重嵌套串行序列化
+
+在进一步解释之前，我们将依赖于多个嵌套序列化器的序列化器称为上下文中的“外部”序列化器。例如`MapSerializer`、`ListSerializer`、`GenericArraySerializer`等等。例如，考虑`MapSerializer`——键和值序列化器是嵌套的序列化器，而MapSerializer本身是“外部的”序列化器。
+
+在这种情况下，外部序列化器的快照还应该包含嵌套序列化器的快照，这样就可以独立地检查嵌套序列化器的兼容性。在解决外部序列化器的兼容性时，需要考虑每个嵌套的序列化器的兼容性。
+
+提供CompositeTypeSerializerSnapshot是为了帮助实现这些组合序列化器的快照。它处理读取和写入嵌套序列化器快照，以及考虑到所有嵌套序列化器的兼容性而解析最终的兼容性结果。
+
+下面是如何使用CompositeTypeSerializerSnapshot的一个例子，使用Flink的MapSerializer作为一个例子:
+
+```java
+public class MapSerializerSnapshot<K, V> extends CompositeTypeSerializerSnapshot<Map<K, V>, MapSerializer> {
+
+    private static final int CURRENT_VERSION = 1;
+
+    public MapSerializerSnapshot() {
+        super(MapSerializer.class);
+    }
+
+    public MapSerializerSnapshot(MapSerializer<K, V> mapSerializer) {
+        super(mapSerializer);
+    }
+
+    @Override
+    public int getCurrentOuterSnapshotVersion() {
+        return CURRENT_VERSION;
+    }
+
+    @Override
+    protected MapSerializer createOuterSerializerWithNestedSerializers(TypeSerializer<?>[] nestedSerializers) {
+        TypeSerializer<K> keySerializer = (TypeSerializer<K>) nestedSerializers[0];
+        TypeSerializer<V> valueSerializer = (TypeSerializer<V>) nestedSerializers[1];
+        return new MapSerializer<>(keySerializer, valueSerializer);
+    }
+
+    @Override
+    protected TypeSerializer<?>[] getNestedSerializers(MapSerializer outerSerializer) {
+        return new TypeSerializer<?>[] { outerSerializer.getKeySerializer(), outerSerializer.getValueSerializer() };
+    }
+}
+```
+
+当实现一个新的序列化器快照作为CompositeTypeSerializerSnapshot的子类时，必须实现以下三个方法:
+
+* `#getCurrentOuterSnapshotVersion()`：此方法定义当前外部序列化器快照的序列化二进制格式的版本。。
+* `#getNestedSerializers(TypeSerializer)`：给定外部序列化器，返回其嵌套的序列化器。
+* `#createOuterSerializerWithNestedSerializers(TypeSerializer[])`：给定嵌套的序列化器，创建外部序列化器的实例。
+
+上面的例子是一个CompositeTypeSerializerSnapshot，其中除了嵌套的序列化器快照之外，没有其他需要快照的信息。因此，它的外部快照版本永远不需要增加。然而，其他一些序列化器包含一些额外的静态配置，需要与嵌套组件序列化器一起持久化。这方面的一个例子是Flink的GenericArraySerializer，它在配置中除了嵌套元素序列化器之外还包含数组元素类型的类。
+
+在这些情况下，需要在CompositeTypeSerializerSnapshot上实现另外三个方法:
+
+* `#writeOuterSnapshot(DataOutputView)`：定义外部快照信息的写入方式。
+* `#readOuterSnapshot(int, DataInputView, ClassLoader)`：定义如何读取外部快照信息。
+* `#isOuterSnapshotCompatible(TypeSerializer)`：检查外部快照信息是否相同。
+
+默认情况下，CompositeTypeSerializerSnapshot假定没有任何外部快照信息可读/可写，因此具有上述方法的空的默认实现。如果子类具有外部快照信息，则必须实现所有三个方法。
+
+下面是一个例子，使用Flink的GenericArraySerializer作为例子，说明如何将CompositeTypeSerializerSnapshot用于具有外部快照信息的复合序列化器快照:
+
+```java
+public final class GenericArraySerializerSnapshot<C> extends CompositeTypeSerializerSnapshot<C[], GenericArraySerializer> {
+
+    private static final int CURRENT_VERSION = 1;
+
+    private Class<C> componentClass;
+
+    public GenericArraySerializerSnapshot() {
+        super(GenericArraySerializer.class);
+    }
+
+    public GenericArraySerializerSnapshot(GenericArraySerializer<C> genericArraySerializer) {
+        super(genericArraySerializer);
+        this.componentClass = genericArraySerializer.getComponentClass();
+    }
+
+    @Override
+    protected int getCurrentOuterSnapshotVersion() {
+        return CURRENT_VERSION;
+    }
+
+    @Override
+    protected void writeOuterSnapshot(DataOutputView out) throws IOException {
+        out.writeUTF(componentClass.getName());
+    }
+
+    @Override
+    protected void readOuterSnapshot(int readOuterSnapshotVersion, DataInputView in, ClassLoader userCodeClassLoader) throws IOException {
+        this.componentClass = InstantiationUtil.resolveClassByName(in, userCodeClassLoader);
+    }
+
+    @Override
+    protected boolean isOuterSnapshotCompatible(GenericArraySerializer newSerializer) {
+        return this.componentClass == newSerializer.getComponentClass();
+    }
+
+    @Override
+    protected GenericArraySerializer createOuterSerializerWithNestedSerializers(TypeSerializer<?>[] nestedSerializers) {
+        TypeSerializer<C> componentSerializer = (TypeSerializer<C>) nestedSerializers[0];
+        return new GenericArraySerializer<>(componentClass, componentSerializer);
+    }
+
+    @Override
+    protected TypeSerializer<?>[] getNestedSerializers(GenericArraySerializer outerSerializer) {
+        return new TypeSerializer<?>[] { outerSerializer.getComponentSerializer() };
+    }
+}
+```
+
+在上面的代码片段中有两件重要的事情需要注意。首先，由于这个CompositeTypeSerializerSnapshot实现具有作为快照的一部分写入的外部快照信息，所以每当外部快照信息的序列化格式发生变化时，必须选中由getCurrentOuterSnapshotVersion\(\)定义的外部快照版本。
+
+其次，注意我们在编写组件类时如何避免使用Java序列化，只编写类名并在读取快照时动态加载它。在编写序列化器快照的内容时避免使用Java序列化通常是一个很好的实践。关于这一点的更多细节将在下一节中介绍。
+
+## 实现说明和最佳做法
 
 **1. Flink通过使用类名实例化它们来恢复序列化程序快照**
 

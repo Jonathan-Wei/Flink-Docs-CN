@@ -24,7 +24,7 @@ Flink的容错机制在出现故障时恢复程序并继续执行。此类故障
 | :--- | :--- | :--- |
 | HDFS rolling sink | 一次 | 实现取决于Hadoop版本 |
 | Elasticsearch | 至少一次 |  |
-| Kafka producer | 至少一次 |  |
+| Kafka producer | 至少一次 | 只有一次与事务生产者\(v0.11 +\) |
 | Cassandra sink | 至少一次/恰好一次 | 只有一次幂等更新 |
 | AWS Kinesis Streams | 至少一次 |  |
 | File sinks | 至少一次 |  |

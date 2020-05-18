@@ -1,5 +1,11 @@
 # 概述
 
+Flink中的DataStream程序是常规程序，可对数据流执行转换（例如，过滤，更新状态，定义窗口，聚合）。最初从各种来源（例如，消息队列，套接字流，文件）创建数据流。结果通过接收器返回，接收器可以将数据写入文件或标准输出（例如命令行终端）。Flink程序可以在各种上下文中运行，独立运行或嵌入其他程序中。执行可以在本地JVM或许多计算机的群集中进行。
+
+请参阅[基本概念](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/api_concepts.html)，以了解Flink API的基本概念。
+
+为了创建自己的Flink DataStream程序，我们建议您从[Flink程序的解剖](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/api_concepts.html#anatomy-of-a-flink-program)开始， 并逐步添加自己的 [流转换](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/stream/operators/index.html)。其余部分用作其他操作和高级功能的参考。
+
 ## 示例程序
 
 以下程序是流窗口字数统计应用程序的完整工作示例，它在5秒窗口中对来自Web Socket的单词进行计数。可以复制并粘贴代码以在本地运行它。

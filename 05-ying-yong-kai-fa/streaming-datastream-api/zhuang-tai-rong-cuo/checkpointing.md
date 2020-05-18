@@ -86,6 +86,35 @@ env.getCheckpointConfig.setFailTasksOnCheckpointingErrors(false)
 env.getCheckpointConfig.setMaxConcurrentCheckpoints(1)
 ```
 {% endtab %}
+
+{% tab title="Python" %}
+```python
+env = StreamExecutionEnvironment.get_execution_environment()
+
+# 每 1000ms 开始一次 checkpoint
+env.enable_checkpointing(1000)
+
+# 高级选项：
+
+# 设置模式为精确一次 (这是默认值)
+env.get_checkpoint_config().set_checkpointing_mode(CheckpointingMode.EXACTLY_ONCE)
+
+# 确认 checkpoints 之间的时间会进行 500 ms
+env.get_checkpoint_config().set_min_pause_between_checkpoints(500)
+
+# Checkpoint 必须在一分钟内完成，否则就会被抛弃
+env.get_checkpoint_config().set_checkpoint_timeout(60000)
+
+# 同一时间只允许一个 checkpoint 进行
+env.get_checkpoint_config().set_max_concurrent_checkpoints(1)
+
+# 开启在 job 中止后仍然保留的 externalized checkpoints
+env.get_checkpoint_config().enable_externalized_checkpoints(ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION)
+
+# 允许在有更近 savepoint 时回退到 checkpoint
+env.get_checkpoint_config().set_prefer_checkpoint_for_recovery(True)
+```
+{% endtab %}
 {% endtabs %}
 
 ### 相关的配置项

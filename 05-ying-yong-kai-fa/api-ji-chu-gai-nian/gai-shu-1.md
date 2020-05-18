@@ -364,7 +364,7 @@ myJobExecutionResult.getAccumulatorResult("num-lines")
 
 关于累加器和迭代的注释：目前累加器的结果仅在整个作业结束后才可用。我们还计划在下一次迭代中使前一次迭代的结果可用。您可以使用 [聚合器](https://github.com/apache/flink/blob/master//flink-java/src/main/java/org/apache/flink/api/java/operators/IterativeDataSet.java#L98) 来计算每次迭代统计信息，并根据此类统计信息确定迭代的终止。
 
-**定制累加器：**
+**自定义累加器：**
 
 要实现自己的`accumulator`，只需编写`accumulator`接口的实现即可。如果您认为您的自定义累加器应该与Flink一起提供，请自由创建一个pull请求。
 

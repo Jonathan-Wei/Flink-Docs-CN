@@ -6,6 +6,14 @@ Flink提供特殊的Kafka连接器，用于从/向Kafka Topic读取和写入数�
 
 请为您的用例和环境选择一个包（maven artifact id）和类名。对于大多数用户来说，`FlinkKafkaConsumer08`（部分`flink-connector-kafka`）较为合适。
 
+| Maven 依赖 | 从哪个版本 开始支持 | 消费者和 生产者的类名称 | Kafka 版本 | 注意 |
+| :--- | :--- | :--- | :--- | :--- |
+| flink-connector-kafka-0.8\_2.11 | 1.0.0 | FlinkKafkaConsumer08 FlinkKafkaProducer08 | 0.8.x |  使用 Kafka 的 [SimpleConsumer](https://cwiki.apache.org/confluence/display/KAFKA/0.8.0+SimpleConsumer+Example) API。偏移量由 Flink 提交给 ZK。 |
+| flink-connector-kafka-0.9\_2.11 | 1.0.0 | FlinkKafkaConsumer09 FlinkKafkaProducer09 | 0.9.x |  使用新的 Kafka [Consumer API](http://kafka.apache.org/documentation.html#newconsumerapi) |
+| flink-connector-kafka-0.10\_2.11 | 1.2.0 | FlinkKafkaConsumer010 FlinkKafkaProducer010 | 0.10.x |  支持 [带有时间戳的 Kafka 消息](https://cwiki.apache.org/confluence/display/KAFKA/KIP-32+-+Add+timestamps+to+Kafka+message)，用于生产和消费。 |
+| flink-connector-kafka-0.11\_2.11 | 1.**4**.0 | FlinkKafkaConsumer011 FlinkKafkaProducer011 | 0.11.x |  Kafka 从 0.11.x 版本开始不支持 Scala 2.10。此连接器支持了 [Kafka 事务性的消息传递](https://cwiki.apache.org/confluence/display/KAFKA/KIP-98+-+Exactly+Once+Delivery+and+Transactional+Messaging)来为生产者提供 Exactly once 语义 |
+| flink-connector-kafka\_2.11 | 1.7.0 | FlinkKafkaConsumer FlinkKafkaProducer | &gt;=1.0.0 | 这个通用的Kafka连接器试图跟踪Kafka客户机的最新版本。它使用的客户端版本可能会在Flink版本之间发生变化。从Flink 1.9版本开始，它使用Kafka 2.2.0客户端。现代Kafka客户端向后兼容代理版本0.10.0或更高版本。但是对于Kafka 0.11。0.10 x和。在x版本中，我们建议分别使用专用的flink-connector-kafka-0.11\_2.11和flink-connector-kafka-0.10\_2.11。 |
+
 然后，导入maven项目中的连接器：
 
 ```markup
@@ -36,6 +44,15 @@ Flink提供特殊的Kafka连接器，用于从/向Kafka Topic读取和写入数�
 ### 兼容性
 
 通过Kafka客户端API和Broker的兼容性保证，通用Kafka连接器与较旧和较新的Kafka Broker兼容。它与Kafka Broker版本0.11.0或更高版本兼容，具体取决于所使用的功能。有关Kafka兼容性的详细信息，请参阅[Kafka文档](https://kafka.apache.org/protocol.html#protocol_compatibility)。
+
+### 将 Kafka Connector 从 0.11 迁移到通用版本
+
+ 为了执行迁移，请参考 [升级 Jobs 和 Flink 版本指南](https://ci.apache.org/projects/flink/flink-docs-release-1.10/zh/ops/upgrading.html)：
+
+* 在全程中使用 Flink 1.9 或更新版本。
+* 不要同时升级 Flink 和 Operator。
+* 确保你的 Job 中所使用的 Kafka Consumer 和 Kafka Producer 分配了唯一的标识符（uid）。
+* 使用 stop with savepoint 的特性来执行 savepoint（例如，使用 `stop --withSavepoint`）[CLI 命令](https://ci.apache.org/projects/flink/flink-docs-release-1.10/zh/ops/cli.html)。
 
 ### 用法
 

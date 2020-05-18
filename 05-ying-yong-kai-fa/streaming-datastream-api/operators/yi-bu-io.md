@@ -12,7 +12,7 @@
 
 与数据库的异步交互意味着单个并行函数实例可以同时处理多个请求，并同时接收响应。这样，等待时间可以与发送其他请求和接收响应重叠。至少，等待时间是在多个请求上分摊的。这在大多数情况下实现了更高的流吞吐量。
 
-![](../../../.gitbook/assets/image%20%2821%29.png)
+![](../../../.gitbook/assets/image%20%2825%29.png)
 
 {% hint style="info" %}
 注意：在某些情况下，通过将MapFunction扩展到非常高的并行性来提高吞吐量是可行的，但通常会带来非常高的资源成本：拥有更多的并行度的MapFunction实例意味着更多的任务、线程、Flink内部网络连接、到数据库的网络连接、缓冲区和内部bookkeeping的开销
@@ -179,6 +179,10 @@ AsyncFunction发出的并发请求通常以某种未定义的顺序完成，该�
 
 * 使用 lookup/query方法调用阻塞的数据库客户机，直到收到返回的结果**为止**
 * 阻塞/等待asyncInvoke\(…\)方法中的异步客户机返回的future-type对象
+
+ **目前，出于一致性的原因，AsyncFunction 的算子（异步等待算子）必须位于算子链的头部**
+
+由于问题FLINK-13063中给出的原因，我们目前必须打破AsyncWaitOperator的操作链，以防止潜在的一致性问题。这是对以前支持链接的行为的一个更改。需要旧行为并接受可能违反一致性保证的用户可以实例化并手动将AsyncWaitOperator添加到作业图中，并通过AsyncWaitOperator\#setChainingStrategy\(ChainingStrategy.ALWAYS\)将链接策略设置回链接。
 
 
 

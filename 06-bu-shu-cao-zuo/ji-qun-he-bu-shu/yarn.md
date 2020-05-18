@@ -290,7 +290,7 @@ yarn logs -applicationId <application ID>
 
 本节简要介绍Flink和YARN如何交互。
 
-![](../../.gitbook/assets/image%20%2824%29.png)
+![](../../.gitbook/assets/image%20%2829%29.png)
 
 YARN客户端需要访问Hadoop配置以连接到YARN资源管理器和HDFS。它使用以下策略确定Hadoop配置：
 

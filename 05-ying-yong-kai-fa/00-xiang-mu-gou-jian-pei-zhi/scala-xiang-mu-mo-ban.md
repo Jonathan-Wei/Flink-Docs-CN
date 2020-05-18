@@ -5,7 +5,7 @@
 Flink项目可以使用不同的构建工具构建。为了快速入门，Flink为以下构建工具提供了项目模板：
 
 * [SBT](https://ci.apache.org/projects/flink/flink-docs-master/dev/projectsetup/scala_api_quickstart.html#sbt)
-* [Maven的](https://ci.apache.org/projects/flink/flink-docs-master/dev/projectsetup/scala_api_quickstart.html#maven)
+* [Maven](https://ci.apache.org/projects/flink/flink-docs-master/dev/projectsetup/scala_api_quickstart.html#maven)
 
 这些模板可帮助您设置项目结构并创建初始构建文件。
 
@@ -13,7 +13,7 @@ Flink项目可以使用不同的构建工具构建。为了快速入门，Flink�
 
 ### 创建项目
 
-使用以下命令之一来创建项目:
+你可以通过以下两种方法之一构建新项目::
 
 {% tabs %}
 {% tab title="sbt模版" %}

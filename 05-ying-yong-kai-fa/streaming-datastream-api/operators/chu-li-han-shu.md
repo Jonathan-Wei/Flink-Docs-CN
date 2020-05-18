@@ -236,5 +236,93 @@ Flink同步调用`ontimer()`和`processElement()`。因此，用户不必担心�
 
 计时器与应用程序的状态一起具有容错和检查点功能。在故障恢复或从保存点启动应用程序时，计时器将被恢复。
 
+{% hint style="info" %}
+注意：检查点处理时间计时器应该在恢复之前触发，但将立即触发。当应用程序从故障中恢复或从保存点启动时，可能会发生这种情况。
+{% endhint %}
 
+{% hint style="info" %}
+注意，计时器总是异步地进行检查点，除了RocksDB后端/与增量快照/与基于堆的计时器的组合之外\(将使用FLINK-10026进行解析\)。注意，大量的计时器会增加检查点时间，因为计时器是检查点状态的一部分。有关如何减少计时器数量的建议，请参阅“计时器合并”一节。
+{% endhint %}
+
+### 计时器合并
+
+因为Flink只为每个键和时间戳维护一个计时器，所以可以通过减少计时器的分辨率来合并它们，从而减少计时器的数量。
+
+对于计时器分辨率为1秒\(事件或处理时间\)的情况，可以将目标时间四舍五入为完整秒。计时器的触发时间最多提前1秒，但不会晚于所请求的毫秒精度。因此，每个键和秒最多有一个计时器。
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+long coalescedTime = ((ctx.timestamp() + timeout) / 1000) * 1000;
+ctx.timerService().registerProcessingTimeTimer(coalescedTime);
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+val coalescedTime = ((ctx.timestamp + timeout) / 1000) * 1000
+ctx.timerService.registerProcessingTimeTimer(coalescedTime)
+```
+{% endtab %}
+{% endtabs %}
+
+因为事件时间计时器只在有水印的时候触发，你也可以使用当前的一个来调度和合并这些计时器和下一个水印:
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+long coalescedTime = ctx.timerService().currentWatermark() + 1;
+ctx.timerService().registerEventTimeTimer(coalescedTime);
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+val coalescedTime = ctx.timerService.currentWatermark + 1
+ctx.timerService.registerEventTimeTimer(coalescedTime)
+```
+{% endtab %}
+{% endtabs %}
+
+也可以按以下方式停止和删除计时器：
+
+停止处理时间计时器：
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+long timestampOfTimerToStop = ...
+ctx.timerService().deleteProcessingTimeTimer(timestampOfTimerToStop);
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+val timestampOfTimerToStop = ...
+ctx.timerService.deleteProcessingTimeTimer(timestampOfTimerToStop)
+```
+{% endtab %}
+{% endtabs %}
+
+停止事件时间计时器：
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+long timestampOfTimerToStop = ...
+ctx.timerService().deleteEventTimeTimer(timestampOfTimerToStop);
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+val timestampOfTimerToStop = ...
+ctx.timerService.deleteEventTimeTimer(timestampOfTimerToStop)
+```
+{% endtab %}
+{% endtabs %}
+
+{% hint style="info" %}
+注意：如果未注册具有给定时间戳记的计时器，则停止计时器无效。
+{% endhint %}
 

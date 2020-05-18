@@ -22,5 +22,12 @@ val env = StreamExecutionEnvironment.getExecutionEnvironment()
 env.setStateBackend(...)
 ```
 {% endtab %}
+
+{% tab title="" %}
+```python
+env = StreamExecutionEnvironment.get_execution_environment()
+env.set_state_backend(...)
+```
+{% endtab %}
 {% endtabs %}
 

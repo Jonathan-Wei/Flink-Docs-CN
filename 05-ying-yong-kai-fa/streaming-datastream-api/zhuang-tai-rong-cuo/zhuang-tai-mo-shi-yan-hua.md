@@ -33,13 +33,36 @@ checkpointedState = getRuntimeContext().getListState(descriptor);
 
 ## 模式演化支持的数据类型
 
-目前，仅Avro支持模式演进。因此，如果您关心状态的模式演变，目前建议始终将Avro用于状态数据类型。
+目前，仅支持 POJO 和 Avro 类型的 schema 升级 因此，如果你比较关注于状态数据结构的升级，那么目前来看强烈推荐使用 Pojo 或者 Avro 状态数据类型。
 
-有计划扩展对更多复合类型的支持，例如POJO; 有关详细信息，请参阅[FLINK-10897](https://issues.apache.org/jira/browse/FLINK-10897)。
+我们有计划支持更多的复合类型；更多的细节可以参考 [FLINK-10896](https://issues.apache.org/jira/browse/FLINK-10896)。
+
+### POJO 类型
+
+ Flink 基于下面的规则来支持 [POJO 类型](https://ci.apache.org/projects/flink/flink-docs-release-1.10/zh/dev/types_serialization.html#pojo-%E7%B1%BB%E5%9E%8B%E7%9A%84%E8%A7%84%E5%88%99)结构的升级:
+
+1. 可以删除字段。一旦删除，被删除字段的前值将会在将来的 checkpoints 以及 savepoints 中删除。
+2. 可以添加字段。新字段会使用类型对应的默认值进行初始化，比如 [Java 类型](https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html)。
+3. 不可以修改字段的声明类型。
+4. 不可以改变 POJO 类型的类名，包括类的命名空间。
+
+需要注意，只有从 1.8.0 及以上版本的 Flink 生产的 savepoint 进行恢复时，POJO 类型的状态才可以进行升级。 对 1.8.0 版本之前的 Flink 是没有办法进行 POJO 类型升级的。
 
 ### Avro类型
 
-Flink完全支持Avro类型状态的演进模式，只要模式更改被[Avro的模式解析规则](http://avro.apache.org/docs/current/spec.html#Schema+Resolution)视为兼容 。
+Flink 完全支持 Avro 状态类型的升级，只要数据结构的修改是被 [Avro 的数据结构解析规则](http://avro.apache.org/docs/current/spec.html#Schema+Resolution)认为兼容的即可。
 
-一个限制是，当作业恢复时，Avro生成的用作状态类型的类不能被重新定位或具有不同的名称空间。
+一个例外是如果新的 Avro 数据 schema 生成的类无法被重定位或者使用了不同的命名空间，在作业恢复时状态数据会被认为是不兼容的。
+
+{% hint style="danger" %}
+**注意：**不支持键的模式演化。
+
+示例:RocksDB状态后端依赖于二进制对象标识，而不是hashCode方法实现。对keys对象结构的任何更改都可能导致不确定性行为。
+{% endhint %}
+
+{% hint style="danger" %}
+**注意：**Kryo不能用于模式演化。
+
+当使用Kryo时，框架不可能验证是否进行了任何不兼容的更改。
+{% endhint %}
 
