@@ -10,7 +10,7 @@ description: 本页简要讨论如何在IDE或本地环境中测试Flink应用�
 
 通常，可以假定Flink在用户定义的函数之外产生正确的结果。因此，建议尽可能用单元测试来测试那些包含主要业务逻辑的类。
 
-### 单元测试无状态、无时间限制的udf
+### 无状态、无时间限制的udf单元测试
 
 例如，让我们采用以下无状态`MapFunction`。
 
@@ -74,7 +74,7 @@ class IncrementMapFunctionTest extends FlatSpec with Matchers {
 {% endtab %}
 {% endtabs %}
 
-
+类似地，用户定义的函数使用`org.apache.flink.util.Collector`提供模拟对象而不是实际的收集器，可以很容易地测试收集器\(例如，`FlatMapFunction`或`ProcessFunction`\)。与`IncrementMapFunction`具有相同功能的FlatMapFunction可以按如下方式进行单元测试。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -119,9 +119,16 @@ class IncrementFlatMapFunctionTest extends FlatSpec with MockFactory {
 {% endtab %}
 {% endtabs %}
 
-### 单元测试有状态或及时的udf和自定义操作符
+### 有状态或及时的udf和自定义操作符单元测试
 
+测试用户定义函数的功能（利用托管状态或计时器）更加困难，因为它涉及测试用户代码与Flink运行时之间的交互。为此，Flink附带了一组所谓的测试工具，可用于测试此类用户定义的函数以及自定义运算符：
 
+* `OneInputStreamOperatorTestHarness`（适用于的运营商`DataStreams`）
+* `KeyedOneInputStreamOperatorTestHarness`（适用于的运营商`KeyedStream`）
+* `TwoInputStreamOperatorTestHarness`（关于运营商`ConnectedStreams`的两个`DataStream`或多个）
+* `KeyedTwoInputStreamOperatorTestHarness`（对于`ConnectedStreams`两个中`KeyedStream`的运算符）
+
+要使用测试工具，还需要一组其他依赖项（测试作用域）。
 
 ```text
 <dependency>
@@ -145,6 +152,8 @@ class IncrementFlatMapFunctionTest extends FlatSpec with MockFactory {
   <classifier>tests</classifier>
 </dependency>
 ```
+
+现在，可以使用测试工具将记录和水印推送到用户定义的函数或自定义操作符中，控制处理时间，并最终对操作符的输出\(包括侧输出\)进行断言。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -235,6 +244,8 @@ class StatefulFlatMapFunctionTest extends FlatSpec with Matchers with BeforeAndA
 {% endtab %}
 {% endtabs %}
 
+`KeyedOneInputStreamOperatorTestHarness`和`KeyedTwoInputStreamOperatorTestHarness`通过另外提供一个`KeySelector`来实例化，该选择器包括键的类的类型信息。
+
 {% tabs %}
 {% tab title="Java" %}
 ```java
@@ -286,7 +297,22 @@ class StatefulFlatMapTest extends FlatSpec with Matchers with BeforeAndAfter {
 {% endtab %}
 {% endtabs %}
 
+在Flink代码库中可以找到更多有关使用这些测试工具的示例，例如：
+
+* `org.apache.flink.streaming.runtime.operators.windowing.WindowOperatorTest` 是测试操作员和用户定义的函数（取决于处理或事件时间）的一个很好的例子。
+* `org.apache.flink.streaming.api.functions.sink.filesystem.LocalStreamingFileSinkTest`展示了如何使用来测试自定义接收器`AbstractStreamOperatorTestHarness`。具体来说，它使用`AbstractStreamOperatorTestHarness.snapshot`和`AbstractStreamOperatorTestHarness.initializeState`测试其与Flink的检查点机制的交互。
+
+{% hint style="info" %}
+ 请注意，`AbstractStreamOperatorTestHarness`及其派生类当前不属于公共API，并且可能会发生变化。
+{% endhint %}
+
 #### **单元测试**ProcessFunction
+
+考虑到它的重要性，除了前面可以直接用于测试ProcessFunction的测试工具之外， Flink还提供了名为的测试工具工厂`ProcessFunctionTestHarnesses`，以简化测试工具实例化。考虑以下示例：
+
+{% hint style="info" %}
+请注意，要使用此测试工具，还需要介绍上一节中提到的依赖项。
+{% endhint %}
 
 {% tabs %}
 {% tab title="Java" %}
@@ -370,6 +396,10 @@ class PassThroughProcessFunctionTest extends FlatSpec with Matchers {
 
 ### JUnit规则 `MiniClusterWithClientResource`
 
+ Apache Flink提供了一个名为`MiniClusterWithClientResource`的JUnit规则，用于在本地嵌入式迷你集群上测试完成的作业。
+
+要使用MiniClusterWithClientResource，需要一个附加的依赖项\(测试范围\)。
+
 ```text
 <dependency>
   <groupId>org.apache.flink</groupId>
@@ -377,6 +407,8 @@ class PassThroughProcessFunctionTest extends FlatSpec with Matchers {
   <version>1.10.0</version>
 </dependency>
 ```
+
+ 让我们采用与`MapFunction`前面各节相同的简单方法。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -402,6 +434,8 @@ class IncrementMapFunction extends MapFunction[Long, Long] {
 ```
 {% endtab %}
 {% endtabs %}
+
+现在可以在本地Flink集群中测试使用这个MapFunction的简单管道，如下所示。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -511,6 +545,14 @@ object CollectSink {
 {% endtab %}
 {% endtabs %}
 
-  
+关于`MiniClusterWithClientResource`集成测试的几点说明:
+
+* 为了不从生产到测试复制整个管道代码，请将源和接收器插入生产代码中，并在测试中注入特殊的测试源和测试接收器。
+* 这里使用CollectSink中的静态变量，因为在将所有操作符分布到集群之前，Flink会对它们进行序列化。通过静态变量与本地Flink迷你集群实例化的操作符通信是解决这个问题的一种方法。或者，您可以使用测试接收器将数据写入临时目录中的文件。
+*  如果您的作业使用事件计时器计时器，则可以实现自定义_并行_源功能来发出水印。
+* 建议始终以&gt; 1的并行度在本地测试管道，以识别仅在并行执行的管道中出现的错误。
+* 优先选择@ClassRule而不是@Rule，这样多个测试就可以共享同一个Flink集群。这样做可以节省大量的时间，因为Flink集群的启动和关闭通常会控制实际测试的执行时间。
+* 如果您的管道包含自定义状态处理，则可以通过启用检查点并在迷你集群中重新启动作业来测试其正确性。为此，您需要通过从管道中的\(只测试的\)用户定义函数抛出异常来触发失败。
+
 
 
