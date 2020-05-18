@@ -23,9 +23,11 @@ val outputTag = OutputTag[String]("side-output")
 
 可以通过以下函数将数据发送到侧输出
 
-* [ProcessFunction](https://ci.apache.org/projects/flink/flink-docs-master/dev/stream/operators/process_function.html)
+* [ProcessFunction](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/stream/operators/process_function.html)
+* [KeyedProcessFunction](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/stream/operators/process_function.html#the-keyedprocessfunction)
 * CoProcessFunction
-* [ProcessWindowFunction](https://ci.apache.org/projects/flink/flink-docs-master/dev/stream/operators/windows.html#processwindowfunction)
+* KeyedCoProcessFunction
+* [ProcessWindowFunction](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/stream/operators/windows.html#processwindowfunction)
 * ProcessAllWindowFunction
 
 您可以使用上下文参数\(在上述函数中公开给用户\)将数据发送到OutputTag标识的一个侧输出。下面是一个从`ProcessFunction`发送端输出数据的示例:
