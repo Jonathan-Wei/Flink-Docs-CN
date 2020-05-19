@@ -67,6 +67,31 @@ val stream: DataStream[Row] = result.toAppendStream[Row](qConfig)
 
 ```
 {% endtab %}
+
+{% tab title="Python" %}
+```python
+# use TableConfig in python API
+t_config = TableConfig()
+# set query parameters
+t_config.set_idle_state_retention_time(timedelta(hours=12), timedelta(hours=24))
+
+env = StreamExecutionEnvironment.get_execution_environment()
+table_env = StreamTableEnvironment.create(env, t_config)
+
+# define query
+result = ...
+
+# create TableSink
+sink = ...
+
+# register TableSink
+table_env.register_table_sink("outputTable",  # table name
+                              sink)  # table sink
+
+# emit result Table via a TableSink
+result.insert_into("outputTable")
+```
+{% endtab %}
 {% endtabs %}
 
 在下文中，我们将描述它们的参数`QueryConfig`以及它们如何影响查询的准确性和资源消耗。
@@ -110,6 +135,15 @@ val qConfig: StreamQueryConfig = ???
 
 // set idle state retention time: min = 12 hours, max = 24 hours
 qConfig.withIdleStateRetentionTime(Time.hours(12), Time.hours(24))
+```
+{% endtab %}
+
+{% tab title="" %}
+```python
+t_config = ...  # type: TableConfig
+
+# set idle state retention time: min = 12 hours, max = 24 hours
+t_config.set_idle_state_retention_time(timedelta(hours=12), timedelta(hours=24))
 ```
 {% endtab %}
 {% endtabs %}

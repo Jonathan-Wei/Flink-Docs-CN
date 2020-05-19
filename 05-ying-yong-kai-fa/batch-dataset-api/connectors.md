@@ -1,47 +1,8 @@
 # Connectors
 
-## 从文件系统中读取
+## 读写文件系统
 
-Flink内置支持以下文件系统：
-
-| 文件系统 | 方案 | 描述 |
-| :--- | :--- | :--- |
-| Hadoop分布式文件系统（HDFS） | `hdfs://` | 支持所有HDFS版本 |
-| 亚马逊S3 | `s3://` | 通过Hadoop文件系统实现支持（见下文） |
-| MapR文件系统 | `maprfs://` | 用户必须手动将所需的jar文件放在`lib/`目录中 |
-| Alluxio | `alluxio://` | 通过Hadoop文件系统实现支持（见下文） |
-
-## 使用Hadoop文件系统实现
-
-Apache Flink允许用户使用任何实现该`org.apache.hadoop.fs.FileSystem` 接口的文件系统。有Hadoop `FileSystem`实现
-
-* [S3](https://aws.amazon.com/s3/)（已测试）
-* [适用于Hadoop的Google云端存储连接器](https://cloud.google.com/hadoop/google-cloud-storage-connector)（已测试）
-* [Alluxio](http://alluxio.org/)（已测试）
-* [XtreemFS](http://www.xtreemfs.org/)（已测试）
-* FTP通过[Hftp](http://hadoop.apache.org/docs/r1.2.1/hftp.html)（未测试）
-* 还有很多。
-
-为了使用Flink的Hadoop文件系统，请确保：
-
-* 在`flink-conf.yaml`已设定的`fs.hdfs.hadoopconf`属性将Hadoop配置目录。对于自动测试或从IDE运行，`flink-conf.yaml`可以通过定义`FLINK_CONF_DIR`环境变量来设置包含的目录。
-* Hadoop配置（在该目录中）在文件中具有所需文件系统的条目`core-site.xml`。S3和Alluxio的示例链接/显示如下。
-* `lib/`Flink安装的文件夹中提供了使用文件系统所需的类（在运行Flink的所有计算机上）。如果无法将文件放入目录，Flink还会尊重`HADOOP_CLASSPATH`环境变量以将Hadoop jar文件添加到类路径中。
-
-### **亚马逊S3**
-
-请参阅[部署和操作 - 部署 - AWS - S3：简单存储服务，](https://ci.apache.org/projects/flink/flink-docs-release-1.7/ops/deployment/aws.html)了解可用的S3文件系统实现，其配置和所需的库。
-
-### **Alluxio**
-
-对于Alluxio支持，将以下条目添加到`core-site.xml`文件中：
-
-```markup
-<property>
-  <name>fs.alluxio.impl</name>
-  <value>alluxio.hadoop.FileSystem</value>
-</property>
-```
+ Apache Flink项目支持多个[文件系统](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/filesystems/index.html)，这些[文件系统](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/filesystems/index.html)可用作输入和输出连接器的后备存储。
 
 ## 使用Hadoop的Input / OutputFormat包装器连接到其他系统
 
@@ -51,7 +12,7 @@ Apache Flink允许用户访问许多不同的系统作为数据源或接收器�
 
 本节介绍将Flink连接到其他系统的一些示例。 [阅读有关Flink中Hadoop兼容性的更多信息](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/batch/hadoop_compatibility.html)。
 
-## Avro对Flink的支持
+## Flink对Avro的支持
 
 Flink对[Apache Avro](http://avro.apache.org/)提供了广泛的内置支持。这允许使用Flink轻松读取Avro文件。此外，Flink的序列化框架能够处理从Avro架构生成的类。确保将Flink Avro依赖项包含在项目的pom.xml中。
 
@@ -59,7 +20,7 @@ Flink对[Apache Avro](http://avro.apache.org/)提供了广泛的内置支持。�
 <dependency>
   <groupId>org.apache.flink</groupId>
   <artifactId>flink-avro</artifactId>
-  <version>1.7.1</version>
+  <version>1.10.0</version>
 </dependency>
 ```
 
@@ -183,4 +144,8 @@ public class AzureTableExample {
 ## 访问MongoDB
 
 这个[GitHub存储库记录了如何将MongoDB与Apache Flink一起使用（从0.7-incubating开始）](https://github.com/okkam-it/flink-mongodb-test)。
+
+## Hive连接器
+
+ 从1.9.0开始，Apache Flink提供了Hive连接器来访问Apache Hive表。为了使用Hive连接器，需要[HiveCatalog](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/catalogs.html#hivecatalog)。设置HiveCatalog后，请参[阅读写Hive表](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/hive/read_write_hive.html)以了解Hive连接器的用法及其限制。与HiveCatalog相同，用于Hive连接器的官方支持的Apache Hive版本是2.3.4和1.2.1。
 

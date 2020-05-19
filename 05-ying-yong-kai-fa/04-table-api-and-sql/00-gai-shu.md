@@ -6,37 +6,100 @@ Table API和SQL接口以及Flink的DataStream和DataSet API紧密集成在一起
 
 请注意，Table API和SQL特性还不够完善，并且正在积极开发。并非所有操作都受\[Table API、SQL\]和\[stream、batch\]输入的每个组合的支持。
 
-## 配置
+## 依赖结构
 
-Table API和SQL绑定在flink-table Maven artifact中。为了使用表API和SQL，您的项目必须添加以下依赖项:
+从Flink 1.9开始，Flink提供了两种不同的计划程序实现来评估Table＆SQL API程序：Blink计划程序和Flink 1.9之前可用的旧计划程序。计划人员负责将关系运算符转换为可执行的，优化的Flink作业。两位计划者都带有不同的优化规则和运行时类。它们在支持的功能方面也可能有所不同。
+
+{% hint style="danger" %}
+对于生产场景，建议使用Flink 1.9之前的旧计划器。
+{% endhint %}
+
+ 所有Table API和SQL组件都捆绑在`flink-table`或`flink-table-blink`Maven依赖中。
+
+以下依赖关系与大多数项目有关：
+
+* `flink-table-common`：用于通过自定义功能，格式等扩展表生态系统的通用模块。
+* `flink-table-api-java`：适用于使用Java编程语言的纯表程序的Table＆SQL API（处于开发初期，不建议使用！）。
+* `flink-table-api-scala`：使用Scala编程语言的纯表程序的Table＆SQL API（处于开发初期，不建议使用！）。
+* `flink-table-api-java-bridge`：使用Java编程语言支持带有DataStream / DataSet API的Table＆SQL API。
+* `flink-table-api-scala-bridge`：使用Scala编程语言支持带有DataStream / DataSet API的Table＆SQL API。
+* `flink-table-planner`：表程序计划程序和运行时。这是1.9版本之前Flink的唯一计划器。仍然是推荐的一种。
+* `flink-table-planner-blink`：新的Blink计划器。
+* `flink-table-runtime-blink`：新的Blink运行时。
+* `flink-table-uber`：将上述API模块以及旧的计划器打包到大多数Table＆SQL API用例的分发中。默认情况下，超级JAR文件`flink-table-*.jar`位于`/lib`Flink版本的目录中。
+* `flink-table-uber-blink`：将上述API模块以及特定于Blink的模块打包到大多数Table＆SQL API用例的分发中。默认情况下，超级JAR文件`flink-table-blink-*.jar`位于`/lib`Flink版本的目录中。
+
+有关如何在表程序中的新旧Blink计划程序之间进行切换的更多信息，请参见[通用API](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/common.html)页面。
+
+### 表程序依赖性
+
+根据目标编程语言，需要将Java或Scala API添加到项目中，以便使用Table API和SQL定义管道：
 
 ```markup
+<!-- Either... -->
 <dependency>
   <groupId>org.apache.flink</groupId>
-  <artifactId>flink-table_2.11</artifactId>
-  <version>1.8-SNAPSHOT</version>
+  <artifactId>flink-table-api-java-bridge_2.11</artifactId>
+  <version>1.10.0</version>
+  <scope>provided</scope>
+</dependency>
+<!-- or... -->
+<dependency>
+  <groupId>org.apache.flink</groupId>
+  <artifactId>flink-table-api-scala-bridge_2.11</artifactId>
+  <version>1.10.0</version>
+  <scope>provided</scope>
 </dependency>
 ```
 
-此外，您需要为Flink的Scala批处理或流API添加一个依赖项。对于批处理查询，您需要添加:
+此外，如果你想在你的IDE中本地运行表API和SQL程序，你必须添加以下模块之一，这取决于你想使用的Planner:
 
-```markup
+```text
+<!-- Either... (for the old planner that was available before Flink 1.9) -->
 <dependency>
   <groupId>org.apache.flink</groupId>
-  <artifactId>flink-scala_2.11</artifactId>
-  <version>1.8-SNAPSHOT</version>
+  <artifactId>flink-table-planner_2.11</artifactId>
+  <version>1.10.0</version>
+  <scope>provided</scope>
+</dependency>
+<!-- or.. (for the new Blink planner) -->
+<dependency>
+  <groupId>org.apache.flink</groupId>
+  <artifactId>flink-table-planner-blink_2.11</artifactId>
+  <version>1.10.0</version>
+  <scope>provided</scope>
 </dependency>
 ```
 
-对于流式查询，您需要添加:
+在内部，表生态系统的一部分是由Scala实现的。因此，请确保为批处理和流应用程序都添加以下依赖项：
 
-```markup
+```text
 <dependency>
   <groupId>org.apache.flink</groupId>
   <artifactId>flink-streaming-scala_2.11</artifactId>
-  <version>1.8-SNAPSHOT</version>
+  <version>1.10.0</version>
+  <scope>provided</scope>
 </dependency>
 ```
 
-注意:由于Apache Calcite中的一个问题，它阻止用户类加载器被垃圾收集，我们不建议构建包含Flink-table依赖项的fat-jar。相反，我们建议将Flink配置为在系统类加载器中包含Flink-table依赖项。这可以通过复制flink-table来实现。从./opt文件夹到./lib文件夹的jar文件。有关更多细节，请参见[这些](https://github.com/Jonathan-Wei/Flink-Docs-CN/blob/master/05%20应用开发/00%20项目构建配置/配置Dependencies%2C%20Connectors%2C%20Libraries.md)说明。
+### 扩展依赖
+
+ 如果要实现与Kafka或一组[用户定义函数](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/functions/systemFunctions.html)进行交互的[自定义格式](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/sourceSinks.html#define-a-tablefactory)，则以下依赖关系就足够了，并且可以用于SQL Client的JAR文件：
+
+```text
+<dependency>
+  <groupId>org.apache.flink</groupId>
+  <artifactId>flink-table-common</artifactId>
+  <version>1.10.0</version>
+  <scope>provided</scope>
+</dependency>
+```
+
+当前，该模块包括以下扩展点：
+
+* `SerializationSchemaFactory`
+* `DeserializationSchemaFactory`
+* `ScalarFunction`
+* `TableFunction`
+* `AggregateFunction`
 

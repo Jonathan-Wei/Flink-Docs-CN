@@ -159,3 +159,73 @@ tEnv.registerFunction("Rates", rates)                                          /
 
 第\(2\)行在表环境中注册名称为Rates的函数，这允许我们在SQL中使用Rates函数。
 
+## 时态表
+
+{% hint style="danger" %}
+仅Blink Planner支持此功能。
+{% endhint %}
+
+ 假设我们定义了一个时态表`LatestRates`，我们可以通过以下方式查询此类表：
+
+```text
+SELECT * FROM LatestRates FOR SYSTEM_TIME AS OF TIME '10:15';
+
+currency   rate
+======== ======
+US Dollar   102
+Euro        114
+Yen           1
+
+SELECT * FROM LatestRates FOR SYSTEM_TIME AS OF TIME '11:00';
+
+currency   rate
+======== ======
+US Dollar   102
+Euro        116
+Yen           1
+```
+
+**注意**：当前，Flink不支持以固定时间直接查询时态表。目前，时态表只能在关联中使用。上面的示例直观的展示了用于提供有关临时表`LatestRates`返回内容。
+
+另请参阅有关[用于连续查询的](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/joins.html)关联的页面，[以](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/joins.html)获取有关如何与时态表[关联的](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/joins.html)更多信息。
+
+### 定义时态表
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+// Get the stream and table environments.
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+StreamTableEnvironment tEnv = TableEnvironment.getTableEnvironment(env);
+
+// Create an HBaseTableSource as a temporal table which implements LookableTableSource
+// In the real setup, you should replace this with your own table.
+HBaseTableSource rates = new HBaseTableSource(conf, "Rates");
+rates.setRowKey("currency", String.class);   // currency as the primary key
+rates.addColumn("fam1", "rate", Double.class);
+
+// register the temporal table into environment, then we can query it in sql
+tEnv.registerTableSource("Rates", rates);
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+// Get the stream and table environments.
+val env = StreamExecutionEnvironment.getExecutionEnvironment
+val tEnv = TableEnvironment.getTableEnvironment(env)
+
+// Create an HBaseTableSource as a temporal table which implements LookableTableSource
+// In the real setup, you should replace this with your own table.
+val rates = new HBaseTableSource(conf, "Rates")
+rates.setRowKey("currency", String.class)   // currency as the primary key
+rates.addColumn("fam1", "rate", Double.class)
+
+// register the temporal table into environment, then we can query it in sql
+tEnv.registerTableSource("Rates", rates)
+```
+{% endtab %}
+{% endtabs %}
+
+ 另请参阅有关[如何定义LookupableTableSource](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/sourceSinks.html#defining-a-tablesource-for-lookups)的页面。
+

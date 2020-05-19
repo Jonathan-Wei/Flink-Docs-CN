@@ -159,7 +159,7 @@ GROUP BY day
 
 下图显示了拆分去重聚合如何提高性能（假设颜色代表天，字母代表user\_id）。
 
-![](../../../.gitbook/assets/image%20%2823%29.png)
+![](../../../.gitbook/assets/image%20%2819%29.png)
 
 注意:上面是最简单的例子，可以从这种优化中获益。除此之外，Flink还支持分割更复杂的聚合查询，例如，多个具有不同键的不同聚合\(如`COUNT(distinct a)、SUM(distinct b)`\)，以及其他非不同的聚合\(如`SUM`、`MAX`、`MIN`、`COUNT`\)。
 

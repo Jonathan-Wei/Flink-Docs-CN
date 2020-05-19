@@ -35,7 +35,7 @@ WHERE o.id = s.orderId AND
 
 与常规关联操作相比，这种关联只支持具有时间属性的仅追加表。由于时间属性是准一元递增的，Flink可以在不影响结果正确性的情况下从其状态中删除旧值。
 
-## 时态表关联
+## 时态表函数关联
 
 与时态表的关联将仅追加表\(左输入/探测端\)与时态表\(右输入/构建端\)关联起来，即，一个随时间变化并跟踪其变化的表。有关时间表的更多信息，请查看相应的页面。
 
@@ -171,4 +171,118 @@ Table result = orders
 例如，根据时态表的概念，将事件时间戳为12:30:00的传入行附加到探测侧表并在12:30:00与构建侧表的版本关联。因此，传入行只与时间戳小于或等于12:30:00的行关联，并根据主键应用更新，直到此时为止。
 
 根据事件时间的定义，水印允许连接操作及时向前移动，并丢弃构建表的版本，这些版本不再是必需的，因为不期望有时间戳较低或相等的输入行。
+
+## 与临时表关联
+
+ 与临时表的联接将任意表（左侧输入/探针侧）与临时表（右侧输入/构建侧）联接，即随时间变化的外部尺寸表。请检查相应的页面以获取有关时[态表的](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/temporal_tables.html#temporal-table)更多信息。
+
+{% hint style="danger" %}
+**注意：**用户不能使用任意表作为时态表，但需要使用由LookupableTableSource支持的表。LookupableTableSource只能作为时态表用于时态连接。有关[如何定义LookupableTableSource](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/sourceSinks.html#defining-a-tablesource-with-lookupable)的更多细节，请参见该页。
+{% endhint %}
+
+下面的示例显示了一个订单流，该订单流应该与不断变化的`LatestRates`汇率表\(最近的基准\)相连接。
+
+ `LatestRates`是以最新汇率实现的维度表。在时间`10:15`，`10:30`，`10:52`，`LatestRates`内容如下所示：
+
+```text
+10:15> SELECT * FROM LatestRates;
+
+currency   rate
+======== ======
+US Dollar   102
+Euro        114
+Yen           1
+
+10:30> SELECT * FROM LatestRates;
+
+currency   rate
+======== ======
+US Dollar   102
+Euro        114
+Yen           1
+
+
+10:52> SELECT * FROM LatestRates;
+
+currency   rate
+======== ======
+US Dollar   102
+Euro        116     <==== changed from 114 to 116
+Yen           1
+```
+
+LastestRates在10:15和10:30时的内容相同。欧元汇率在10:52从114变为116。
+
+Orders是一个只追加的表，它表示给定金额和给定货币的支付。例如，在10:15有一个2欧元的订单。
+
+```text
+SELECT * FROM Orders;
+
+amount currency
+====== =========
+     2 Euro             <== arrived at time 10:15
+     1 US Dollar        <== arrived at time 10:30
+     2 Euro             <== arrived at time 10:52
+```
+
+鉴于我们想要计算所有订单转换成通用货币\(日元\)的金额。
+
+例如，我们希望使用最新的汇率转换以下订单。结果将是:
+
+```text
+amount currency     rate   amout*rate
+====== ========= ======= ============
+     2 Euro          114          228    <== arrived at time 10:15
+     1 US Dollar     102          102    <== arrived at time 10:30
+     2 Euro          116          232    <== arrived at time 10:52
+```
+
+借助时态表关联，我们可以将这样的查询用SQL表示为:
+
+```text
+SELECT
+  o.amout, o.currency, r.rate, o.amount * r.rate
+FROM
+  Orders AS o
+  JOIN LatestRates FOR SYSTEM_TIME AS OF o.proctime AS r
+  ON r.currency = o.currency
+```
+
+### 
+
+### 用法
+
+临时表联接的语法如下：
+
+```sql
+SELECT [column_list]
+FROM table1 [AS <alias1>]
+[LEFT] JOIN table2 FOR SYSTEM_TIME AS OF table1.proctime [AS <alias2>]
+ON table1.column-name1 = table2.column-name1
+```
+
+目前，只支持内连接和左连接。表1中的FOR SYSTEM\_TIME。在时态表之后应遵循proctime。proctime是表1的[处理时间属性](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/time_attributes.html#processing-time)。这意味着它在处理时从左表连接每个记录时获取时态表的快照。 
+
+例如，在[定义时态表之后](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/temporal_tables.html#defining-temporal-table)，我们可以如下使用它。
+
+```text
+SELECT
+  SUM(o_amount * r_rate) AS amount
+FROM
+  Orders
+  JOIN LatestRates FOR SYSTEM_TIME AS OF o_proctime
+  ON r_currency = o_currency
+```
+
+{% hint style="danger" %}
+仅在Blink Planner中受支持。
+{% endhint %}
+
+{% hint style="danger" %}
+仅在SQL中支持，而在Table API中尚不支持。
+{% endhint %}
+
+{% hint style="danger" %}
+Flink当前不支持事件时间时态表联接。
+{% endhint %}
 

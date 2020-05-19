@@ -16,7 +16,7 @@ Kafka群集由Zookeeper服务器和Kafka代理组成。
 
  当游乐场启动时，名为_Flink Event Count_的Flink作业将被提交给Flink主机。此外，还将创建两个Kafka Topic_输入_和_输出_。
 
-![](../../.gitbook/assets/image%20%2824%29.png)
+![](../../.gitbook/assets/image%20%2838%29.png)
 
  Job `ClickEvent`从_输入Topic_中消费数据 ，每个主题都有一个`timestamp`和一个`page`。然后由15秒[窗口](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/stream/operators/windows.html)键入事件并进行计数 `page`。结果将写入 _输出_Topic。
 
@@ -68,7 +68,7 @@ docker-compose down -v
 
  观察Flink群集的最自然的起点是在[http//localhost:8081](http://localhost:8081/)下公开的WebUI 。如果一切顺利，您将看到集群最初由一个TaskManager组成，并执行一个名为_Click Event Count_的Job 。
 
-![](../../.gitbook/assets/image%20%2811%29.png)
+![](../../.gitbook/assets/image%20%2822%29.png)
 
 Flink WebUI包含有关Flink群集及其作业的许多有用和有趣的信息（JobGraph，指标，检查点统计信息，TaskManager状态等等）。
 
@@ -198,7 +198,7 @@ docker-compose kill taskmanager
 
  几秒钟后，Flink Master将注意到TaskManager丢失，取消受影响的作业，然后立即重新提交以进行恢复。作业重新启动后，其任务保持`SCHEDULED`状态，由紫色正方形指示（请参见下面的屏幕截图）。
 
-![](../../.gitbook/assets/image%20%2829%29.png)
+![](../../.gitbook/assets/image%20%2839%29.png)
 
 {% hint style="info" %}
 **注意：**即使作业的任务处于SCHEDULED状态且尚未处于RUNNING状态，作业的整体状态仍显示为RUNNING。

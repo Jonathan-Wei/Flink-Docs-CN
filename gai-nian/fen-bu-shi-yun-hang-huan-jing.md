@@ -49,7 +49,7 @@ API还包括一个资源组机制，可用于防止不需要的插槽共享。
 
 存储键/值索引的确切数据结构取决于所选的[状态后端](https://ci.apache.org/projects/flink/flink-docs-release-1.7/ops/state/state_backends.html)。一个状态后端将数据存储在内存中的哈希映射中，另一个状态后端使用[RocksDB](http://rocksdb.org/)作为键/值存储。除了定义保存状态的数据结构之外，状态后端还实现逻辑以获取键/值状态的时间点快照，并将该快照存储为检查点的一部分。
 
-![](../.gitbook/assets/image%20%2835%29.png)
+![](../.gitbook/assets/image%20%2828%29.png)
 
 ## 保存点\(Savepoints\)
 

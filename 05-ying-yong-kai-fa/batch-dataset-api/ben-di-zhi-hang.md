@@ -20,7 +20,7 @@ Flink支持两种不同的本地执行。`LocalExecutionEnvironment`运行时将
 <dependency>
   <groupId>org.apache.flink</groupId>
   <artifactId>flink-clients_2.11</artifactId>
-  <version>1.8-SNAPSHOT</version>
+  <version>1.10.0</version>
 </dependency>
 ```
 

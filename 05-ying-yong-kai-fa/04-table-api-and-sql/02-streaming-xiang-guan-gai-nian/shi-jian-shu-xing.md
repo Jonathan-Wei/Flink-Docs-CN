@@ -44,13 +44,43 @@ env.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime) // default
 // env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 ```
 {% endtab %}
+
+{% tab title="Python" %}
+```python
+env = StreamExecutionEnvironment.get_execution_environment()
+
+env.set_stream_time_characteristic(TimeCharacteristic.ProcessingTime)  # default
+
+# alternatively:
+# env.set_stream_time_characteristic(TimeCharacteristic.IngestionTime)
+# env.set_stream_time_characteristic(TimeCharacteristic.EventTime)
+```
+{% endtab %}
 {% endtabs %}
 
 ## 处理时间\(Processing Time\)
 
 处理时间允许表程序根据本地机器的时间生成结果。它是时间最简单的概念，但不提供决定论。它既不需要提取时间戳，也不需要生成水印。
 
-有两种方法可以定义处理时间属性。
+有三种定义处理时间属性的方法。
+
+### 在创建表DDL中定义
+
+ 使用系统`PROCTIME()`功能将处理时间属性定义为创建表DDL中的计算列。有关计算列的更多信息，请参见[CREATE TABLE DDL](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/sql/create.html#create-table)。
+
+```text
+CREATE TABLE user_actions (
+  user_name STRING,
+  data STRING,
+  user_action_time AS PROCTIME() -- declare an additional field as a processing time attribute
+) WITH (
+  ...
+);
+
+SELECT TUMBLE_START(user_action_time, INTERVAL '10' MINUTE), COUNT(DISTINCT user_name)
+FROM user_actions
+GROUP BY TUMBLE(user_action_time, INTERVAL '10' MINUTE);
+```
 
 ### 在DataStream到表转换期间
 
@@ -161,7 +191,27 @@ val windowedTable = tEnv
 
 为了处理无序事件和区分流中的准时事件和延迟事件，Flink需要从事件中提取时间戳并在时间上取得某种进展\(即所谓的[水印](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/event_time.html)\)。
 
-事件时间属性既可以在`Datastream`到`Table`的转换过程中定义，也可以通过使用`TableSource`定义。
+可以在创建表DDL中或在DataStream到Table的转换过程中或使用TableSource定义事件时间属性。
+
+### 在创建表DDL中定义
+
+ 事件时间属性是使用CREATE TABLE DDL中的WATERMARK语句定义的。水印语句在现有事件时间字段上定义水印生成表达式，该表达式将事件时间字段标记为事件时间属性。有关水印声明和水印策略的更多信息，请参见[CREATE TABLE DDL](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/sql/create.html#create-table)。
+
+```text
+CREATE TABLE user_actions (
+  user_name STRING,
+  data STRING,
+  user_action_time TIMESTAMP(3),
+  -- declare user_action_time as event time attribute and use 5 seconds delayed watermark strategy
+  WATERMARK FOR user_action_time AS user_action_time - INTERVAL '5' SECOND
+) WITH (
+  ...
+);
+
+SELECT TUMBLE_START(user_action_time, INTERVAL '10' MINUTE), COUNT(DISTINCT user_name)
+FROM user_actions
+GROUP BY TUMBLE(user_action_time, INTERVAL '10' MINUTE);
+```
 
 ### 在DataStream到表转换期间
 
