@@ -2141,7 +2141,23 @@ table = input.over_window([OverWindow w].alias("w")) \
         <br />Batch Streaming</td>
       <td style="text-align:left">
         <p>&#x4F7F;&#x7528;&#x8868;&#x51FD;&#x6570;&#x6267;&#x884C;flatMap&#x64CD;&#x4F5C;&#x3002;</p>
-        <p></p>
+        <p>public class MyFlatMapFunction extends TableFunction {</p>
+        <p>public void eval(String str) {</p>
+        <p>if (str.contains(&quot;#&quot;)) {</p>
+        <p>String[] array = str.split(&quot;#&quot;);</p>
+        <p>for (int i = 0; i &lt; array.length; ++i) {</p>
+        <p>collect(Row.of(array[i], array[i].length()));</p>
+        <p>}</p>
+        <p>}</p>
+        <p>}</p>
+        <p>@Override</p>
+        <p>public TypeInformation getResultType() {</p>
+        <p>return Types.ROW(Types.STRING(), Types.INT());</p>
+        <p>}</p>
+        <p>}</p>
+        <p>TableFunction func = new MyFlatMapFunction(); tableEnv.registerFunction(&quot;func&quot;,
+          func);</p>
+        <p>Table table = input .flatMap(&quot;func(c)&quot;).as(&quot;a, b&quot;)</p>
       </td>
     </tr>
     <tr>
@@ -2259,7 +2275,7 @@ table = input.over_window([OverWindow w].alias("w")) \
 ```text
 expressionList = expression , { "," , expression } ;
 
-expression = timeIndicator | overConstant | alias ;
+expression = overConstant | alias ;
 
 alias = logic | ( logic , "as" , fieldReference ) | ( logic , "as" , "(" , fieldReference , { "," , fieldReference } , ")" ) ;
 
@@ -2275,7 +2291,7 @@ unary = [ "!" | "-" | "+" ] , composite ;
 
 composite = over | suffixed | nullLiteral | prefixed | atom ;
 
-suffixed = interval | suffixAs | suffixCast | suffixIf | suffixDistinct | suffixFunctionCall ;
+suffixed = interval | suffixAs | suffixCast | suffixIf | suffixDistinct | suffixFunctionCall | timeIndicator ;
 
 prefixed = prefixAs | prefixCast | prefixIf | prefixDistinct | prefixFunctionCall ;
 
@@ -2311,7 +2327,7 @@ atom = ( "(" , expression , ")" ) | literal | fieldReference ;
 
 fieldReference = "*" | identifier ;
 
-nullLiteral = "Null(" , dataType , ")" ;
+nullLiteral = "nullOf(" , dataType , ")" ;
 
 timeIntervalUnit = "YEAR" | "YEAR_TO_MONTH" | "MONTH" | "QUARTER" | "WEEK" | "DAY" | "DAY_TO_HOUR" | "DAY_TO_MINUTE" | "DAY_TO_SECOND" | "HOUR" | "HOUR_TO_MINUTE" | "HOUR_TO_SECOND" | "MINUTE" | "MINUTE_TO_SECOND" | "SECOND" ;
 
