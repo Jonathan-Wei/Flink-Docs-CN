@@ -2121,19 +2121,30 @@ table = input.over_window([OverWindow w].alias("w")) \
         <br />Batch Streaming</td>
       <td style="text-align:left">
         <p>&#x4F7F;&#x7528;&#x7528;&#x6237;&#x5B9A;&#x4E49;&#x7684;&#x6807;&#x91CF;&#x51FD;&#x6570;&#x6216;&#x5185;&#x7F6E;&#x6807;&#x91CF;&#x51FD;&#x6570;&#x6267;&#x884C;&#x6620;&#x5C04;&#x64CD;&#x4F5C;&#x3002;&#x5982;&#x679C;&#x8F93;&#x51FA;&#x7C7B;&#x578B;&#x662F;&#x590D;&#x5408;&#x7C7B;&#x578B;&#xFF0C;&#x5219;&#x8F93;&#x51FA;&#x5C06;&#x88AB;&#x5C55;&#x5E73;&#x3002;</p>
-        <p>public class MyMapFunction extends ScalarFunction {</p>
-        <p>public Row eval(String a) {</p>
-        <p>return Row.of(a, &quot;pre-&quot; + a);</p>
-        <p>}</p>
+        <p><b>public</b>  <b>class</b>  <b>MyMapFunction</b>  <b>extends</b>  <b>ScalarFunction</b>  <b>{</b>
+        </p>
+        <p> <b>public</b>  <b>Row</b>  <b>eval(String</b> a<b>)</b>  <b>{</b>
+        </p>
+        <p> <b>return</b>  <b>Row.</b>of<b>(</b>a<b>,</b> &quot;pre-&quot; <b>+</b> a<b>);</b>
+        </p>
+        <p> <b>}</b>
+        </p>
         <p>@Override</p>
-        <p>public TypeInformation&lt;?&gt;getResultType(Class&lt;?&gt;[] signature)
-          {</p>
-        <p>return Types.ROW(Types.STRING(), Types.STRING());</p>
-        <p>}</p>
-        <p>}</p>
-        <p>ScalarFunction func = new MyMapFunction(); tableEnv.registerFunction(&quot;func&quot;,
-          func);</p>
-        <p>Table table = input .map(&quot;func(c)&quot;).as(&quot;a, b&quot;)</p>
+        <p> <b>public</b>  <b>TypeInformation&lt;?&gt;</b> getResultType<b>(Class&lt;?&gt;[]</b> signature<b>)</b>  <b>{</b>
+        </p>
+        <p> <b>return</b>  <b>Types.</b>ROW<b>(Types.</b>STRING<b>(),</b>  <b>Types.</b>STRING<b>());</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p><b>}</b>
+        </p>
+        <p><b>ScalarFunction</b> func <b>=</b>  <b>new</b>  <b>MyMapFunction();</b>
+        </p>
+        <p>tableEnv<b>.</b>registerFunction<b>(</b>&quot;func&quot;<b>,</b> func<b>);</b>
+        </p>
+        <p><b>Table</b> table <b>=</b> input</p>
+        <p> <b>.</b>map<b>(</b>&quot;func(c)&quot;<b>).</b>as<b>(</b>&quot;a, b&quot;<b>)</b>
+        </p>
       </td>
     </tr>
     <tr>
@@ -2141,35 +2152,140 @@ table = input.over_window([OverWindow w].alias("w")) \
         <br />Batch Streaming</td>
       <td style="text-align:left">
         <p>&#x4F7F;&#x7528;&#x8868;&#x51FD;&#x6570;&#x6267;&#x884C;flatMap&#x64CD;&#x4F5C;&#x3002;</p>
-        <p>public class MyFlatMapFunction extends TableFunction {</p>
-        <p>public void eval(String str) {</p>
-        <p>if (str.contains(&quot;#&quot;)) {</p>
-        <p>String[] array = str.split(&quot;#&quot;);</p>
-        <p>for (int i = 0; i &lt; array.length; ++i) {</p>
-        <p>collect(Row.of(array[i], array[i].length()));</p>
-        <p>}</p>
-        <p>}</p>
-        <p>}</p>
+        <p><b>public</b>  <b>class</b>  <b>MyFlatMapFunction</b>  <b>extends</b>  <b>TableFunction&lt;Row&gt;</b>  <b>{</b>
+        </p>
+        <p> <b>public</b>  <b>void</b>  <b>eval(String</b> str<b>)</b>  <b>{</b>
+        </p>
+        <p> <b>if</b>  <b>(</b>str<b>.</b>contains<b>(</b>&quot;#&quot;<b>))</b>  <b>{</b>
+        </p>
+        <p> <b>String[]</b> array <b>=</b> str<b>.</b>split<b>(</b>&quot;#&quot;<b>);</b>
+        </p>
+        <p> <b>for</b>  <b>(int</b> i <b>=</b> 0<b>;</b> i <b>&lt;</b> array<b>.</b>length<b>;</b>  <b>++</b>i<b>)</b>  <b>{</b>
+        </p>
+        <p>collect<b>(Row.</b>of<b>(</b>array<b>[</b>i<b>],</b> array<b>[</b>i<b>].</b>length<b>()));</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>}</b>
+        </p>
         <p>@Override</p>
-        <p>public TypeInformation getResultType() {</p>
-        <p>return Types.ROW(Types.STRING(), Types.INT());</p>
-        <p>}</p>
-        <p>}</p>
-        <p>TableFunction func = new MyFlatMapFunction(); tableEnv.registerFunction(&quot;func&quot;,
-          func);</p>
-        <p>Table table = input .flatMap(&quot;func(c)&quot;).as(&quot;a, b&quot;)</p>
+        <p> <b>public</b>  <b>TypeInformation&lt;Row&gt;</b>  <b>getResultType()</b>  <b>{</b>
+        </p>
+        <p> <b>return</b>  <b>Types.</b>ROW<b>(Types.</b>STRING<b>(),</b>  <b>Types.</b>INT<b>());</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p><b>}</b>
+        </p>
+        <p><b>TableFunction</b> func <b>=</b>  <b>new</b>  <b>MyFlatMapFunction();</b>
+        </p>
+        <p>tableEnv<b>.</b>registerFunction<b>(</b>&quot;func&quot;<b>,</b> func<b>);</b>
+        </p>
+        <p><b>Table</b> table <b>=</b> input</p>
+        <p> <b>.</b>flatMap<b>(</b>&quot;func(c)&quot;<b>).</b>as<b>(</b>&quot;a,
+          b&quot;<b>)</b>
+        </p>
       </td>
     </tr>
     <tr>
       <td style="text-align:left"> <b>Aggregate</b>
         <br />Batch Streaming Result Updating</td>
-      <td style="text-align:left">&#x4F7F;&#x7528;&#x805A;&#x5408;&#x51FD;&#x6570;&#x6267;&#x884C;&#x805A;&#x5408;&#x64CD;&#x4F5C;&#x3002;&#x60A8;&#x5FC5;&#x987B;&#x4F7F;&#x7528;select&#x8BED;&#x53E5;&#x5173;&#x95ED;&#x201C;&#x805A;&#x5408;&#x201D;&#xFF0C;&#x5E76;&#x4E14;select&#x8BED;&#x53E5;&#x4E0D;&#x652F;&#x6301;&#x805A;&#x5408;&#x529F;&#x80FD;&#x3002;&#x5982;&#x679C;&#x8F93;&#x51FA;&#x7C7B;&#x578B;&#x662F;&#x590D;&#x5408;&#x7C7B;&#x578B;&#xFF0C;&#x5219;&#x805A;&#x5408;&#x7684;&#x8F93;&#x51FA;&#x5C06;&#x88AB;&#x5C55;&#x5E73;&#x3002;</td>
+      <td style="text-align:left">
+        <p>&#x4F7F;&#x7528;&#x805A;&#x5408;&#x51FD;&#x6570;&#x6267;&#x884C;&#x805A;&#x5408;&#x64CD;&#x4F5C;&#x3002;&#x60A8;&#x5FC5;&#x987B;&#x4F7F;&#x7528;select&#x8BED;&#x53E5;&#x5173;&#x95ED;&#x201C;&#x805A;&#x5408;&#x201D;&#xFF0C;&#x5E76;&#x4E14;select&#x8BED;&#x53E5;&#x4E0D;&#x652F;&#x6301;&#x805A;&#x5408;&#x529F;&#x80FD;&#x3002;&#x5982;&#x679C;&#x8F93;&#x51FA;&#x7C7B;&#x578B;&#x662F;&#x590D;&#x5408;&#x7C7B;&#x578B;&#xFF0C;&#x5219;&#x805A;&#x5408;&#x7684;&#x8F93;&#x51FA;&#x5C06;&#x88AB;&#x5C55;&#x5E73;&#x3002;
+          <br
+          />
+        </p>
+        <p><b>public</b>  <b>class</b>  <b>MyMinMaxAcc</b>  <b>{</b>
+        </p>
+        <p> <b>public</b>  <b>int</b> min <b>=</b> 0<b>;</b>
+        </p>
+        <p> <b>public</b>  <b>int</b> max <b>=</b> 0<b>;</b>
+        </p>
+        <p><b>}</b>
+        </p>
+        <p><b>public</b>  <b>class</b>  <b>MyMinMax</b>  <b>extends</b>  <b>AggregateFunction&lt;Row,</b>  <b>MyMinMaxAcc&gt;</b>  <b>{</b>
+        </p>
+        <p> <b>public</b>  <b>void</b>  <b>accumulate(MyMinMaxAcc</b> acc<b>,</b>  <b>int</b> value<b>)</b>  <b>{</b>
+        </p>
+        <p> <b>if</b>  <b>(</b>value <b>&lt;</b> acc<b>.</b>min<b>)</b>  <b>{</b>
+        </p>
+        <p>acc<b>.</b>min <b>=</b> value<b>;</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>if</b>  <b>(</b>value <b>&gt;</b> acc<b>.</b>max<b>)</b>  <b>{</b>
+        </p>
+        <p>acc<b>.</b>max <b>=</b> value<b>;</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p>@Override</p>
+        <p> <b>public</b>  <b>MyMinMaxAcc</b>  <b>createAccumulator()</b>  <b>{</b>
+        </p>
+        <p> <b>return</b>  <b>new</b>  <b>MyMinMaxAcc();</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>public</b>  <b>void</b>  <b>resetAccumulator(MyMinMaxAcc</b> acc<b>)</b>  <b>{</b>
+        </p>
+        <p>acc<b>.</b>min <b>=</b> 0<b>;</b>
+        </p>
+        <p>acc<b>.</b>max <b>=</b> 0<b>;</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p>@Override</p>
+        <p> <b>public</b>  <b>Row</b>  <b>getValue(MyMinMaxAcc</b> acc<b>)</b>  <b>{</b>
+        </p>
+        <p> <b>return</b>  <b>Row.</b>of<b>(</b>acc<b>.</b>min<b>,</b> acc<b>.</b>max<b>);</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p>@Override</p>
+        <p> <b>public</b>  <b>TypeInformation&lt;Row&gt;</b>  <b>getResultType()</b>  <b>{</b>
+        </p>
+        <p> <b>return</b>  <b>new</b>  <b>RowTypeInfo(Types.</b>INT<b>,</b>  <b>Types.</b>INT<b>);</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p><b>}</b>
+        </p>
+        <p><b>AggregateFunction</b> myAggFunc <b>=</b>  <b>new</b>  <b>MyMinMax();</b>
+        </p>
+        <p>tableEnv<b>.</b>registerFunction<b>(</b>&quot;myAggFunc&quot;<b>,</b> myAggFunc<b>);</b>
+        </p>
+        <p><b>Table</b> table <b>=</b> input</p>
+        <p> <b>.</b>groupBy<b>(</b>&quot;key&quot;<b>)</b>
+        </p>
+        <p> <b>.</b>aggregate<b>(</b>&quot;myAggFunc(a) as (x, y)&quot;<b>)</b>
+        </p>
+        <p> <b>.</b>select<b>(</b>&quot;key, x, y&quot;<b>)</b>
+        </p>
+      </td>
     </tr>
     <tr>
       <td style="text-align:left"> <b>Group Window Aggregate</b>
         <br />Batch Streaming</td>
-      <td style="text-align:left">&#x5728;<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/tableApi.html#group-windows">&#x7EC4;&#x7A97;&#x53E3;</a>&#x548C;&#x53EF;&#x80FD;&#x7684;&#x4E00;&#x4E2A;&#x6216;&#x591A;&#x4E2A;&#x5206;&#x7EC4;&#x952E;&#x4E0A;&#x5BF9;&#x8868;&#x8FDB;&#x884C;&#x5206;&#x7EC4;&#x548C;&#x805A;&#x96C6;&#x3002;&#x60A8;&#x5FC5;&#x987B;&#x4F7F;&#x7528;select&#x8BED;&#x53E5;&#x5173;&#x95ED;&#x201C;&#x805A;&#x5408;&#x201D;&#x3002;&#x5E76;&#x4E14;select&#x8BED;&#x53E5;&#x4E0D;&#x652F;&#x6301;&#x201C;
-        *&#x201D;&#x6216;&#x805A;&#x5408;&#x51FD;&#x6570;&#x3002;</td>
+      <td style="text-align:left">
+        <p>&#x5728;<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/tableApi.html#group-windows">&#x7EC4;&#x7A97;&#x53E3;</a>&#x548C;&#x53EF;&#x80FD;&#x7684;&#x4E00;&#x4E2A;&#x6216;&#x591A;&#x4E2A;&#x5206;&#x7EC4;&#x952E;&#x4E0A;&#x5BF9;&#x8868;&#x8FDB;&#x884C;&#x5206;&#x7EC4;&#x548C;&#x805A;&#x96C6;&#x3002;&#x60A8;&#x5FC5;&#x987B;&#x4F7F;&#x7528;select&#x8BED;&#x53E5;&#x5173;&#x95ED;&#x201C;&#x805A;&#x5408;&#x201D;&#x3002;&#x5E76;&#x4E14;select&#x8BED;&#x53E5;&#x4E0D;&#x652F;&#x6301;&#x201C;
+          *&#x201D;&#x6216;&#x805A;&#x5408;&#x51FD;&#x6570;&#x3002;</p>
+        <p><b>AggregateFunction</b> myAggFunc <b>=</b>  <b>new</b>  <b>MyMinMax();</b>
+        </p>
+        <p>tableEnv<b>.</b>registerFunction<b>(</b>&quot;myAggFunc&quot;<b>,</b> myAggFunc<b>);</b>
+        </p>
+        <p><b>Table</b> table <b>=</b> input</p>
+        <p> <b>.</b>window<b>(Tumble.</b>over<b>(</b>&quot;5.minutes&quot;<b>).</b>on<b>(</b>&quot;rowtime&quot;<b>).</b>as<b>(</b>&quot;w&quot;<b>))</b> //
+          define window</p>
+        <p> <b>.</b>groupBy<b>(</b>&quot;key, w&quot;<b>)</b> // group by key and window</p>
+        <p> <b>.</b>aggregate<b>(</b>&quot;myAggFunc(a) as (x, y)&quot;<b>)</b>
+        </p>
+        <p> <b>.</b>select<b>(</b>&quot;key, x, y, w.start, w.end&quot;<b>);</b> //
+          access window properties and aggregate results</p>
+      </td>
     </tr>
     <tr>
       <td style="text-align:left"> <b>FlatAggregate</b>
@@ -2181,6 +2297,93 @@ table = input.over_window([OverWindow w].alias("w")) \
         <p>&#x9664;&#x4E86;&#x4F7F;&#x7528;<code>emitValue</code>&#x8F93;&#x51FA;&#x7ED3;&#x679C;&#xFF0C;&#x8FD8;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;<code>emitUpdateWithRetract</code>&#x65B9;&#x6CD5;&#x3002;&#x4E0E;&#x4E0D;&#x540C;<code>emitValue</code>&#xFF0C;<code>emitUpdateWithRetract</code>&#x7528;&#x4E8E;&#x53D1;&#x51FA;&#x5DF2;&#x66F4;&#x65B0;&#x7684;&#x503C;&#x3002;&#x6B64;&#x65B9;&#x6CD5;&#x4EE5;&#x7F29;&#x56DE;&#x6A21;&#x5F0F;&#x589E;&#x91CF;&#x8F93;&#x51FA;&#x6570;&#x636E;&#xFF0C;&#x5373;&#xFF0C;&#x4E00;&#x65E6;&#x6709;&#x66F4;&#x65B0;&#xFF0C;&#x6211;&#x4EEC;&#x5FC5;&#x987B;&#x5148;&#x7F29;&#x56DE;&#x65E7;&#x8BB0;&#x5F55;&#xFF0C;&#x7136;&#x540E;&#x518D;&#x53D1;&#x9001;&#x65B0;&#x7684;&#x66F4;&#x65B0;&#x8BB0;&#x5F55;&#x3002;&#x5982;&#x679C;&#x5728;&#x8868;&#x805A;&#x5408;&#x51FD;&#x6570;&#x4E2D;&#x5B9A;&#x4E49;&#x4E86;&#x8FD9;&#x4E24;&#x79CD;&#x65B9;&#x6CD5;&#xFF0C;&#x5219;&#x8BE5;<code>emitUpdateWithRetract</code>&#x65B9;&#x6CD5;&#x5C06;&#x4F18;&#x5148;&#x4E8E;&#x8BE5;<code>emitValue</code>&#x65B9;&#x6CD5;&#x4F7F;&#x7528;&#xFF0C;&#x56E0;&#x4E3A;&#x8FD9;&#x88AB;&#x8BA4;&#x4E3A;&#x6BD4;&#x8BE5;&#x65B9;&#x6CD5;&#x66F4;&#x6709;&#x6548;&#xFF0C;<code>emitValue</code>&#x56E0;&#x4E3A;&#x5B83;&#x53EF;&#x4EE5;&#x9012;&#x589E;&#x5730;&#x8F93;&#x51FA;&#x503C;&#x3002;&#x6709;&#x5173;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;
           <a
           href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/functions/udfs.html#table-aggregation-functions">&#x53C2;&#x89C1;&#x8868;&#x805A;&#x5408;&#x51FD;&#x6570;</a>&#x3002;</p>
+        <p>/**</p>
+        <p>* Accumulator for Top2.</p>
+        <p>*/</p>
+        <p><b>public</b>  <b>class</b>  <b>Top2Accum</b>  <b>{</b>
+        </p>
+        <p> <b>public</b>  <b>Integer</b> first<b>;</b>
+        </p>
+        <p> <b>public</b>  <b>Integer</b> second<b>;</b>
+        </p>
+        <p><b>}</b>
+        </p>
+        <p>/**</p>
+        <p>* The top2 user-defined table aggregate function.</p>
+        <p>*/</p>
+        <p><b>public</b>  <b>class</b>  <b>Top2</b>  <b>extends</b>  <b>TableAggregateFunction&lt;Tuple2&lt;Integer,</b>  <b>Integer&gt;,</b>  <b>Top2Accum&gt;</b>  <b>{</b>
+        </p>
+        <p>@Override</p>
+        <p> <b>public</b>  <b>Top2Accum</b>  <b>createAccumulator()</b>  <b>{</b>
+        </p>
+        <p> <b>Top2Accum</b> acc <b>=</b>  <b>new</b>  <b>Top2Accum();</b>
+        </p>
+        <p>acc<b>.</b>first <b>=</b>  <b>Integer.</b>MIN_VALUE<b>;</b>
+        </p>
+        <p>acc<b>.</b>second <b>=</b>  <b>Integer.</b>MIN_VALUE<b>;</b>
+        </p>
+        <p> <b>return</b> acc<b>;</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>public</b>  <b>void</b>  <b>accumulate(Top2Accum</b> acc<b>,</b>  <b>Integer</b> v<b>)</b>  <b>{</b>
+        </p>
+        <p> <b>if</b>  <b>(</b>v <b>&gt;</b> acc<b>.</b>first<b>)</b>  <b>{</b>
+        </p>
+        <p>acc<b>.</b>second <b>=</b> acc<b>.</b>first<b>;</b>
+        </p>
+        <p>acc<b>.</b>first <b>=</b> v<b>;</b>
+        </p>
+        <p> <b>}</b>  <b>else</b>  <b>if</b>  <b>(</b>v <b>&gt;</b> acc<b>.</b>second<b>)</b>  <b>{</b>
+        </p>
+        <p>acc<b>.</b>second <b>=</b> v<b>;</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>public</b>  <b>void</b>  <b>merge(Top2Accum</b> acc<b>,</b> java<b>.</b>lang<b>.</b>Iterable<b>&lt;Top2Accum&gt;</b> iterable<b>)</b>  <b>{</b>
+        </p>
+        <p> <b>for</b>  <b>(Top2Accum</b> otherAcc <b>:</b> iterable<b>)</b>  <b>{</b>
+        </p>
+        <p>accumulate<b>(</b>acc<b>,</b> otherAcc<b>.</b>first<b>);</b>
+        </p>
+        <p>accumulate<b>(</b>acc<b>,</b> otherAcc<b>.</b>second<b>);</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>public</b>  <b>void</b>  <b>emitValue(Top2Accum</b> acc<b>,</b>  <b>Collector&lt;Tuple2&lt;Integer,</b>  <b>Integer&gt;&gt;</b> out<b>)</b>  <b>{</b>
+        </p>
+        <p>// emit the value and rank</p>
+        <p> <b>if</b>  <b>(</b>acc<b>.</b>first <b>!=</b>  <b>Integer.</b>MIN_VALUE<b>)</b>  <b>{</b>
+        </p>
+        <p>out<b>.</b>collect<b>(Tuple2.</b>of<b>(</b>acc<b>.</b>first<b>,</b> 1<b>));</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>if</b>  <b>(</b>acc<b>.</b>second <b>!=</b>  <b>Integer.</b>MIN_VALUE<b>)</b>  <b>{</b>
+        </p>
+        <p>out<b>.</b>collect<b>(Tuple2.</b>of<b>(</b>acc<b>.</b>second<b>,</b> 2<b>));</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p><b>}</b>
+        </p>
+        <p>tEnv<b>.</b>registerFunction<b>(</b>&quot;top2&quot;<b>,</b>  <b>new</b>  <b>Top2());</b>
+        </p>
+        <p><b>Table</b> orders <b>=</b> tableEnv<b>.</b>from<b>(</b>&quot;Orders&quot;<b>);</b>
+        </p>
+        <p><b>Table</b> result <b>=</b> orders</p>
+        <p> <b>.</b>groupBy<b>(</b>&quot;key&quot;<b>)</b>
+        </p>
+        <p> <b>.</b>flatAggregate<b>(</b>&quot;top2(a) as (v, rank)&quot;<b>)</b>
+        </p>
+        <p> <b>.</b>select<b>(</b>&quot;key, v, rank&quot;<b>);</b>
+        </p>
         <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x5BF9;&#x4E8E;&#x6D41;&#x5F0F;&#x67E5;&#x8BE2;&#xFF0C;&#x6839;&#x636E;&#x805A;&#x5408;&#x7C7B;&#x578B;&#x548C;&#x4E0D;&#x540C;&#x5206;&#x7EC4;&#x5173;&#x952E;&#x5B57;&#x7684;&#x6570;&#x91CF;&#xFF0C;&#x8BA1;&#x7B97;&#x67E5;&#x8BE2;&#x7ED3;&#x679C;&#x6240;&#x9700;&#x7684;&#x72B6;&#x6001;&#x53EF;&#x80FD;&#x4F1A;&#x65E0;&#x9650;&#x589E;&#x957F;&#x3002;&#x8BF7;&#x63D0;&#x4F9B;&#x5177;&#x6709;&#x6709;&#x6548;&#x4FDD;&#x7559;&#x95F4;&#x9694;&#x7684;&#x67E5;&#x8BE2;&#x914D;&#x7F6E;&#xFF0C;&#x4EE5;&#x9632;&#x6B62;&#x51FA;&#x73B0;&#x8FC7;&#x591A;&#x7684;&#x72B6;&#x6001;&#x3002;&#x6709;&#x5173;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;&#x53C2;&#x89C1;
           <a
           href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/query_configuration.html">&#x67E5;&#x8BE2;&#x914D;&#x7F6E;</a>&#x3002;</p>
@@ -2191,8 +2394,22 @@ table = input.over_window([OverWindow w].alias("w")) \
         <br />Streaming
         <br />
       </td>
-      <td style="text-align:left">&#x5728;<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/tableApi.html#group-windows">&#x7EC4;&#x7A97;&#x53E3;</a>&#x548C;&#x53EF;&#x80FD;&#x7684;&#x4E00;&#x4E2A;&#x6216;&#x591A;&#x4E2A;&#x5206;&#x7EC4;&#x952E;&#x4E0A;&#x5BF9;&#x8868;&#x8FDB;&#x884C;&#x5206;&#x7EC4;&#x548C;&#x805A;&#x96C6;&#x3002;&#x60A8;&#x5FC5;&#x987B;&#x4F7F;&#x7528;select&#x8BED;&#x53E5;&#x5173;&#x95ED;&#x201C;
-        flatAggregate&#x201D;&#x3002;&#x5E76;&#x4E14;select&#x8BED;&#x53E5;&#x4E0D;&#x652F;&#x6301;&#x805A;&#x5408;&#x51FD;&#x6570;&#x3002;</td>
+      <td style="text-align:left">
+        <p>&#x5728;<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/tableApi.html#group-windows">&#x7EC4;&#x7A97;&#x53E3;</a>&#x548C;&#x53EF;&#x80FD;&#x7684;&#x4E00;&#x4E2A;&#x6216;&#x591A;&#x4E2A;&#x5206;&#x7EC4;&#x952E;&#x4E0A;&#x5BF9;&#x8868;&#x8FDB;&#x884C;&#x5206;&#x7EC4;&#x548C;&#x805A;&#x96C6;&#x3002;&#x60A8;&#x5FC5;&#x987B;&#x4F7F;&#x7528;select&#x8BED;&#x53E5;&#x5173;&#x95ED;&#x201C;
+          flatAggregate&#x201D;&#x3002;&#x5E76;&#x4E14;select&#x8BED;&#x53E5;&#x4E0D;&#x652F;&#x6301;&#x805A;&#x5408;&#x51FD;&#x6570;&#x3002;</p>
+        <p>tableEnv<b>.</b>registerFunction<b>(</b>&quot;top2&quot;<b>,</b>  <b>new</b>  <b>Top2());</b>
+        </p>
+        <p><b>Table</b> orders <b>=</b> tableEnv<b>.</b>from<b>(</b>&quot;Orders&quot;<b>);</b>
+        </p>
+        <p><b>Table</b> result <b>=</b> orders</p>
+        <p> <b>.</b>window<b>(Tumble.</b>over<b>(</b>&quot;5.minutes&quot;<b>).</b>on<b>(</b>&quot;rowtime&quot;<b>).</b>as<b>(</b>&quot;w&quot;<b>))</b> //
+          define window</p>
+        <p> <b>.</b>groupBy<b>(</b>&quot;a, w&quot;<b>)</b> // group by key and window</p>
+        <p> <b>.</b>flatAggregate<b>(</b>&quot;top2(b) as (v, rank)&quot;<b>)</b>
+        </p>
+        <p> <b>.</b>select<b>(</b>&quot;a, w.start, w.end, w.rowtime, v, rank&quot;<b>);</b> //
+          access window properties and aggregate results</p>
+      </td>
     </tr>
   </tbody>
 </table>
@@ -2210,23 +2427,140 @@ table = input.over_window([OverWindow w].alias("w")) \
     <tr>
       <td style="text-align:left"> <b>Map</b>
         <br />Batch Streaming</td>
-      <td style="text-align:left">&#x4F7F;&#x7528;&#x7528;&#x6237;&#x5B9A;&#x4E49;&#x7684;&#x6807;&#x91CF;&#x51FD;&#x6570;&#x6216;&#x5185;&#x7F6E;&#x6807;&#x91CF;&#x51FD;&#x6570;&#x6267;&#x884C;&#x6620;&#x5C04;&#x64CD;&#x4F5C;&#x3002;&#x5982;&#x679C;&#x8F93;&#x51FA;&#x7C7B;&#x578B;&#x662F;&#x590D;&#x5408;&#x7C7B;&#x578B;&#xFF0C;&#x5219;&#x8F93;&#x51FA;&#x5C06;&#x88AB;&#x5C55;&#x5E73;&#x3002;</td>
+      <td style="text-align:left">
+        <p>&#x4F7F;&#x7528;&#x7528;&#x6237;&#x5B9A;&#x4E49;&#x7684;&#x6807;&#x91CF;&#x51FD;&#x6570;&#x6216;&#x5185;&#x7F6E;&#x6807;&#x91CF;&#x51FD;&#x6570;&#x6267;&#x884C;&#x6620;&#x5C04;&#x64CD;&#x4F5C;&#x3002;&#x5982;&#x679C;&#x8F93;&#x51FA;&#x7C7B;&#x578B;&#x662F;&#x590D;&#x5408;&#x7C7B;&#x578B;&#xFF0C;&#x5219;&#x8F93;&#x51FA;&#x5C06;&#x88AB;&#x5C55;&#x5E73;&#x3002;</p>
+        <p><b>class</b>  <b>MyMapFunction</b>  <b>extends</b>  <b>ScalarFunction</b>  <b>{</b>
+        </p>
+        <p> <b>def</b>  <b>eval(</b>a<b>:</b>  <b>String):</b>  <b>Row</b>  <b>=</b>  <b>{</b>
+        </p>
+        <p>Row<b>.</b>of<b>(</b>a<b>,</b> &quot;pre-&quot; <b>+</b> a<b>)</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>override</b>  <b>def</b>  <b>getResultType(</b>signature<b>:</b>  <b>Array[Class[_]]):</b>  <b>TypeInformation[_]</b>  <b>=</b>
+        </p>
+        <p>Types<b>.</b>ROW<b>(</b>Types<b>.</b>STRING<b>,</b> Types<b>.</b>STRING<b>)</b>
+        </p>
+        <p><b>}</b>
+        </p>
+        <p><b>val</b> func <b>=</b>  <b>new</b>  <b>MyMapFunction()</b>
+        </p>
+        <p><b>val</b> table <b>=</b> input</p>
+        <p> <b>.</b>map<b>(func(</b>&apos;c)<b>).</b>as<b>(</b>&apos;a, &apos;b)</p>
+      </td>
     </tr>
     <tr>
       <td style="text-align:left"> <b>FlatMap</b>
         <br />Batch Streaming</td>
-      <td style="text-align:left">&#x4F7F;&#x7528;&#x8868;&#x51FD;&#x6570;&#x6267;&#x884C;flatMap&#x64CD;&#x4F5C;&#x3002;</td>
+      <td style="text-align:left">
+        <p>&#x4F7F;&#x7528;&#x8868;&#x51FD;&#x6570;&#x6267;&#x884C;flatMap&#x64CD;&#x4F5C;&#x3002;</p>
+        <p><b>class</b>  <b>MyFlatMapFunction</b>  <b>extends</b>  <b>TableFunction[Row]</b>  <b>{</b>
+        </p>
+        <p> <b>def</b>  <b>eval(</b>str<b>:</b>  <b>String):</b>  <b>Unit</b>  <b>=</b>  <b>{</b>
+        </p>
+        <p> <b>if</b>  <b>(</b>str<b>.</b>contains<b>(</b>&quot;#&quot;<b>))</b>  <b>{</b>
+        </p>
+        <p>str<b>.</b>split<b>(</b>&quot;#&quot;<b>).</b>foreach<b>({</b> s <b>=&gt;</b>
+        </p>
+        <p> <b>val</b> row <b>=</b>  <b>new</b>  <b>Row(</b>2<b>)</b>
+        </p>
+        <p>row<b>.</b>setField<b>(</b>0<b>,</b> s<b>)</b>
+        </p>
+        <p>row<b>.</b>setField<b>(</b>1<b>,</b> s<b>.</b>length<b>)</b>
+        </p>
+        <p> <b>collect(</b>row<b>)</b>
+        </p>
+        <p> <b>})</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>override</b>  <b>def</b>  <b>getResultType:</b>  <b>TypeInformation[Row]</b>  <b>=</b>  <b>{</b>
+        </p>
+        <p>Types<b>.</b>ROW<b>(</b>Types<b>.</b>STRING<b>,</b> Types<b>.</b>INT<b>)</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p><b>}</b>
+        </p>
+        <p><b>val</b> func <b>=</b>  <b>new</b>  <b>MyFlatMapFunction</b>
+        </p>
+        <p><b>val</b> table <b>=</b> input</p>
+        <p> <b>.</b>flatMap<b>(func(</b>&apos;c)<b>).</b>as<b>(</b>&apos;a, &apos;b)</p>
+      </td>
     </tr>
     <tr>
       <td style="text-align:left"> <b>Aggregate</b>
         <br />Batch Streaming Result Updating</td>
-      <td style="text-align:left">&#x4F7F;&#x7528;&#x805A;&#x5408;&#x51FD;&#x6570;&#x6267;&#x884C;&#x805A;&#x5408;&#x64CD;&#x4F5C;&#x3002;&#x60A8;&#x5FC5;&#x987B;&#x4F7F;&#x7528;select&#x8BED;&#x53E5;&#x5173;&#x95ED;&#x201C;&#x805A;&#x5408;&#x201D;&#xFF0C;&#x5E76;&#x4E14;select&#x8BED;&#x53E5;&#x4E0D;&#x652F;&#x6301;&#x805A;&#x5408;&#x529F;&#x80FD;&#x3002;&#x5982;&#x679C;&#x8F93;&#x51FA;&#x7C7B;&#x578B;&#x662F;&#x590D;&#x5408;&#x7C7B;&#x578B;&#xFF0C;&#x5219;&#x805A;&#x5408;&#x7684;&#x8F93;&#x51FA;&#x5C06;&#x88AB;&#x5C55;&#x5E73;&#x3002;</td>
+      <td style="text-align:left">
+        <p>&#x4F7F;&#x7528;&#x805A;&#x5408;&#x51FD;&#x6570;&#x6267;&#x884C;&#x805A;&#x5408;&#x64CD;&#x4F5C;&#x3002;&#x60A8;&#x5FC5;&#x987B;&#x4F7F;&#x7528;select&#x8BED;&#x53E5;&#x5173;&#x95ED;&#x201C;&#x805A;&#x5408;&#x201D;&#xFF0C;&#x5E76;&#x4E14;select&#x8BED;&#x53E5;&#x4E0D;&#x652F;&#x6301;&#x805A;&#x5408;&#x529F;&#x80FD;&#x3002;&#x5982;&#x679C;&#x8F93;&#x51FA;&#x7C7B;&#x578B;&#x662F;&#x590D;&#x5408;&#x7C7B;&#x578B;&#xFF0C;&#x5219;&#x805A;&#x5408;&#x7684;&#x8F93;&#x51FA;&#x5C06;&#x88AB;&#x5C55;&#x5E73;&#x3002;</p>
+        <p><b>case</b>  <b>class</b>  <b>MyMinMaxAcc(var</b> min<b>:</b>  <b>Int,</b>  <b>var</b> max<b>:</b>  <b>Int)</b>
+        </p>
+        <p><b>class</b>  <b>MyMinMax</b>  <b>extends</b>  <b>AggregateFunction[Row</b>, <b>MyMinMaxAcc]</b>  <b>{</b>
+        </p>
+        <p> <b>def</b>  <b>accumulate(</b>acc<b>:</b>  <b>MyMinMaxAcc,</b> value<b>:</b>  <b>Int):</b>  <b>Unit</b>  <b>=</b>  <b>{</b>
+        </p>
+        <p> <b>if</b>  <b>(</b>value <b>&lt;</b> acc<b>.</b>min<b>)</b>  <b>{</b>
+        </p>
+        <p>acc<b>.</b>min <b>=</b> value</p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>if</b>  <b>(</b>value <b>&gt;</b> acc<b>.</b>max<b>)</b>  <b>{</b>
+        </p>
+        <p>acc<b>.</b>max <b>=</b> value</p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>override</b>  <b>def</b>  <b>createAccumulator():</b>  <b>MyMinMaxAcc</b>  <b>=</b>  <b>MyMinMaxAcc(</b>0<b>,</b> 0<b>)</b>
+        </p>
+        <p> <b>def</b>  <b>resetAccumulator(</b>acc<b>:</b>  <b>MyMinMaxAcc):</b>  <b>Unit</b>  <b>=</b>  <b>{</b>
+        </p>
+        <p>acc<b>.</b>min <b>=</b> 0</p>
+        <p>acc<b>.</b>max <b>=</b> 0</p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>override</b>  <b>def</b>  <b>getValue(</b>acc<b>:</b>  <b>MyMinMaxAcc):</b>  <b>Row</b>  <b>=</b>  <b>{</b>
+        </p>
+        <p>Row<b>.</b>of<b>(</b>Integer<b>.</b>valueOf<b>(</b>acc<b>.</b>min<b>),</b> Integer<b>.</b>valueOf<b>(</b>acc<b>.</b>max<b>))</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>override</b>  <b>def</b>  <b>getResultType:</b>  <b>TypeInformation[Row]</b>  <b>=</b>  <b>{</b>
+        </p>
+        <p> <b>new</b>  <b>RowTypeInfo(</b>Types<b>.</b>INT<b>,</b> Types<b>.</b>INT<b>)</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p><b>}</b>
+        </p>
+        <p><b>val</b> myAggFunc <b>=</b>  <b>new</b>  <b>MyMinMax</b>
+        </p>
+        <p><b>val</b> table <b>=</b> input</p>
+        <p> <b>.</b>groupBy<b>(</b>&apos;key)</p>
+        <p> <b>.</b>aggregate<b>(myAggFunc(</b>&apos;a) <b>as</b>  <b>(</b>&apos;x, &apos;y)<b>)</b>
+        </p>
+        <p> <b>.</b>select<b>(</b>&apos;key, &apos;x, &apos;y)</p>
+      </td>
     </tr>
     <tr>
       <td style="text-align:left"> <b>Group Window Aggregate</b>
         <br />Batch Streaming</td>
-      <td style="text-align:left">&#x5728;<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/tableApi.html#group-windows">&#x7EC4;&#x7A97;&#x53E3;</a>&#x548C;&#x53EF;&#x80FD;&#x7684;&#x4E00;&#x4E2A;&#x6216;&#x591A;&#x4E2A;&#x5206;&#x7EC4;&#x952E;&#x4E0A;&#x5BF9;&#x8868;&#x8FDB;&#x884C;&#x5206;&#x7EC4;&#x548C;&#x805A;&#x96C6;&#x3002;&#x60A8;&#x5FC5;&#x987B;&#x4F7F;&#x7528;select&#x8BED;&#x53E5;&#x5173;&#x95ED;&#x201C;&#x805A;&#x5408;&#x201D;&#x3002;&#x5E76;&#x4E14;select&#x8BED;&#x53E5;&#x4E0D;&#x652F;&#x6301;&#x201C;
-        *&#x201D;&#x6216;&#x805A;&#x5408;&#x51FD;&#x6570;&#x3002;</td>
+      <td style="text-align:left">
+        <p>&#x5728;<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/tableApi.html#group-windows">&#x7EC4;&#x7A97;&#x53E3;</a>&#x548C;&#x53EF;&#x80FD;&#x7684;&#x4E00;&#x4E2A;&#x6216;&#x591A;&#x4E2A;&#x5206;&#x7EC4;&#x952E;&#x4E0A;&#x5BF9;&#x8868;&#x8FDB;&#x884C;&#x5206;&#x7EC4;&#x548C;&#x805A;&#x96C6;&#x3002;&#x60A8;&#x5FC5;&#x987B;&#x4F7F;&#x7528;select&#x8BED;&#x53E5;&#x5173;&#x95ED;&#x201C;&#x805A;&#x5408;&#x201D;&#x3002;&#x5E76;&#x4E14;select&#x8BED;&#x53E5;&#x4E0D;&#x652F;&#x6301;&#x201C;
+          *&#x201D;&#x6216;&#x805A;&#x5408;&#x51FD;&#x6570;&#x3002;</p>
+        <p><b>val</b> myAggFunc <b>=</b>  <b>new</b>  <b>MyMinMax</b>
+        </p>
+        <p><b>val</b> table <b>=</b> input</p>
+        <p> <b>.</b>window<b>(Tumble</b> over 5.minutes on &apos;rowtime as &apos;w)
+          // define window</p>
+        <p> <b>.</b>groupBy<b>(</b>&apos;key, &apos;w) // group by key and window</p>
+        <p> <b>.</b>aggregate<b>(myAggFunc(</b>&apos;a) <b>as</b>  <b>(</b>&apos;x, &apos;y)<b>)</b>
+        </p>
+        <p> <b>.</b>select<b>(</b>&apos;key, &apos;x, &apos;y, &apos;w.start<b>,</b> &apos;w.end<b>)</b>  <b>//</b> access
+          window properties and aggregate results</p>
+      </td>
     </tr>
     <tr>
       <td style="text-align:left"> <b>FlatAggregate</b>
@@ -2238,6 +2572,92 @@ table = input.over_window([OverWindow w].alias("w")) \
         <p>&#x9664;&#x4E86;&#x4F7F;&#x7528;<code>emitValue</code>&#x8F93;&#x51FA;&#x7ED3;&#x679C;&#xFF0C;&#x8FD8;&#x53EF;&#x4EE5;&#x4F7F;&#x7528;<code>emitUpdateWithRetract</code>&#x65B9;&#x6CD5;&#x3002;&#x4E0E;&#x4E0D;&#x540C;<code>emitValue</code>&#xFF0C;<code>emitUpdateWithRetract</code>&#x7528;&#x4E8E;&#x53D1;&#x51FA;&#x5DF2;&#x66F4;&#x65B0;&#x7684;&#x503C;&#x3002;&#x6B64;&#x65B9;&#x6CD5;&#x4EE5;&#x7F29;&#x56DE;&#x6A21;&#x5F0F;&#x589E;&#x91CF;&#x8F93;&#x51FA;&#x6570;&#x636E;&#xFF0C;&#x5373;&#xFF0C;&#x4E00;&#x65E6;&#x6709;&#x66F4;&#x65B0;&#xFF0C;&#x6211;&#x4EEC;&#x5FC5;&#x987B;&#x5148;&#x7F29;&#x56DE;&#x65E7;&#x8BB0;&#x5F55;&#xFF0C;&#x7136;&#x540E;&#x518D;&#x53D1;&#x9001;&#x65B0;&#x7684;&#x66F4;&#x65B0;&#x8BB0;&#x5F55;&#x3002;&#x5982;&#x679C;&#x5728;&#x8868;&#x805A;&#x5408;&#x51FD;&#x6570;&#x4E2D;&#x5B9A;&#x4E49;&#x4E86;&#x8FD9;&#x4E24;&#x79CD;&#x65B9;&#x6CD5;&#xFF0C;&#x5219;&#x8BE5;<code>emitUpdateWithRetract</code>&#x65B9;&#x6CD5;&#x5C06;&#x4F18;&#x5148;&#x4E8E;&#x8BE5;<code>emitValue</code>&#x65B9;&#x6CD5;&#x4F7F;&#x7528;&#xFF0C;&#x56E0;&#x4E3A;&#x8FD9;&#x88AB;&#x8BA4;&#x4E3A;&#x6BD4;&#x8BE5;&#x65B9;&#x6CD5;&#x66F4;&#x6709;&#x6548;&#xFF0C;<code>emitValue</code>&#x56E0;&#x4E3A;&#x5B83;&#x53EF;&#x4EE5;&#x9012;&#x589E;&#x5730;&#x8F93;&#x51FA;&#x503C;&#x3002;&#x6709;&#x5173;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;
           <a
           href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/functions/udfs.html#table-aggregation-functions">&#x53C2;&#x89C1;&#x8868;&#x805A;&#x5408;&#x51FD;&#x6570;</a>&#x3002;</p>
+        <p><b>import</b> java.lang.<b>{Integer</b>  <b>=&gt;</b>  <b>JInteger}</b>
+        </p>
+        <p><b>import</b> org.apache.flink.table.api.Types</p>
+        <p><b>import</b> org.apache.flink.table.functions.TableAggregateFunction</p>
+        <p>/**</p>
+        <p>* Accumulator for top2.</p>
+        <p>*/</p>
+        <p><b>class</b>  <b>Top2Accum</b>  <b>{</b>
+        </p>
+        <p> <b>var</b> first<b>:</b>  <b>JInteger</b>  <b>=</b>  <b>_</b>
+        </p>
+        <p> <b>var</b> second<b>:</b>  <b>JInteger</b>  <b>=</b>  <b>_</b>
+        </p>
+        <p><b>}</b>
+        </p>
+        <p>/**</p>
+        <p>* The top2 user-defined table aggregate function.</p>
+        <p>*/</p>
+        <p><b>class</b>  <b>Top2</b>  <b>extends</b>  <b>TableAggregateFunction[JTuple2[JInteger</b>, <b>JInteger]</b>, <b>Top2Accum]</b>  <b>{</b>
+        </p>
+        <p> <b>override</b>  <b>def</b>  <b>createAccumulator():</b>  <b>Top2Accum</b>  <b>=</b>  <b>{</b>
+        </p>
+        <p> <b>val</b> acc <b>=</b>  <b>new</b>  <b>Top2Accum</b>
+        </p>
+        <p>acc<b>.</b>first <b>=</b> Int<b>.</b>MinValue</p>
+        <p>acc<b>.</b>second <b>=</b> Int<b>.</b>MinValue</p>
+        <p>acc</p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>def</b>  <b>accumulate(</b>acc<b>:</b>  <b>Top2Accum,</b> v<b>:</b>  <b>Int)</b>  <b>{</b>
+        </p>
+        <p> <b>if</b>  <b>(</b>v <b>&gt;</b> acc<b>.</b>first<b>)</b>  <b>{</b>
+        </p>
+        <p>acc<b>.</b>second <b>=</b> acc<b>.</b>first</p>
+        <p>acc<b>.</b>first <b>=</b> v</p>
+        <p> <b>}</b>  <b>else</b>  <b>if</b>  <b>(</b>v <b>&gt;</b> acc<b>.</b>second<b>)</b>  <b>{</b>
+        </p>
+        <p>acc<b>.</b>second <b>=</b> v</p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>def</b>  <b>merge(</b>acc<b>:</b>  <b>Top2Accum,</b> its<b>:</b>  <b>JIterable[Top2Accum]):</b>  <b>Unit</b>  <b>=</b>  <b>{</b>
+        </p>
+        <p> <b>val</b> iter <b>=</b> its<b>.</b>iterator<b>()</b>
+        </p>
+        <p> <b>while</b>  <b>(</b>iter<b>.</b>hasNext<b>)</b>  <b>{</b>
+        </p>
+        <p> <b>val</b> top2 <b>=</b> iter<b>.</b>next<b>()</b>
+        </p>
+        <p> <b>accumulate(</b>acc<b>,</b> top2<b>.</b>first<b>)</b>
+        </p>
+        <p> <b>accumulate(</b>acc<b>,</b> top2<b>.</b>second<b>)</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>def</b>  <b>emitValue(</b>acc<b>:</b>  <b>Top2Accum,</b> out<b>:</b>  <b>Collector[JTuple2[JInteger</b>, <b>JInteger]]):</b>  <b>Unit</b>  <b>=</b>  <b>{</b>
+        </p>
+        <p>// emit the value and rank</p>
+        <p> <b>if</b>  <b>(</b>acc<b>.</b>first <b>!=</b> Int<b>.</b>MinValue<b>)</b>  <b>{</b>
+        </p>
+        <p>out<b>.</b>collect<b>(</b>JTuple2<b>.</b>of<b>(</b>acc<b>.</b>first<b>,</b> 1<b>))</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>if</b>  <b>(</b>acc<b>.</b>second <b>!=</b> Int<b>.</b>MinValue<b>)</b>  <b>{</b>
+        </p>
+        <p>out<b>.</b>collect<b>(</b>JTuple2<b>.</b>of<b>(</b>acc<b>.</b>second<b>,</b> 2<b>))</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p> <b>}</b>
+        </p>
+        <p><b>}</b>
+        </p>
+        <p><b>val</b> top2 <b>=</b>  <b>new</b>  <b>Top2</b>
+        </p>
+        <p><b>val</b> orders<b>:</b>  <b>Table</b>  <b>=</b> tableEnv<b>.</b>from<b>(</b>&quot;Orders&quot;<b>)</b>
+        </p>
+        <p><b>val</b> result <b>=</b> orders</p>
+        <p> <b>.</b>groupBy<b>(</b>&apos;key)</p>
+        <p> <b>.</b>flatAggregate<b>(top2(</b>&apos;a) <b>as</b>  <b>(</b>&apos;v, &apos;rank)<b>)</b>
+        </p>
+        <p> <b>.</b>select<b>(</b>&apos;key, &apos;v, &apos;rank)</p>
         <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x5BF9;&#x4E8E;&#x6D41;&#x5F0F;&#x67E5;&#x8BE2;&#xFF0C;&#x6839;&#x636E;&#x805A;&#x5408;&#x7C7B;&#x578B;&#x548C;&#x4E0D;&#x540C;&#x5206;&#x7EC4;&#x5173;&#x952E;&#x5B57;&#x7684;&#x6570;&#x91CF;&#xFF0C;&#x8BA1;&#x7B97;&#x67E5;&#x8BE2;&#x7ED3;&#x679C;&#x6240;&#x9700;&#x7684;&#x72B6;&#x6001;&#x53EF;&#x80FD;&#x4F1A;&#x65E0;&#x9650;&#x589E;&#x957F;&#x3002;&#x8BF7;&#x63D0;&#x4F9B;&#x5177;&#x6709;&#x6709;&#x6548;&#x4FDD;&#x7559;&#x95F4;&#x9694;&#x7684;&#x67E5;&#x8BE2;&#x914D;&#x7F6E;&#xFF0C;&#x4EE5;&#x9632;&#x6B62;&#x51FA;&#x73B0;&#x8FC7;&#x591A;&#x7684;&#x72B6;&#x6001;&#x3002;&#x6709;&#x5173;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;&#x53C2;&#x89C1;
           <a
           href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/query_configuration.html">&#x67E5;&#x8BE2;&#x914D;&#x7F6E;</a>&#x3002;</p>
@@ -2248,8 +2668,22 @@ table = input.over_window([OverWindow w].alias("w")) \
         <br />Streaming
         <br />
       </td>
-      <td style="text-align:left">&#x5728;<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/tableApi.html#group-windows">&#x7EC4;&#x7A97;&#x53E3;</a>&#x548C;&#x53EF;&#x80FD;&#x7684;&#x4E00;&#x4E2A;&#x6216;&#x591A;&#x4E2A;&#x5206;&#x7EC4;&#x952E;&#x4E0A;&#x5BF9;&#x8868;&#x8FDB;&#x884C;&#x5206;&#x7EC4;&#x548C;&#x805A;&#x96C6;&#x3002;&#x60A8;&#x5FC5;&#x987B;&#x4F7F;&#x7528;select&#x8BED;&#x53E5;&#x5173;&#x95ED;&#x201C;
-        flatAggregate&#x201D;&#x3002;&#x5E76;&#x4E14;select&#x8BED;&#x53E5;&#x4E0D;&#x652F;&#x6301;&#x805A;&#x5408;&#x51FD;&#x6570;&#x3002;</td>
+      <td style="text-align:left">
+        <p>&#x5728;<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/tableApi.html#group-windows">&#x7EC4;&#x7A97;&#x53E3;</a>&#x548C;&#x53EF;&#x80FD;&#x7684;&#x4E00;&#x4E2A;&#x6216;&#x591A;&#x4E2A;&#x5206;&#x7EC4;&#x952E;&#x4E0A;&#x5BF9;&#x8868;&#x8FDB;&#x884C;&#x5206;&#x7EC4;&#x548C;&#x805A;&#x96C6;&#x3002;&#x60A8;&#x5FC5;&#x987B;&#x4F7F;&#x7528;select&#x8BED;&#x53E5;&#x5173;&#x95ED;&#x201C;
+          flatAggregate&#x201D;&#x3002;&#x5E76;&#x4E14;select&#x8BED;&#x53E5;&#x4E0D;&#x652F;&#x6301;&#x805A;&#x5408;&#x51FD;&#x6570;&#x3002;</p>
+        <p><b>val</b> top2 <b>=</b>  <b>new</b>  <b>Top2</b>
+        </p>
+        <p><b>val</b> orders<b>:</b>  <b>Table</b>  <b>=</b> tableEnv<b>.</b>from<b>(</b>&quot;Orders&quot;<b>)</b>
+        </p>
+        <p><b>val</b> result <b>=</b> orders</p>
+        <p> <b>.</b>window<b>(Tumble</b> over 5.minutes on &apos;rowtime as &apos;w)
+          // define window</p>
+        <p> <b>.</b>groupBy<b>(</b>&apos;a, &apos;w) // group by key and window</p>
+        <p> <b>.</b>flatAggregate<b>(top2(</b>&apos;b) <b>as</b>  <b>(</b>&apos;v, &apos;rank)<b>)</b>
+        </p>
+        <p> <b>.</b>select<b>(</b>&apos;a, w<b>.</b>start<b>,</b> &apos;w.end<b>,</b> &apos;w.rowtime<b>,</b> &apos;v,
+          &apos;rank) <b>//</b> access window properties and aggregate results</p>
+      </td>
     </tr>
   </tbody>
 </table>
