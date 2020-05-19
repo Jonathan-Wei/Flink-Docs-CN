@@ -25,10 +25,6 @@
 
 ![](.gitbook/assets/gzh-1.jpeg)
 
-### 钉钉群
-
-![](.gitbook/assets/img_2459.JPG)
-
 ### 微信群
 
 加群方式，由于微信群二维码7天过期，所以采用添加好友拉群的方式。扫描以下二维码添加好友后会将您拉入群内。
@@ -38,8 +34,6 @@
 ### QQ群交流群
 
 ![](.gitbook/assets/img_1865.JPG)
-
-![](.gitbook/assets/img_2459.JPG)
 
 ## 赞助
 
