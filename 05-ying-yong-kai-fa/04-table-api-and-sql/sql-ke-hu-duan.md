@@ -128,9 +128,9 @@ Mode "embedded" submits Flink jobs from the local machine.
 
 ### 环境文件
 
-SQL查询需要一个执行它的配置环境。所谓的环境文件定义了可用的表源和接收、外部目录、用户定义的函数以及执行和部署所需的其他属性。
+ SQL查询需要在其中执行配置环境。所谓的_环境文件_定义了可用的目录，表源和接收器，用户定义的函数以及执行和部署所需的其他属性。
 
-每个环境文件都是一个常规YAML文件。下面给出了这样一个文件的示例。
+ 每个环境文件都是常规的[YAML文件](http://yaml.org/)。下面提供了此类文件的示例。
 
 ```yaml
 # Define tables here such as sources, sinks, views, or temporal tables.
@@ -170,9 +170,24 @@ functions:
       - 7.6
       - false
 
-# Execution properties allow for changing the behavior of a table program.
+# Define available catalogs
+
+catalogs:
+   - name: catalog_1
+     type: hive
+     property-version: 1
+     hive-conf-dir: ...
+   - name: catalog_2
+     type: hive
+     property-version: 1
+     default-database: mydb2
+     hive-conf-dir: ...
+     hive-version: 1.2.1
+
+# Properties that change the fundamental execution behavior of a table program.
 
 execution:
+  planner: blink                    # optional: either 'blink' (default) or 'old'
   type: streaming                   # required: execution mode either 'batch' or 'streaming'
   result-mode: table                # required: either 'table' or 'changelog'
   max-table-result-rows: 1000000    # optional: maximum number of maintained rows in
@@ -183,10 +198,22 @@ execution:
   max-parallelism: 16               # optional: Flink's maximum parallelism (128 by default)
   min-idle-state-retention: 0       # optional: table program's minimum idle state time
   max-idle-state-retention: 0       # optional: table program's maximum idle state time
+  current-catalog: catalog_1        # optional: name of the current catalog of the session ('default_catalog' by default)
+  current-database: mydb1           # optional: name of the current database of the current catalog
+                                    #   (default database of the current catalog by default)
   restart-strategy:                 # optional: restart strategy
     type: fallback                  #   "fallback" to global restart strategy by default
 
-# Deployment properties allow for describing the cluster to which table programs are submitted to.
+# Configuration options for adjusting and tuning table programs.
+
+# A full list of options and their default values can be found
+# on the dedicated "Configuration" page.
+configuration:
+  table.optimizer.join-reorder-enabled: true
+  table.exec.spill-compression.enabled: true
+  table.exec.spill-compression.block-size: 128kb
+
+# Properties that describe the cluster to which table programs are submitted to.
 
 deployment:
   response-timeout: 5000
@@ -245,7 +272,7 @@ execution:
 
 SQL客户机不需要使用Maven或SBT设置Java项目。相反，您可以将依赖项作为常规JAR文件传递到集群。您可以单独指定每个JAR文件\(使用--jar\)，也可以定义整个库目录\(使用--library\)。对于外部系统\(如Apache Kafka\)和相应数据格式\(如JSON\)的连接器，Flink提供了现成的JAR包。这些JAR文件以sql-jar作为后缀，可以从Maven中央存储库下载每个版本的JAR文件。
 
-在连接到外部系统页面上可以找到提供的SQL JAR和关于如何使用它们的文档的完整列表。
+ 提供的SQL JAR的完整列表以及有关如何使用它们的文档可以在与[外部系统](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/connect.html)的[连接页面上找到](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/connect.html)。
 
 下面的示例显示了一个环境文件，该文件定义了一个从Apache Kafka读取JSON数据的表源。
 
@@ -261,25 +288,22 @@ tables:
       topic: TaxiRides
       startup-mode: earliest-offset
       properties:
-        - key: zookeeper.connect
-          value: localhost:2181
-        - key: bootstrap.servers
-          value: localhost:9092
-        - key: group.id
-          value: testGroup
+        zookeeper.connect: localhost:2181
+        bootstrap.servers: localhost:9092
+        group.id: testGroup
     format:
       property-version: 1
       type: json
       schema: "ROW<rideId LONG, lon FLOAT, lat FLOAT, rideTime TIMESTAMP>"
     schema:
       - name: rideId
-        type: LONG
+        data-type: BIGINT
       - name: lon
-        type: FLOAT
+        data-type: FLOAT
       - name: lat
-        type: FLOAT
+        data-type: FLOAT
       - name: rowTime
-        type: TIMESTAMP
+        data-type: TIMESTAMP(3)
         rowtime:
           timestamps:
             type: "from-field"
@@ -288,7 +312,7 @@ tables:
             type: "periodic-bounded"
             delay: "60000"
       - name: procTime
-        type: TIMESTAMP
+        data-type: TIMESTAMP(3)
         proctime: true
 ```
 
@@ -313,12 +337,12 @@ functions:
   - name: ...               # required: name of the function
     from: class             # required: source of the function (can only be "class" for now)
     class: ...              # required: fully qualified class name of the function
-    constructor:            # optimal: constructor parameters of the function class
-      - ...                 # optimal: a literal parameter with implicit type
-      - class: ...          # optimal: full class name of the parameter
-        constructor:        # optimal: constructor parameters of the parameter's class
-          - type: ...       # optimal: type of the literal parameter
-            value: ...      # optimal: value of the literal parameter
+    constructor:            # optional: constructor parameters of the function class
+      - ...                 # optional: a literal parameter with implicit type
+      - class: ...          # optional: full class name of the parameter
+        constructor:        # optional: constructor parameters of the parameter's class
+          - type: ...       # optional: type of the literal parameter
+            value: ...      # optional: value of the literal parameter
 ```
 
 确保指定参数的顺序和类型严格匹配函数类的一个构造函数。  
@@ -376,6 +400,33 @@ functions:
               value: 3
 ```
 
+## Catalogs
+
+可以将目录定义为一组YAML属性，并在启动SQL客户端时自动注册到环境中。
+
+用户可以指定要在SQL CLI中使用哪个目录作为当前目录，以及要使用目录的哪个数据库作为当前数据库。
+
+```text
+catalogs:
+   - name: catalog_1
+     type: hive
+     property-version: 1
+     default-database: mydb2
+     hive-version: 1.2.1
+     hive-conf-dir: <path of Hive conf directory>
+   - name: catalog_2
+     type: hive
+     property-version: 1
+     hive-conf-dir: <path of Hive conf directory>
+
+execution:
+   ...
+   current-catalog: catalog_1
+   current-database: mydb1
+```
+
+有关目录的更多信息，请参见[目录](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/catalogs.html)。
+
 ## 分离的SQL查询
 
 为了定义端到端SQL管道，可以使用SQL的INSERT INTO语句向Flink集群提交长时间运行的分离查询。这些查询将结果生成到外部系统，而不是SQL客户机。这允许处理更高的并行性和更大数量的数据。CLI本身对提交后分离的查询没有任何控制。
@@ -397,25 +448,22 @@ tables:
       version: "0.11"
       topic: OutputTopic
       properties:
-        - key: zookeeper.connect
-          value: localhost:2181
-        - key: bootstrap.servers
-          value: localhost:9092
-        - key: group.id
-          value: testGroup
+        zookeeper.connect: localhost:2181
+        bootstrap.servers: localhost:9092
+        group.id: testGroup
     format:
       property-version: 1
       type: json
       derive-schema: true
     schema:
       - name: rideId
-        type: LONG
+        data-type: BIGINT
       - name: lon
-        type: FLOAT
+        data-type: FLOAT
       - name: lat
-        type: FLOAT
+        data-type: FLOAT
       - name: rideTime
-        type: TIMESTAMP
+        data-type: TIMESTAMP(3)
 ```
 
 SQL客户端确保将语句成功提交到群集。提交查询后，CLI将显示有关Flink作业的信息。
@@ -489,11 +537,11 @@ tables:
     format: # ...
     schema:
       - name: integerField
-        type: INT
+        data-type: INT
       - name: stringField
-        type: VARCHAR
+        data-type: STRING
       - name: rowtimeField
-        type: TIMESTAMP
+        data-type: TIMESTAMP(3)
         rowtime:
           timestamps:
             type: from-field

@@ -1,18 +1,57 @@
 # 概述
 
-[Apache Hive](https://hive.apache.org/)已成为数据仓库生态系统的焦点。它不仅是大数据分析和ETL的SQL引擎，还是数据管理平台，可以在其中发现，定义和发展数据。
+[Apache Hive](https://hive.apache.org/)已将自己确立为数据仓库生态系统的焦点。它不仅充当用于大数据分析和ETL的SQL引擎，而且还充当在其中发现，定义和发展数据的数据管理平台。
 
-Flink提供与Hive的双重集成。第一个是利用Hive的Metastore作为持久目录，用于跨会话存储Flink特定元数据。第二个是提供Flink作为读取和编写Hive表的替代引擎。
+Flink提供了与Hive的双重集成。
 
-Hive Catalog设计为与现有Hive安装兼容的“开箱即用”方式。无需修改​​现有的Hive Metastore或更改表的数据放置或分区。
+首先是利用Hive的Metastore作为一个持久的目录，用Flink的HiveCatalog跨会话存储Flink特定的元数据。例如，用户可以使用HiveCatalog将Kafka或ElasticSearch表存储在Hive Metastore中，然后在SQL查询中重用它们。
+
+其次是提供Flink作为读取和写入Hive表的替代引擎。
+
+HiveCatalog被设计成与现有的Hive安装兼容的“开箱即用”的方式。不需要修改现有的Hive Metastore或更改表的数据位置或分区。
 
 ## 支持的Hive版本
 
-Flink支持Hive `2.3.4`，`1.2.1`并且依赖于Hive对其他次要版本的兼容性保证。
+Flink支持以下Hive版本。
 
-如果你使用不同较小的Hive版本（如`1.2.2`或）`2.3.1`，也可以选择最接近的版本`1.2.1`（for `1.2.2`）或`2.3.4`（for `2.3.1`）来解决。例如，你希望使用Flink `2.3.1`在sql客户端中集成hive版本，只需将hive-version设置`2.3.4`为YAML配置即可。同样，在通过Table API创建HiveCatalog实例时传递版本字符串。
+* 1.0
+  * 1.0.0
+  * 1.0.1
+* 1.1
+  * 1.1.0
+  * 1.1.1
+* 1.2
+  * 1.2.0
+  * 1.2.1
+  * 1.2.2
+* 2.0
+  * 2.0.0
+  * 2.0.1
+* 2.1
+  * 2.1.0
+  * 2.1.1
+* 2.2
+  * 2.2.0
+* 2.3
+  * 2.3.0
+  * 2.3.1
+  * 2.3.2
+  * 2.3.3
+  * 2.3.4
+  * 2.3.5
+  * 2.3.6
+* 3.1
+  * 3.1.0
+  * 3.1.1
+  * 3.1.2
 
-欢迎用户使用此解决方法尝试不同的版本。由于只有`2.3.4`和`1.2 .1`已经过测试，可能会有意想不到的问题。我们将在未来的版本中测试和支持更多版本。
+请注意，Hive本身具有适用于不同版本的不同功能，并且这些问题不是由Flink引起的：
+
+* Hive内置功能在1.2.0及更高版本中受支持。
+* 3.1.0及更高版本支持列约束，即PRIMARY KEY和NOT NULL。
+* 1.2.0及更高版本支持更改表统计信息。
+*  1.2.0及更高版本支持`DATE`列统计信息。
+* 2.0.x不支持写入ORC表。
 
 ### Depedencies
 
@@ -21,165 +60,264 @@ Flink支持Hive `2.3.4`，`1.2.1`并且依赖于Hive对其他次要版本的兼�
 {% tabs %}
 {% tab title="Hive 2.3.4" %}
 ```markup
-<dependency>
-  <groupId>org.apache.flink</groupId>
-  <artifactId>flink-connector-hive_2.11</artifactId>
-  <version>1.9.0</version>
-  <scope>provided</scope>
-</dependency>
+/flink-1.10.0
+   /lib
 
-<!-- Hadoop Dependencies -->
+       // Flink's Hive connector.Contains flink-hadoop-compatibility and flink-orc jars
+       flink-connector-hive_2.11-1.10.0.jar
 
-<dependency>
-  <groupId>org.apache.flink</groupId>
-  <artifactId>flink-hadoop-compatibility_1.9.0</artifactId>
-  <version>1.9.0</version>
-  <scope>provided</scope>
-</dependency>
+       // Hadoop dependencies
+       // You can pick a pre-built Hadoop uber jar provided by Flink, alternatively
+       // you can use your own hadoop jars. Either way, make sure it's compatible with your Hadoop
+       // cluster and the Hive version you're using.
+       flink-shaded-hadoop-2-uber-2.7.5-8.0.jar
 
-<!-- Hive 2.3.4 is built with Hadoop 2.7.2. We pick 2.7.5 which flink-shaded-hadoop is pre-built with, but users can pick their own hadoop version, as long as it's compatible with Hadoop 2.7.2 -->
+       // Hive dependencies
+       hive-exec-2.3.4.jar
+```
+{% endtab %}
 
-<dependency>
-  <groupId>org.apache.flink</groupId>
-  <artifactId>flink-shaded-hadoop-2-uber</artifactId>
-  <version>2.7.5-1.9.0</version>
-  <scope>provided</scope>
-</dependency>
+{% tab title="Hive 1.0.0" %}
+```
+/flink-1.10.0
+   /lib
 
-<!-- Hive Metastore -->
-<dependency>
-    <groupId>org.apache.hive</groupId>
-    <artifactId>hive-exec</artifactId>
-    <version>2.3.4</version>
-</dependency>
+       // Flink's Hive connector. Contains flink-hadoop-compatibility and flink-orc jars
+       flink-connector-hive_2.11-1.10.0.jar
+
+       // Hadoop dependencies
+       // You can pick a pre-built Hadoop uber jar provided by Flink, alternatively
+       // you can use your own hadoop jars. Either way, make sure it's compatible with your Hadoop
+       // cluster and the Hive version you're using.
+       flink-shaded-hadoop-2-uber-2.6.5-8.0.jar
+
+       // Hive dependencies
+       hive-metastore-1.0.0.jar
+       hive-exec-1.0.0.jar
+       libfb303-0.9.0.jar // libfb303 is not packed into hive-exec in some versions, need to add it separately
+```
+{% endtab %}
+
+{% tab title="HIve 1.1.0" %}
+```
+/flink-1.10.0
+   /lib
+
+       // Flink's Hive connector. Contains flink-hadoop-compatibility and flink-orc jars
+       flink-connector-hive_2.11-1.10.0.jar
+
+       // Hadoop dependencies
+       // You can pick a pre-built Hadoop uber jar provided by Flink, alternatively
+       // you can use your own hadoop jars. Either way, make sure it's compatible with your Hadoop
+       // cluster and the Hive version you're using.
+       flink-shaded-hadoop-2-uber-2.6.5-8.0.jar
+
+       // Hive dependencies
+       hive-metastore-1.1.0.jar
+       hive-exec-1.1.0.jar
+       libfb303-0.9.2.jar // libfb303 is not packed into hive-exec in some versions, need to add it separately
 ```
 {% endtab %}
 
 {% tab title="Hive 1.2.1" %}
 ```markup
-<dependency>
-  <groupId>org.apache.flink</groupId>
-  <artifactId>flink-connector-hive_2.11</artifactId>
-  <version>1.9.0</version>
-  <scope>provided</scope>
-</dependency>
+/flink-1.10.0
+   /lib
 
-<!-- Hadoop Dependencies -->
+       // Flink's Hive connector. Contains flink-hadoop-compatibility and flink-orc jars
+       flink-connector-hive_2.11-1.10.0.jar
 
-<dependency>
-  <groupId>org.apache.flink</groupId>
-  <artifactId>flink-hadoop-compatibility_1.9.0</artifactId>
-  <version>1.9.0</version>
-  <scope>provided</scope>
-</dependency>
+       // Hadoop dependencies
+       // You can pick a pre-built Hadoop uber jar provided by Flink, alternatively
+       // you can use your own hadoop jars. Either way, make sure it's compatible with your Hadoop
+       // cluster and the Hive version you're using.
+       flink-shaded-hadoop-2-uber-2.6.5-8.0.jar
 
-<!-- Hive 1.2.1 is built with Hadoop 2.6.0. We pick 2.6.5 which flink-shaded-hadoop is pre-built with, but users can pick their own hadoop version, as long as it's compatible with Hadoop 2.6.0 -->
+       // Hive dependencies
+       hive-metastore-1.2.1.jar
+       hive-exec-1.2.1.jar
+       libfb303-0.9.2.jar // libfb303 is not packed into hive-exec in some versions, need to add it separately
+```
+{% endtab %}
 
-<dependency>
-  <groupId>org.apache.flink</groupId>
-  <artifactId>flink-shaded-hadoop-2-uber</artifactId>
-  <version>2.6.5-1.9.0</version>
-  <scope>provided</scope>
-</dependency>
+{% tab title="Hive 2.0.0" %}
+```
+/flink-1.10.0
+   /lib
 
-<!-- Hive Metastore -->
-<dependency>
-    <groupId>org.apache.hive</groupId>
-    <artifactId>hive-metastore</artifactId>
-    <version>1.2.1</version>
-</dependency>
+       // Flink's Hive connector. Contains flink-hadoop-compatibility and flink-orc jars
+       flink-connector-hive_2.11-1.10.0.jar
 
-<dependency>
-    <groupId>org.apache.hive</groupId>
-    <artifactId>hive-exec</artifactId>
-    <version>1.2.1</version>
-</dependency>
+       // Hadoop dependencies
+       // You can pick a pre-built Hadoop uber jar provided by Flink, alternatively
+       // you can use your own hadoop jars. Either way, make sure it's compatible with your Hadoop
+       // cluster and the Hive version you're using.
+       flink-shaded-hadoop-2-uber-2.7.5-8.0.jar
 
-<dependency>
-    <groupId>org.apache.thrift</groupId>
-    <artifactId>libfb303</artifactId>
-    <version>0.9.3</version>
-</dependency>
+       // Hive dependencies
+       hive-exec-2.0.0.jar
+```
+{% endtab %}
+
+{% tab title="Hive 2.1.0" %}
+```
+/flink-1.10.0
+   /lib
+
+       // Flink's Hive connector. Contains flink-hadoop-compatibility and flink-orc jars
+       flink-connector-hive_2.11-1.10.0.jar
+
+       // Hadoop dependencies
+       // You can pick a pre-built Hadoop uber jar provided by Flink, alternatively
+       // you can use your own hadoop jars. Either way, make sure it's compatible with your Hadoop
+       // cluster and the Hive version you're using.
+       flink-shaded-hadoop-2-uber-2.7.5-8.0.jar
+
+       // Hive dependencies
+       hive-exec-2.1.0.jar
+```
+{% endtab %}
+
+{% tab title="Hive 2.2.0" %}
+```
+/flink-1.10.0
+   /lib
+
+       // Flink's Hive connector. Contains flink-hadoop-compatibility and flink-orc jars
+       flink-connector-hive_2.11-1.10.0.jar
+
+       // Hadoop dependencies
+       // You can pick a pre-built Hadoop uber jar provided by Flink, alternatively
+       // you can use your own hadoop jars. Either way, make sure it's compatible with your Hadoop
+       // cluster and the Hive version you're using.
+       flink-shaded-hadoop-2-uber-2.7.5-8.0.jar
+
+       // Hive dependencies
+       hive-exec-2.2.0.jar
+
+       // Orc dependencies -- required by the ORC vectorized optimizations
+       orc-core-1.4.3.jar
+       aircompressor-0.8.jar // transitive dependency of orc-core
+```
+{% endtab %}
+
+{% tab title="Hive 3.1.0" %}
+```
+/flink-1.10.0
+   /lib
+
+       // Flink's Hive connector. Contains flink-hadoop-compatibility and flink-orc jars
+       flink-connector-hive_2.11-1.10.0.jar
+
+       // Hadoop dependencies
+       // You can pick a pre-built Hadoop uber jar provided by Flink, alternatively
+       // you can use your own hadoop jars. Either way, make sure it's compatible with your Hadoop
+       // cluster and the Hive version you're using.
+       flink-shaded-hadoop-2-uber-2.8.3-8.0.jar
+
+       // Hive dependencies
+       hive-exec-3.1.0.jar
+       libfb303-0.9.3.jar // libfb303 is not packed into hive-exec in some versions, need to add it separately
 ```
 {% endtab %}
 {% endtabs %}
 
+如果要构建自己的程序，则在mvn文件中需要以下依赖项。建议不要在生成的jar文件中包括这些依赖项。应该在运行时如上所述添加依赖项。
+
+```markup
+<!-- Flink Dependency -->
+<dependency>
+  <groupId>org.apache.flink</groupId>
+  <artifactId>flink-connector-hive_2.11</artifactId>
+  <version>1.10.0</version>
+  <scope>provided</scope>
+</dependency>
+
+<dependency>
+  <groupId>org.apache.flink</groupId>
+  <artifactId>flink-table-api-java-bridge_2.11</artifactId>
+  <version>1.10.0</version>
+  <scope>provided</scope>
+</dependency>
+
+<!-- Hive Dependency -->
+<dependency>
+    <groupId>org.apache.hive</groupId>
+    <artifactId>hive-exec</artifactId>
+    <version>${hive.version}</version>
+    <scope>provided</scope>
+</dependency>
+```
+
 ## 连接到Hive
 
-通过Table Environment或YAML配置使用Hive Catalog连接到现有Hive。
+ 通过表环境或YAML配置，使用 [Catalog接口](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/catalogs.html)和[HiveCatalog](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/hive/hive_catalog.html)连接到现有的Hive安装。
+
+ 如果`hive-conf/hive-site.xml`文件存储在远程存储系统中，则用户应首先将配置单元配置文件下载到其本地环境。
+
+请注意，虽然HiveCatalog不需要特定的计划程序，但读取/写入Hive表仅适用于Blink Planner。因此，强烈建议在连接到Hive仓库时使用Blink Planner。
+
+以Hive版本2.3.4为例：
 
 {% tabs %}
 {% tab title="Java" %}
 ```java
+EnvironmentSettings settings = EnvironmentSettings.newInstance().useBlinkPlanner().inBatchMode().build();
+TableEnvironment tableEnv = TableEnvironment.create(settings);
+
 String name            = "myhive";
 String defaultDatabase = "mydatabase";
-String hiveConfDir     = "/opt/hive-conf";
-String version         = "2.3.4"; // or 1.2.1
+String hiveConfDir     = "/opt/hive-conf"; // a local path
+String version         = "2.3.4";
 
 HiveCatalog hive = new HiveCatalog(name, defaultDatabase, hiveConfDir, version);
 tableEnv.registerCatalog("myhive", hive);
+
+// set the HiveCatalog as the current catalog of the session
+tableEnv.useCatalog("myhive");
 ```
 {% endtab %}
 
 {% tab title="Scala" %}
 ```scala
+val settings = EnvironmentSettings.newInstance().useBlinkPlanner().inBatchMode().build()
+val tableEnv = TableEnvironment.create(settings)
+
 val name            = "myhive"
 val defaultDatabase = "mydatabase"
-val hiveConfDir     = "/opt/hive-conf"
-val version         = "2.3.4" // or 1.2.1
+val hiveConfDir     = "/opt/hive-conf" // a local path
+val version         = "2.3.4"
 
 val hive = new HiveCatalog(name, defaultDatabase, hiveConfDir, version)
 tableEnv.registerCatalog("myhive", hive)
+
+// set the HiveCatalog as the current catalog of the session
+tableEnv.useCatalog("myhive")
 ```
 {% endtab %}
 
 {% tab title="YAML" %}
 ```yaml
+execution:
+    planner: blink
+    ...
+    current-catalog: myhive  # set the HiveCatalog as the current catalog of the session
+    current-database: mydatabase
+    
 catalogs:
    - name: myhive
      type: hive
-     property-version: 1
      hive-conf-dir: /opt/hive-conf
-     hive-version: 2.3.4 # or 1.2.1
+     hive-version: 2.3.4
 ```
 {% endtab %}
 {% endtabs %}
 
-## 支持的类型
+## DDL
 
-目前`HiveCatalog`支持大多数Flink数据类型，具有以下映射：
+DDL创建的Hive表，视图，分区，功能在Flink将很快得到支持。
 
+## DML
 
-
-| Flink数据类型 | Hive数据类型 |
-| :--- | :--- |
-| CHAR（P） | CHAR（P） |
-| VARCHAR（P） | VARCHAR（P） |
-| STRING | STRING |
-| BOOLEAN | BOOLEAN |
-| TINYINT | TINYINT |
-| SMALLINT | SMALLINT |
-| INT | INT |
-| BIGINT | LONG |
-| FLOAT | FLOAT |
-| DOUBLE | DOUBLE |
-| DECIMAL\(p, s\) | DECIMAL\(p, s\) |
-| DATE | DATE |
-| BYTES | BINARY |
-| ARRAY &lt;T&gt; | LIST &lt;T&gt; |
-| MAP &lt;K，V&gt; | MAP &lt;K，V&gt; |
-| ROW | STRUCT |
-
-### 限制
-
-Hive的数据类型中的以下限制会影响Flink和Hive之间的映射：
-
-* `CHAR(p)` 最大长度 255
-* `VARCHAR(p)` 最大长度为65535
-* Hive `MAP`只支持简单key类型，而Flink `MAP`可以是任何数据类型
-* 不支持Hive `UNION`类型
-* Flink的`INTERVAL`类型无法映射到Hive `INTERVAL`类型
-* Flink `TIMESTAMP_WITH_TIME_ZONE`和`TIMESTAMP_WITH_LOCAL_TIME_ZONE`Hive不支持
-* 由于精度差异，Flink的`TIMESTAMP_WITHOUT_TIME_ZONE`类型无法映射到Hive的`TIMESTAMP`类型。
-* Flink`MULTISET`Hive不支持
+ Flink支持DML写入Hive表。请参[阅读写蜂房表中的](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/hive/read_write_hive.html)详细信息
 
