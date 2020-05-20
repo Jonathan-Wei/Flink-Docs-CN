@@ -1,5 +1,9 @@
 # 在scala shell中使用Hive连接器
 
+{% hint style="info" %}
+ 注意：由于Scala Shell目前不支持Blink Planner，因此**不**建议在Scala Shell中使用Hive连接器。
+{% endhint %}
+
 [Flink Scala Shell](https://ci.apache.org/projects/flink/flink-docs-release-1.9/ops/scala_shell.html)是一种尝试flink方便快捷的方式。你也可以在scala shell中使用配置单元，而不是在pom文件中指定配置单元依赖项，打包程序并通过flink run命令提交它。为了在scala shell中使用hive连接器，需要将以下[hive连接器依赖项](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/hive/#depedencies)放在flink dist的lib文件夹下。
 
 * flink-connector-hive\_{scala\_version}-{flink.version}.jar

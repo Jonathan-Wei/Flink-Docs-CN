@@ -1,12 +1,32 @@
 # HiveCatalog
 
+多年来，在Hadoop生态系统中，Hive Metastore已经发展成为事实上的元数据中心。许多公司在他们的产品中有一个单一的Hive Metastore服务实例来管理他们所有的元数据，无论是Hive元数据还是非Hive元数据，作为真理的源泉。
+
+对于同时拥有Hive和Flink部署的用户，HiveCatalog允许他们使用Hive Metastore来管理Flink的元数据。
+
+对于只有Flink部署的用户来说，HiveCatalog是Flink提供的惟一一个即时可用的持久目录。如果没有持久的目录，使用Flink SQL CREATE DDL的用户必须在每个会话中重复创建元对象\(比如Kafka表\)，这将浪费大量时间。HiveCatalog通过允许用户只创建一次表和其他元对象，并在以后的会话中方便地引用和管理它们，从而填补了这一空白。
+
 ## 配置HiveCatalog
 
 ### 依赖关系
 
+在Flink中设置HiveCatalog需要与整个Flink- hive集成具有相同的 [依赖](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/hive/#dependencies)关系。
+
 ### 配置
 
+在Flink中设置HiveCatalog需要与整个Flink- hive集成相同的 [配置](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/hive/#connecting-to-hive)。
+
 ## 如何使用HiveCatalog
+
+一旦正确配置，HiveCatalog就可以开箱即用了。用户可以用DDL创建Flink元对象，然后立即看到它们。
+
+HiveCatalog可用于处理两种表:hive兼容的表和泛型表。hive兼容的表是那些以hive兼容的方式存储的表，包括元数据和存储层中的数据。因此，可以从Hive端查询通过Flink创建的与Hive兼容的表。
+
+另一方面，泛型表是特定于Flink的。当使用HiveCatalog创建泛型表时，我们只是使用HMS来持久化元数据。虽然这些表对Hive是可见的，但Hive不太可能理解元数据。因此，在Hive中使用这样的表会导致未定义的行为。
+
+Flink使用属性' `is_generic` '来判断一个表是hive兼容的还是泛型的。当使用HiveCatalog创建表时，默认情况下认为它是通用的。如果想要创建一个hive兼容的表，请确保在表属性中将`is_generic`设置为`false`。
+
+如上所述，泛型表不应该在Hive中使用。在Hive CLI中， 可以通过调用`DESCRIBE FORMATTED`表并检查`is_generic`属性来决定它是否通用。
 
 ### 例子
 

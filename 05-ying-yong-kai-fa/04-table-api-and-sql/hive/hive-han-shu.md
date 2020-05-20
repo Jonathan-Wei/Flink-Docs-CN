@@ -1,5 +1,44 @@
 # Hive函数
 
+## 通过HiveModule使用Hive内置函数
+
+HiveModule将Hive内置函数作为Flink 系统\(内置\)函数提供给Flink SQL和表API用户。
+
+ 有关详细信息，请参阅[HiveModule](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/modules.html#hivemodule)。
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+String name            = "myhive";
+String version         = "2.3.4";
+
+tableEnv.loadModue(name, new HiveModule(version));
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+val name            = "myhive"
+val version         = "2.3.4"
+
+tableEnv.loadModue(name, new HiveModule(version));
+```
+{% endtab %}
+
+{% tab title="YAML" %}
+```yaml
+modules:
+   - name: core
+     type: core
+   - name: myhive
+     type: hive
+     hive-version: 2.3.4
+```
+{% endtab %}
+{% endtabs %}
+
+ 注意，旧版本中的某些Hive内置函数存在[线程安全问题](https://issues.apache.org/jira/browse/HIVE-16183)。我们建议用户修复自己的Hive来修复它们。
+
 ## Hive用户定义的函数
 
 用户可以在Flink中使用现有的Hive用户定义函数。
@@ -123,14 +162,4 @@ myudtf
 ```sql
 Flink SQL> select mygenericudf(myudf(name), 1) as a, mygenericudf(myudf(age), 1) as b, s from mysourcetable, lateral table(myudtf(name, 1)) as T(s);
 ```
-
-### 限制
-
-Flink目前不支持Hive内置函数。要使用Hive内置函数，用户必须首先在Hive Metastore中手动注册它们。
-
-仅在Blink规划器中对Flink批处理测试了对Hive功能的支持。
-
-Hive功能目前不能在Flink的目录中使用。
-
-有关数据类型限制，请参阅[Hive](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/hive/index.html)。
 
