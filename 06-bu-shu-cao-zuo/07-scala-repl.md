@@ -14,13 +14,13 @@ bin/start-scala-shell.sh local
 
 ## 用法
 
-shell支持Batch和Streaming。启动后会自动预先绑定两个不同的ExecutionEnvironments。使用“benv”和“senv”分别访问Batch和Streaming环境。
+Shell支持DataSet，DataStream，Table API和SQL。启动后会自动预绑定四个不同的环境。使用“ benv”和“ senv”分别访问Batch和Streaming ExecutionEnvironment。使用“ btenv”和“ stenv”分别访问BatchTableEnvironment和StreamTableEnvironment。
 
 ### DataSet API
 
 以下示例将在Scala shell中执行wordcount程序：
 
-```text
+```scala
 Scala-Flink> val text = benv.fromElements(
   "To be, or not to be,--that is the question:--",
   "Whether 'tis nobler in the mind to suffer",
@@ -34,7 +34,7 @@ Scala-Flink> counts.print()
 
 print\(\)命令将自动将指定的任务发送到JobManager执行，并在终端中显示计算结果。 可以将结果写入文件。但是，在这种情况下，您需要调用execute，以运行您的程序：
 
-```text
+```scala
 Scala-Flink> benv.execute("MyProgram")
 ```
 
@@ -42,7 +42,7 @@ Scala-Flink> benv.execute("MyProgram")
 
 与上面的批处理程序类似，我们可以通过DataStream API执行流程序：
 
-```text
+```scala
 Scala-Flink> val textStreaming = senv.fromElements(
   "To be, or not to be,--that is the question:--",
   "Whether 'tis nobler in the mind to suffer",
@@ -56,6 +56,118 @@ Scala-Flink> senv.execute("Streaming Wordcount")
 ```
 
 请注意，在Streaming情况下，打印操作不会直接触发执行。 Flink Shell附带命令历史记录和自动完成功能。
+
+### Table API
+
+下面的示例是使用Table API的单词计数程序：
+
+{% tabs %}
+{% tab title="流" %}
+```scala
+Scala-Flink> import org.apache.flink.table.functions.TableFunction
+Scala-Flink> val textSource = stenv.fromDataStream(
+  senv.fromElements(
+    "To be, or not to be,--that is the question:--",
+    "Whether 'tis nobler in the mind to suffer",
+    "The slings and arrows of outrageous fortune",
+    "Or to take arms against a sea of troubles,"),
+  'text)
+Scala-Flink> class $Split extends TableFunction[String] {
+    def eval(s: String): Unit = {
+      s.toLowerCase.split("\\W+").foreach(collect)
+    }
+  }
+Scala-Flink> val split = new $Split
+Scala-Flink> textSource.join(split('text) as 'word).
+    groupBy('word).select('word, 'word.count as 'count).
+    toRetractStream[(String, Long)].print
+Scala-Flink> senv.execute("Table Wordcount")
+```
+{% endtab %}
+
+{% tab title="批量" %}
+```scala
+Scala-Flink> import org.apache.flink.table.functions.TableFunction
+Scala-Flink> val textSource = btenv.fromDataSet(
+  benv.fromElements(
+    "To be, or not to be,--that is the question:--",
+    "Whether 'tis nobler in the mind to suffer",
+    "The slings and arrows of outrageous fortune",
+    "Or to take arms against a sea of troubles,"), 
+  'text)
+Scala-Flink> class $Split extends TableFunction[String] {
+    def eval(s: String): Unit = {
+      s.toLowerCase.split("\\W+").foreach(collect)
+    }
+  }
+Scala-Flink> val split = new $Split
+Scala-Flink> textSource.join(split('text) as 'word).
+    groupBy('word).select('word, 'word.count as 'count).
+    toDataSet[(String, Long)].print
+```
+{% endtab %}
+{% endtabs %}
+
+请注意，使用$作为TableFunction类名的前缀是scala错误生成内部类名的问题的解决方法。
+
+### SQL
+
+以下示例是用SQL编写的单词计数程序：
+
+{% tabs %}
+{% tab title="流" %}
+```scala
+Scala-Flink> import org.apache.flink.table.functions.TableFunction
+Scala-Flink> val textSource = stenv.fromDataStream(
+  senv.fromElements(
+    "To be, or not to be,--that is the question:--",
+    "Whether 'tis nobler in the mind to suffer",
+    "The slings and arrows of outrageous fortune",
+    "Or to take arms against a sea of troubles,"), 
+  'text)
+Scala-Flink> stenv.createTemporaryView("text_source", textSource)
+Scala-Flink> class $Split extends TableFunction[String] {
+    def eval(s: String): Unit = {
+      s.toLowerCase.split("\\W+").foreach(collect)
+    }
+  }
+Scala-Flink> stenv.registerFunction("split", new $Split)
+Scala-Flink> val result = stenv.sqlQuery("""SELECT T.word, count(T.word) AS `count` 
+    FROM text_source 
+    JOIN LATERAL table(split(text)) AS T(word) 
+    ON TRUE 
+    GROUP BY T.word""")
+Scala-Flink> result.toRetractStream[(String, Long)].print
+Scala-Flink> senv.execute("SQL Wordcount")
+```
+{% endtab %}
+
+{% tab title="批量" %}
+```scala
+Scala-Flink> import org.apache.flink.table.functions.TableFunction
+Scala-Flink> val textSource = btenv.fromDataSet(
+  benv.fromElements(
+    "To be, or not to be,--that is the question:--",
+    "Whether 'tis nobler in the mind to suffer",
+    "The slings and arrows of outrageous fortune",
+    "Or to take arms against a sea of troubles,"), 
+  'text)
+Scala-Flink> btenv.createTemporaryView("text_source", textSource)
+Scala-Flink> class $Split extends TableFunction[String] {
+    def eval(s: String): Unit = {
+      s.toLowerCase.split("\\W+").foreach(collect)
+    }
+  }
+Scala-Flink> btenv.registerFunction("split", new $Split)
+Scala-Flink> val result = btenv.sqlQuery("""SELECT T.word, count(T.word) AS `count` 
+    FROM text_source 
+    JOIN LATERAL table(split(text)) AS T(word) 
+    ON TRUE 
+    GROUP BY T.word""")
+Scala-Flink> result.toDataSet[(String, Long)].print
+```
+{% endtab %}
+{% endtabs %}
 
 ## 添加外部依赖项
 
