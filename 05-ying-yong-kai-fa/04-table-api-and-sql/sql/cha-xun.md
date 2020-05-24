@@ -630,7 +630,100 @@ Flink SQL对类似于Java的标识符（表，属性，函数名称）使用词�
   </tbody>
 </table>### Set 操作
 
-#### OrderBy & Limit
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">&#x64CD;&#x4F5C;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><b>Union</b>
+        <br />Batch</td>
+      <td style="text-align:left">
+        <p><b>SELECT</b>  <b>*</b>
+        </p>
+        <p><b>FROM</b> (</p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> a <b>%</b> 2 <b>=</b> 0)</p>
+        <p> <b>UNION</b>
+        </p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> b <b>=</b> 0)</p>
+        <p>)</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>UnionAll</b>
+        <br />Batch Streaming</td>
+      <td style="text-align:left">
+        <p><b>SELECT</b>  <b>*</b>
+        </p>
+        <p><b>FROM</b> (</p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> a <b>%</b> 2 <b>=</b> 0)</p>
+        <p> <b>UNION</b>  <b>ALL</b>
+        </p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> b <b>=</b> 0)</p>
+        <p>)</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>Intersect / Except</b>
+        <br />Batch</td>
+      <td style="text-align:left">
+        <p><b>SELECT</b>  <b>*</b>
+        </p>
+        <p><b>FROM</b> (</p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> a <b>%</b> 2 <b>=</b> 0)</p>
+        <p> <b>INTERSECT</b>
+        </p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> b <b>=</b> 0)</p>
+        <p>)</p>
+        <p><b>SELECT</b>  <b>*</b>
+        </p>
+        <p><b>FROM</b> (</p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> a <b>%</b> 2 <b>=</b> 0)</p>
+        <p> <b>EXCEPT</b>
+        </p>
+        <p>(<b>SELECT</b>  <b>user</b>  <b>FROM</b> Orders <b>WHERE</b> b <b>=</b> 0)</p>
+        <p>)</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>In</b>
+        <br />Batch Streaming</td>
+      <td style="text-align:left">
+        <p>&#x5982;&#x679C;&#x7ED9;&#x5B9A;&#x8868;&#x5B50;&#x67E5;&#x8BE2;&#x4E2D;&#x5B58;&#x5728;&#x8868;&#x8FBE;&#x5F0F;&#xFF0C;&#x5219;&#x8FD4;&#x56DE;true&#x3002;
+          &#x5B50;&#x67E5;&#x8BE2;&#x8868;&#x5FC5;&#x987B;&#x7531;&#x4E00;&#x5217;&#x7EC4;&#x6210;&#x3002;
+          &#x6B64;&#x5217;&#x5FC5;&#x987B;&#x4E0E;&#x8868;&#x8FBE;&#x5F0F;&#x5177;&#x6709;&#x76F8;&#x540C;&#x7684;&#x6570;&#x636E;&#x7C7B;&#x578B;&#x3002;
+          <br
+          /><b>SELECT</b>  <b>user</b>, amount</p>
+        <p><b>FROM</b> Orders</p>
+        <p><b>WHERE</b> product <b>IN</b> (</p>
+        <p> <b>SELECT</b> product <b>FROM</b> NewProducts</p>
+        <p>)</p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x5BF9;&#x4E8E;&#x6D41;&#x67E5;&#x8BE2;&#xFF0C;&#x8BE5;&#x64CD;&#x4F5C;&#x5C06;&#x5728;&#x5173;&#x8054;&#x548C;&#x7EC4;&#x64CD;&#x4F5C;&#x4E2D;&#x91CD;&#x5199;&#x3002;&#x6839;&#x636E;&#x4E0D;&#x540C;&#x8F93;&#x5165;&#x884C;&#x7684;&#x6570;&#x91CF;&#xFF0C;&#x8BA1;&#x7B97;&#x67E5;&#x8BE2;&#x7ED3;&#x679C;&#x6240;&#x9700;&#x7684;&#x72B6;&#x6001;&#x53EF;&#x80FD;&#x4F1A;&#x65E0;&#x9650;&#x589E;&#x957F;&#x3002;&#x8BF7;&#x63D0;&#x4F9B;&#x5177;&#x6709;&#x6709;&#x6548;&#x4FDD;&#x7559;&#x95F4;&#x9694;&#x7684;&#x67E5;&#x8BE2;&#x914D;&#x7F6E;&#xFF0C;&#x4EE5;&#x9632;&#x6B62;&#x51FA;&#x73B0;&#x8FC7;&#x591A;&#x7684;&#x72B6;&#x6001;&#x3002;&#x6709;&#x5173;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;&#x53C2;&#x89C1;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/query_configuration.html">&#x67E5;&#x8BE2;&#x914D;&#x7F6E;</a>&#x3002;</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>Exists</b>
+        <br />Batch Streaming</td>
+      <td style="text-align:left">
+        <p>&#x5982;&#x679C;&#x5B50;&#x67E5;&#x8BE2;&#x8FD4;&#x56DE;&#x81F3;&#x5C11;&#x4E00;&#x884C;&#xFF0C;&#x5219;&#x8FD4;&#x56DE;true&#x3002;
+          &#x4EC5;&#x5F53;&#x53EF;&#x4EE5;&#x5728;&#x5173;&#x8054;&#x548C;&#x7EC4;&#x64CD;&#x4F5C;&#x4E2D;&#x91CD;&#x5199;&#x64CD;&#x4F5C;&#x65F6;&#x624D;&#x652F;&#x6301;&#x3002;</p>
+        <p><b>SELECT</b>  <b>user</b>, amount</p>
+        <p><b>FROM</b> Orders</p>
+        <p><b>WHERE</b> product <b>EXISTS</b> (</p>
+        <p> <b>SELECT</b> product <b>FROM</b> NewProducts</p>
+        <p>)</p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x5BF9;&#x4E8E;&#x6D41;&#x67E5;&#x8BE2;&#xFF0C;&#x8BE5;&#x64CD;&#x4F5C;&#x5C06;&#x5728;&#x5173;&#x8054;&#x548C;&#x7EC4;&#x64CD;&#x4F5C;&#x4E2D;&#x91CD;&#x5199;&#x3002;&#x6839;&#x636E;&#x4E0D;&#x540C;&#x8F93;&#x5165;&#x884C;&#x7684;&#x6570;&#x91CF;&#xFF0C;&#x8BA1;&#x7B97;&#x67E5;&#x8BE2;&#x7ED3;&#x679C;&#x6240;&#x9700;&#x7684;&#x72B6;&#x6001;&#x53EF;&#x80FD;&#x4F1A;&#x65E0;&#x9650;&#x589E;&#x957F;&#x3002;&#x8BF7;&#x63D0;&#x4F9B;&#x5177;&#x6709;&#x6709;&#x6548;&#x4FDD;&#x7559;&#x95F4;&#x9694;&#x7684;&#x67E5;&#x8BE2;&#x914D;&#x7F6E;&#xFF0C;&#x4EE5;&#x9632;&#x6B62;&#x51FA;&#x73B0;&#x8FC7;&#x591A;&#x7684;&#x72B6;&#x6001;&#x3002;&#x6709;&#x5173;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;&#x53C2;&#x89C1;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/query_configuration.html">&#x67E5;&#x8BE2;&#x914D;&#x7F6E;</a>&#x3002;</p>
+      </td>
+    </tr>
+  </tbody>
+</table>### OrderBy & Limit
 
 <table>
   <thead>
@@ -670,7 +763,226 @@ Flink SQL对类似于Java的标识符（表，属性，函数名称）使用词�
   </tbody>
 </table>### Top-N
 
+{% hint style="danger" %}
+注意：Top-N仅支持Blink Planner
+{% endhint %}
+
+Top-N查询要求按列排序的N个最小或最大的值。最小值集和最大值集都被认为是Top-N查询。在需要只显示批处理/流表中的N个最底层记录或N个最顶层记录的情况下，Top-N查询很有用。 此结果集可用于进一步分析。
+
+Flink使用OVER窗口子句和过滤条件的组合来表示Top-N查询。 借助OVER window PARTITION BY子句的强大功能，Flink还支持每组Top-N。 例如，每个类别中实时销量最高的前五种产品。 批处理表和流表上的SQL支持Top-N查询。
+
+下面显示了TOP-N语句的语法：
+
+```sql
+SELECT [column_list]
+FROM (
+   SELECT [column_list],
+     ROW_NUMBER() OVER ([PARTITION BY col1[, col2...]]
+       ORDER BY col1 [asc|desc][, col2 [asc|desc]...]) AS rownum
+   FROM table_name)
+WHERE rownum <= N [AND conditions]
+```
+
+**参数规格：**
+
+* `ROW_NUMBER()`：根据分区内各行的顺序，为每一行分配一个唯一的顺序号（从1开始）。目前，我们仅支持`ROW_NUMBER`作为窗口功能。将来，我们将支持`RANK()`和`DENSE_RANK()`。
+* `PARTITION BY col1[, col2...]`：指定分区列。每个分区都有一个Top-N结果。
+* `ORDER BY col1 [asc|desc][, col2 [asc|desc]...]`：指定排序列。在不同的列上，订购方向可以不同。
+* `WHERE rownum <= N`：`rownum <= N`Flink识别此查询是Top-N查询所必需。N代表将保留N个最小或最大记录。
+* `[AND conditions]`：可以在where子句中随意添加其他条件，但是其他条件只能与`rownum <= N`使用`AND`joining 组合使用。
+
+{% hint style="danger" %}
+注意：在流模式下TopN查询的结果实时更新的。Flink SQL将根据order键对输入数据流进行排序，因此，如果前N条记录已被更改，则更改后的记录将作为回退/更新记录发送给下游。建议使用支持更新的存储作为Top-N查询的sink。此外，如果top N记录需要存储在外部存储中，那么结果表应该具有与top N查询相同的惟一键。
+{% endhint %}
+
+Top-N查询的惟一键是分区列和rownum列的组合。Top-N查询还可以派生上游的唯一键。以下面的job为例，假设product\_id是ShopSales的唯一键，那么Top-N查询的唯一键是\[category, rownum\]和\[product\_id\]。
+
+以下示例说明如何在流表上使用Top-N指定SQL查询。这是我们上面提到的“每个类别中实时销量最高的前五种产品”的示例。
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
+
+// ingest a DataStream from an external source
+DataStream<Tuple3<String, String, String, Long>> ds = env.addSource(...);
+// register the DataStream as table "ShopSales"
+tableEnv.createTemporaryView("ShopSales", ds, "product_id, category, product_name, sales");
+
+// select top-5 products per category which have the maximum sales.
+Table result1 = tableEnv.sqlQuery(
+  "SELECT * " +
+  "FROM (" +
+  "   SELECT *," +
+  "       ROW_NUMBER() OVER (PARTITION BY category ORDER BY sales DESC) as row_num" +
+  "   FROM ShopSales)" +
+  "WHERE row_num <= 5");
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+val env = StreamExecutionEnvironment.getExecutionEnvironment
+val tableEnv = TableEnvironment.getTableEnvironment(env)
+
+// read a DataStream from an external source
+val ds: DataStream[(String, String, String, Long)] = env.addSource(...)
+// register the DataStream under the name "ShopSales"
+tableEnv.createTemporaryView("ShopSales", ds, 'product_id, 'category, 'product_name, 'sales)
+
+
+// select top-5 products per category which have the maximum sales.
+val result1 = tableEnv.sqlQuery(
+    """
+      |SELECT *
+      |FROM (
+      |   SELECT *,
+      |       ROW_NUMBER() OVER (PARTITION BY category ORDER BY sales DESC) as row_num
+      |   FROM ShopSales)
+      |WHERE row_num <= 5
+    """.stripMargin)
+```
+{% endtab %}
+{% endtabs %}
+
+#### 无排序输出优化
+
+如上所述，rownum字段将作为惟一键的一个字段写入结果表，这可能导致将大量记录写入结果表。例如，当更新排名9的记录\(比如product-1001\)并将其排名提升到1时，排名1 ~ 9的所有记录都将作为更新消息输出到结果表中。如果结果表接收的数据太多，就会成为SQL作业的瓶颈。
+
+优化方法是在Top-N查询的外部SELECT子句中省略rownum字段。这是合理的，因为前N条记录的数量通常不大，因此使用者可以自己快速地对记录进行排序。在上面的例子中，如果没有rownum字段，只需要将更改的记录\(product-1001\)发送到下游，这可以减少对结果表的很多IO。
+
+下面的例子展示了如何优化上面的Top-N例子:
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
+
+// ingest a DataStream from an external source
+DataStream<Tuple3<String, String, String, Long>> ds = env.addSource(...);
+// register the DataStream as table "ShopSales"
+tableEnv.createTemporaryView("ShopSales", ds, "product_id, category, product_name, sales");
+
+// select top-5 products per category which have the maximum sales.
+Table result1 = tableEnv.sqlQuery(
+  "SELECT product_id, category, product_name, sales " + // omit row_num field in the output
+  "FROM (" +
+  "   SELECT *," +
+  "       ROW_NUMBER() OVER (PARTITION BY category ORDER BY sales DESC) as row_num" +
+  "   FROM ShopSales)" +
+  "WHERE row_num <= 5");
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+val env = StreamExecutionEnvironment.getExecutionEnvironment
+val tableEnv = TableEnvironment.getTableEnvironment(env)
+
+// read a DataStream from an external source
+val ds: DataStream[(String, String, String, Long)] = env.addSource(...)
+// register the DataStream under the name "ShopSales"
+tableEnv.createTemporaryView("ShopSales", ds, 'product_id, 'category, 'product_name, 'sales)
+
+
+// select top-5 products per category which have the maximum sales.
+val result1 = tableEnv.sqlQuery(
+    """
+      |SELECT product_id, category, product_name, sales  -- omit row_num field in the output
+      |FROM (
+      |   SELECT *,
+      |       ROW_NUMBER() OVER (PARTITION BY category ORDER BY sales DESC) as row_num
+      |   FROM ShopSales)
+      |WHERE row_num <= 5
+    """.stripMargin)
+```
+{% endtab %}
+{% endtabs %}
+
+{% hint style="danger" %}
+**流传输模式中的注意事项:**为了将以上查询输出到外部存储并获得正确的结果，外部存储必须具有与Top-N查询相同的唯一键。在上面的示例查询中，如果`product_id`\_是查询的唯一键，则外部表也应具有`product_id`作为唯一键。
+{% endhint %}
+
 ### 重复数据删除
+
+{% hint style="danger" %}
+**注意：**重复数据删除仅在Blink Planner中支持。
+{% endhint %}
+
+重复数据删除是指删除在一组列上重复的行，仅保留第一个或最后一个。在某些情况下，上游ETL作业不是一次精确的端到端，这可能导致在故障转移的情况下，接收器中有重复的记录。然而，重复的记录会影响到下游的分析工作（例如正确性`SUM`，`COUNT`）。因此，在进一步分析之前需要进行重复数据删除。
+
+Flink用来`ROW_NUMBER()`删除重复项，就像Top-N查询一样。从理论上讲，重复数据删除是Top-N的一种特殊情况，其中N为1，并按处理时间或事件时间排序。
+
+下面显示了重复数据删除语句的语法：
+
+```sql
+SELECT [column_list]
+FROM (
+   SELECT [column_list],
+     ROW_NUMBER() OVER ([PARTITION BY col1[, col2...]]
+       ORDER BY time_attr [asc|desc]) AS rownum
+   FROM table_name)
+WHERE rownum = 1
+```
+
+**参数规格：**
+
+* `ROW_NUMBER()`：从第一行开始，为每行分配一个唯一的顺序号。
+* `PARTITION BY col1[, col2...]`：指定分区列，即重复数据删除键。
+* `ORDER BY time_attr [asc|desc]`：指定排序列，它必须是[time属性](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/time_attributes.html)。目前仅支持[proctime属性](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/time_attributes.html#processing-time)。将来将支持[行时间属性](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/time_attributes.html#event-time)。按ASC排序意味着保留第一行，按DESC排序意味着保留最后一行。
+* `WHERE rownum = 1`：`rownum = 1`Flink识别此查询为重复数据删除所必需。
+
+以下示例说明如何在流表上指定带有重复数据删除功能的SQL查询。
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
+
+// ingest a DataStream from an external source
+DataStream<Tuple3<String, String, String, Integer>> ds = env.addSource(...);
+// register the DataStream as table "Orders"
+tableEnv.createTemporaryView("Orders", ds, "order_id, user, product, number, proctime.proctime");
+
+// remove duplicate rows on order_id and keep the first occurrence row,
+// because there shouldn't be two orders with the same order_id.
+Table result1 = tableEnv.sqlQuery(
+  "SELECT order_id, user, product, number " +
+  "FROM (" +
+  "   SELECT *," +
+  "       ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY proctime ASC) as row_num" +
+  "   FROM Orders)" +
+  "WHERE row_num = 1");
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+val env = StreamExecutionEnvironment.getExecutionEnvironment
+val tableEnv = TableEnvironment.getTableEnvironment(env)
+
+// read a DataStream from an external source
+val ds: DataStream[(String, String, String, Int)] = env.addSource(...)
+// register the DataStream under the name "Orders"
+tableEnv.createTemporaryView("Orders", ds, 'order_id, 'user, 'product, 'number, 'proctime.proctime)
+
+// remove duplicate rows on order_id and keep the first occurrence row,
+// because there shouldn't be two orders with the same order_id.
+val result1 = tableEnv.sqlQuery(
+    """
+      |SELECT order_id, user, product, number
+      |FROM (
+      |   SELECT *,
+      |       ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY proctime DESC) as row_num
+      |   FROM Orders)
+      |WHERE row_num = 1
+    """.stripMargin)
+```
+{% endtab %}
+{% endtabs %}
 
 ### 组窗口\(Group Windows\)
 
@@ -884,5 +1196,4 @@ val result4 = tableEnv.sqlQuery(
       </td>
     </tr>
   </tbody>
-</table>### 模式识别
-
+</table>
