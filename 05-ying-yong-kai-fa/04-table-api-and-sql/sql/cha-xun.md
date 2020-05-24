@@ -409,12 +409,23 @@ Flink SQL对类似于Java的标识符（表，属性，函数名称）使用词�
       <td style="text-align:left"><b>Distinct</b>
         <br />Batch Streaming
         <br />Result Updating</td>
-      <td style="text-align:left"></td>
+      <td style="text-align:left">
+        <p><b>SELECT</b>  <b>DISTINCT</b> users <b>FROM</b> Orders</p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x5BF9;&#x4E8E;&#x6D41;&#x5F0F;&#x67E5;&#x8BE2;&#xFF0C;&#x8BA1;&#x7B97;&#x67E5;&#x8BE2;&#x7ED3;&#x679C;&#x6240;&#x9700;&#x7684;&#x72B6;&#x6001;&#x53EF;&#x80FD;&#x4F1A;&#x65E0;&#x9650;&#x589E;&#x957F;&#xFF0C;&#x5177;&#x4F53;&#x53D6;&#x51B3;&#x4E8E;&#x4E0D;&#x540C;&#x5B57;&#x6BB5;&#x7684;&#x6570;&#x91CF;&#x3002;&#x8BF7;&#x63D0;&#x4F9B;&#x5177;&#x6709;&#x6709;&#x6548;&#x4FDD;&#x7559;&#x95F4;&#x9694;&#x7684;&#x67E5;&#x8BE2;&#x914D;&#x7F6E;&#xFF0C;&#x4EE5;&#x9632;&#x6B62;&#x51FA;&#x73B0;&#x8FC7;&#x591A;&#x7684;&#x72B6;&#x6001;&#x3002;&#x6709;&#x5173;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;&#x53C2;&#x89C1;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/query_configuration.html">&#x67E5;&#x8BE2;&#x914D;&#x7F6E;</a>&#x3002;</p>
+      </td>
     </tr>
     <tr>
       <td style="text-align:left"><b>Grouping sets, Rollup, Cube</b>
         <br />Batch Streaming Result Updating</td>
-      <td style="text-align:left"></td>
+      <td style="text-align:left">
+        <p><b>SELECT</b>  <b>SUM</b>(amount)</p>
+        <p><b>FROM</b> Orders</p>
+        <p><b>GROUP</b>  <b>BY</b>  <b>GROUPING</b>  <b>SETS</b> ((<b>user</b>), (product))</p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;&#x4EC5;&#x5728;Blink Planner&#x4E2D;&#x652F;&#x6301;Grouping sets, Rollup, Cube&#x3002;</b>
+        </p>
+      </td>
     </tr>
     <tr>
       <td style="text-align:left"><b>Having</b>
@@ -429,12 +440,195 @@ Flink SQL对类似于Java的标识符（表，属性，函数名称）使用词�
     <tr>
       <td style="text-align:left"><b>User-defined Aggregate Functions (UDAGG)</b>
         <br />Batch Streaming</td>
-      <td style="text-align:left"></td>
+      <td style="text-align:left">
+        <p>UDAGG&#x5FC5;&#x987B;&#x5728;TableEnvironment&#x4E2D;&#x6CE8;&#x518C;&#x3002;&#x6709;&#x5173;&#x5982;&#x4F55;&#x6307;&#x5B9A;&#x548C;&#x6CE8;&#x518C;UDAGG&#x7684;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;&#x53C2;&#x89C1;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/functions/udfs.html">UDF&#x6587;&#x6863;</a>&#x3002;</p>
+        <p><b>SELECT</b> MyAggregate(amount)</p>
+        <p><b>FROM</b> Orders</p>
+        <p><b>GROUP</b>  <b>BY</b> users</p>
+      </td>
     </tr>
   </tbody>
 </table>### 关联\(Joins\)
 
-### Set 操作
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">&#x64CD;&#x4F5C;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><b>Inner Equi-join</b>
+        <br />Batch Streaming</td>
+      <td style="text-align:left">
+        <p>
+          <br />&#x5F53;&#x524D;&#xFF0C;&#x4EC5;&#x652F;&#x6301;&#x7B49;&#x8054;&#x63A5;&#xFF0C;&#x5373;&#x5177;&#x6709;&#x81F3;&#x5C11;&#x4E00;&#x4E2A;&#x5177;&#x6709;&#x76F8;&#x7B49;&#x8C13;&#x8BCD;&#x7684;&#x8054;&#x5408;&#x6761;&#x4EF6;&#x7684;&#x8054;&#x63A5;&#x3002;
+          &#x4E0D;&#x652F;&#x6301;&#x4EFB;&#x610F;&#x4EA4;&#x53C9;&#x6216;theta&#x8054;&#x63A5;&#x3002;</p>
+        <p></p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x8054;&#x63A5;&#x987A;&#x5E8F;&#x672A;&#x4F18;&#x5316;&#x3002;&#x8868;&#x6309;&#x7167;&#x5728;FROM&#x5B50;&#x53E5;&#x4E2D;&#x6307;&#x5B9A;&#x7684;&#x987A;&#x5E8F;&#x8FDB;&#x884C;&#x8FDE;&#x63A5;&#x3002;&#x786E;&#x4FDD;&#x4EE5;&#x4E0D;&#x4EA7;&#x751F;&#x4EA4;&#x53C9;&#x8054;&#x63A5;&#xFF08;&#x7B1B;&#x5361;&#x5C14;&#x4E58;&#x79EF;&#xFF09;&#x7684;&#x987A;&#x5E8F;&#x6307;&#x5B9A;&#x8868;&#xFF0C;&#x8BE5;&#x987A;&#x5E8F;&#x4E0D;&#x88AB;&#x652F;&#x6301;&#x5E76;&#x4E14;&#x4F1A;&#x5BFC;&#x81F4;&#x67E5;&#x8BE2;&#x5931;&#x8D25;&#x3002;</p>
+        <p><b>SELECT</b>  <b>*</b>
+        </p>
+        <p><b>FROM</b> Orders <b>INNER</b>  <b>JOIN</b> Product <b>ON</b> Orders.productId <b>=</b> Product.id</p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x5BF9;&#x4E8E;&#x6D41;&#x5F0F;&#x67E5;&#x8BE2;&#xFF0C;&#x6839;&#x636E;&#x4E0D;&#x540C;&#x8F93;&#x5165;&#x884C;&#x7684;&#x6570;&#x91CF;&#xFF0C;&#x8BA1;&#x7B97;&#x67E5;&#x8BE2;&#x7ED3;&#x679C;&#x6240;&#x9700;&#x7684;&#x72B6;&#x6001;&#x53EF;&#x80FD;&#x4F1A;&#x65E0;&#x9650;&#x589E;&#x957F;&#x3002;&#x8BF7;&#x63D0;&#x4F9B;&#x5177;&#x6709;&#x6709;&#x6548;&#x4FDD;&#x7559;&#x95F4;&#x9694;&#x7684;&#x67E5;&#x8BE2;&#x914D;&#x7F6E;&#xFF0C;&#x4EE5;&#x9632;&#x6B62;&#x51FA;&#x73B0;&#x8FC7;&#x591A;&#x7684;&#x72B6;&#x6001;&#x3002;&#x6709;&#x5173;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;&#x53C2;&#x89C1;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/query_configuration.html">&#x67E5;&#x8BE2;&#x914D;&#x7F6E;</a>&#x3002;</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>Outer Equi-join</b>
+        <br />Batch Streaming Result Updating</td>
+      <td style="text-align:left">
+        <p>&#x5F53;&#x524D;&#xFF0C;&#x4EC5;&#x652F;&#x6301;&#x7B49;&#x8054;&#x63A5;&#xFF0C;&#x5373;&#x5177;&#x6709;&#x81F3;&#x5C11;&#x4E00;&#x4E2A;&#x5177;&#x6709;&#x76F8;&#x7B49;&#x8C13;&#x8BCD;&#x7684;&#x8054;&#x5408;&#x6761;&#x4EF6;&#x7684;&#x8054;&#x63A5;&#x3002;
+          &#x4E0D;&#x652F;&#x6301;&#x4EFB;&#x610F;&#x4EA4;&#x53C9;&#x6216;theta&#x8054;&#x63A5;&#x3002;</p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x8054;&#x63A5;&#x987A;&#x5E8F;&#x672A;&#x4F18;&#x5316;&#x3002;&#x8868;&#x6309;&#x7167;&#x5728;FROM&#x5B50;&#x53E5;&#x4E2D;&#x6307;&#x5B9A;&#x7684;&#x987A;&#x5E8F;&#x8FDB;&#x884C;&#x8FDE;&#x63A5;&#x3002;&#x786E;&#x4FDD;&#x4EE5;&#x4E0D;&#x4EA7;&#x751F;&#x4EA4;&#x53C9;&#x8054;&#x63A5;&#xFF08;&#x7B1B;&#x5361;&#x5C14;&#x4E58;&#x79EF;&#xFF09;&#x7684;&#x987A;&#x5E8F;&#x6307;&#x5B9A;&#x8868;&#xFF0C;&#x8BE5;&#x987A;&#x5E8F;&#x4E0D;&#x88AB;&#x652F;&#x6301;&#x5E76;&#x4E14;&#x4F1A;&#x5BFC;&#x81F4;&#x67E5;&#x8BE2;&#x5931;&#x8D25;&#x3002;</p>
+        <p><b>SELECT</b>  <b>*</b>
+        </p>
+        <p><b>FROM</b> Orders <b>LEFT</b>  <b>JOIN</b> Product <b>ON</b> Orders.productId <b>=</b> Product.id</p>
+        <p><b>SELECT</b>  <b>*</b>
+        </p>
+        <p><b>FROM</b> Orders <b>RIGHT</b>  <b>JOIN</b> Product <b>ON</b> Orders.productId <b>=</b> Product.id</p>
+        <p><b>SELECT</b>  <b>*</b>
+        </p>
+        <p><b>FROM</b> Orders <b>FULL</b>  <b>OUTER</b>  <b>JOIN</b> Product <b>ON</b> Orders.productId <b>=</b> Product.id</p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x5BF9;&#x4E8E;&#x6D41;&#x5F0F;&#x67E5;&#x8BE2;&#xFF0C;&#x6839;&#x636E;&#x4E0D;&#x540C;&#x8F93;&#x5165;&#x884C;&#x7684;&#x6570;&#x91CF;&#xFF0C;&#x8BA1;&#x7B97;&#x67E5;&#x8BE2;&#x7ED3;&#x679C;&#x6240;&#x9700;&#x7684;&#x72B6;&#x6001;&#x53EF;&#x80FD;&#x4F1A;&#x65E0;&#x9650;&#x589E;&#x957F;&#x3002;&#x8BF7;&#x63D0;&#x4F9B;&#x5177;&#x6709;&#x6709;&#x6548;&#x4FDD;&#x7559;&#x95F4;&#x9694;&#x7684;&#x67E5;&#x8BE2;&#x914D;&#x7F6E;&#xFF0C;&#x4EE5;&#x9632;&#x6B62;&#x51FA;&#x73B0;&#x8FC7;&#x591A;&#x7684;&#x72B6;&#x6001;&#x3002;&#x6709;&#x5173;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;&#x53C2;&#x89C1;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/query_configuration.html">&#x67E5;&#x8BE2;&#x914D;&#x7F6E;</a>&#x3002;</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>&#x65F6;&#x95F4;&#x7A97;&#x53E3; &#x5173;&#x8054;</b>
+        <br />Batch Streaming</td>
+      <td style="text-align:left">
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x65F6;&#x95F4;&#x7A97;&#x53E3;&#x5173;&#x8054;&#x662F;&#x53EF;&#x4EE5;&#x4EE5;&#x6D41;&#x65B9;&#x5F0F;&#x5904;&#x7406;&#x7684;&#x5E38;&#x89C4;&#x5173;&#x8054;&#x7684;&#x5B50;&#x96C6;</p>
+        <p>&#x65F6;&#x95F4;&#x7A97;&#x53E3;&#x5173;&#x8054;&#x9700;&#x8981;&#x81F3;&#x5C11;&#x4E00;&#x4E2A;&#x7B49;&#x503C;&#x5173;&#x8054;&#x8C13;&#x8BCD;&#x548C;&#x5728;&#x4E24;&#x4FA7;&#x9650;&#x5236;&#x65F6;&#x95F4;&#x7684;&#x5173;&#x8054;&#x6761;&#x4EF6;&#x3002;&#x53EF;&#x4EE5;&#x901A;&#x8FC7;&#x6BD4;&#x8F83;&#x4E24;&#x4E2A;&#x8F93;&#x5165;&#x8868;&#x4E2D;&#x76F8;&#x540C;&#x7C7B;&#x578B;&#x7684;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/time_attributes.html">&#x65F6;&#x95F4;&#x5C5E;&#x6027;</a>&#xFF08;&#x5373;&#x5904;&#x7406;&#x65F6;&#x95F4;&#x6216;&#x4E8B;&#x4EF6;&#x65F6;&#x95F4;&#xFF09;&#x7684;&#x4E24;&#x4E2A;&#x9002;&#x5F53;&#x7684;&#x8303;&#x56F4;&#x8C13;&#x8BCD;&#xFF08;&lt;,
+            &lt;=, &gt;=, &gt;&#xFF09;BETWEEN&#x8C13;&#x8BCD;&#x6216;&#x5355;&#x4E2A;&#x76F8;&#x7B49;&#x8C13;&#x8BCD;&#x6765;&#x5B9A;&#x4E49;&#x8FD9;&#x79CD;&#x6761;&#x4EF6;&#x3002;</p>
+        <p>&#x4F8B;&#x5982;&#xFF0C;&#x4EE5;&#x4E0B;&#x8C13;&#x8BCD;&#x662F;&#x6709;&#x6548;&#x7684;&#x7A97;&#x53E3;&#x5173;&#x8054;&#x6761;&#x4EF6;&#xFF1A;</p>
+        <ul>
+          <li>ltime = rtime</li>
+          <li>ltime &gt;= rtime AND ltime &lt; rtime + INTERVAL &apos;10&apos; MINUTE</li>
+          <li>ltime BETWEEN rtime - INTERVAL &apos;10&apos; SECOND AND rtime + INTERVAL
+            &apos;5&apos; SECOND</li>
+        </ul>
+        <p><b>SELECT</b>  <b>*</b>
+        </p>
+        <p><b>FROM</b> Orders o, Shipments s</p>
+        <p><b>WHERE</b> o.id <b>=</b> s.orderId <b>AND</b>
+        </p>
+        <p>o.ordertime <b>BETWEEN</b> s.shiptime <b>-</b> INTERVAL &apos;4&apos; HOUR <b>AND</b> s.shiptime</p>
+        <p>&#x5982;&#x679C;&#x8BA2;&#x5355;&#x5728;&#x6536;&#x5230;&#x8BA2;&#x5355;&#x540E;&#x56DB;&#x4E2A;&#x5C0F;&#x65F6;&#x5185;&#x53D1;&#x8D27;&#xFF0C;&#x5219;&#x4E0A;&#x9762;&#x7684;&#x793A;&#x4F8B;&#x4F1A;&#x5C06;&#x6240;&#x6709;&#x8BA2;&#x5355;&#x4E0E;&#x5176;&#x76F8;&#x5E94;&#x7684;&#x53D1;&#x8D27;&#x5408;&#x5E76;&#x5728;&#x4E00;&#x8D77;&#x3002;</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left">
+        <p><b>&#x8BB2;</b>
+        </p>
+        <p><b>&#x5C06;&#x6570;&#x7EC4;&#x62D3;&#x5C55;&#x4E3A;&#x5173;&#x7CFB;</b>
+          <br
+          />Batch Straming</p>
+      </td>
+      <td style="text-align:left">
+        <p><b>&#x76EE;&#x524D;&#x5C1A;&#x4E0D;&#x652F;&#x6301;&#x4F7F;&#x7528;ORDINALITY&#x53D6;&#x6D88;&#x5D4C;&#x5957;&#x3002;</b>
+        </p>
+        <p><b>SELECT</b> users, tag</p>
+        <p><b>FROM</b> Orders <b>CROSS</b>  <b>JOIN</b>  <b>UNNEST</b>(tags) <b>AS</b> t
+          (tag)</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>&#x5173;&#x8054;&#x8868;&#x51FD;&#x6570; (UDTF)</b>
+        <br />Batch Streaming</td>
+      <td style="text-align:left">
+        <p>&#x7528;&#x8868;&#x51FD;&#x6570;&#x7684;&#x7ED3;&#x679C;&#x5173;&#x8054;&#x8868;&#x3002;&#x5DE6;(&#x5916;)&#x8868;&#x7684;&#x6BCF;&#x4E00;&#x884C;&#x90FD;&#x4E0E;&#x8868;&#x51FD;&#x6570;&#x7684;&#x76F8;&#x5E94;&#x8C03;&#x7528;&#x4EA7;&#x751F;&#x7684;&#x6240;&#x6709;&#x884C;&#x8FDE;&#x63A5;&#x5728;&#x4E00;&#x8D77;&#x3002;</p>
+        <p>&#x5FC5;&#x987B;&#x5148;&#x6CE8;&#x518C;&#x7528;&#x6237;&#x5B9A;&#x4E49;&#x7684;&#x8868;&#x51FD;&#x6570;&#xFF08;UDTF&#xFF09;&#x3002;&#x6709;&#x5173;&#x5982;&#x4F55;&#x6307;&#x5B9A;&#x548C;&#x6CE8;&#x518C;UDTF&#x7684;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;&#x53C2;&#x89C1;
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/functions/udfs.html">UDF&#x6587;&#x6863;</a>&#x3002;</p>
+        <p><b>&#x5185;&#x90E8;&#x8054;&#x63A5;</b>
+        </p>
+        <p>&#x5982;&#x679C;&#x5DE6;&#x8868;&#xFF08;&#x5916;&#x90E8;&#xFF09;&#x7684;&#x8868;&#x51FD;&#x6570;&#x8C03;&#x7528;&#x8FD4;&#x56DE;&#x7A7A;&#x7ED3;&#x679C;&#xFF0C;&#x5219;&#x8BE5;&#x884C;&#x5C06;&#x88AB;&#x5220;&#x9664;&#x3002;</p>
+        <p><b>SELECT</b> users, tag</p>
+        <p><b>FROM</b> Orders, <b>LATERAL</b>  <b>TABLE</b>(unnest_udtf(tags)) t <b>AS</b> tag</p>
+        <p><b>&#x5DE6;&#x5916;&#x8FDE;&#x63A5;</b>
+        </p>
+        <p>&#x5982;&#x679C;&#x8868;&#x51FD;&#x6570;&#x8C03;&#x7528;&#x8FD4;&#x56DE;&#x7A7A;&#x7ED3;&#x679C;&#xFF0C;&#x5219;&#x5C06;&#x4FDD;&#x7559;&#x5BF9;&#x5E94;&#x7684;&#x5916;&#x90E8;&#x884C;&#xFF0C;&#x5E76;&#x7528;&#x7A7A;&#x503C;&#x586B;&#x5145;&#x7ED3;&#x679C;&#x3002;</p>
+        <p><b>SELECT</b> users, tag</p>
+        <p><b>FROM</b> Orders <b>LEFT</b>  <b>JOIN</b>  <b>LATERAL</b>  <b>TABLE</b>(unnest_udtf(tags))
+          t <b>AS</b> tag <b>ON</b>  <b>TRUE</b>
+        </p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x5F53;&#x524D;&#xFF0C;&#x4EC5;&#x6587;&#x5B57;TRUE&#x652F;&#x6301;&#x4F5C;&#x4E3A;&#x9488;&#x5BF9;&#x6A2A;&#x5411;&#x8868;&#x7684;&#x5DE6;&#x5916;&#x90E8;&#x8054;&#x63A5;&#x7684;&#x8C13;&#x8BCD;&#x3002;</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>&#x5173;&#x8054;&#x65F6;&#x6001;&#x8868;&#x51FD;&#x6570;</b>
+        <br />Streaming</td>
+      <td style="text-align:left">
+        <p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/temporal_tables.html">&#x65F6;&#x6001;<b>&#x8868;</b></a><b>&#x662F;&#x8DDF;&#x8E2A;&#x968F;&#x65F6;&#x95F4;&#x53D8;&#x5316;&#x7684;&#x8868;&#x3002;</b>
+        </p>
+        <p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/temporal_tables.html#temporal-table-functions">&#x65F6;&#x6001;<b>&#x8868;&#x529F;&#x80FD;</b></a><b>&#x63D0;&#x4F9B;&#x5BF9;&#x7279;&#x5B9A;&#x65F6;&#x95F4;&#x70B9;&#x65F6;&#x6001;&#x8868;&#x72B6;&#x6001;&#x7684;&#x8BBF;&#x95EE;&#x3002;&#x4F7F;&#x7528;&#x4E34;&#x65F6;&#x8868;&#x51FD;&#x6570;</b>&#x8054;&#x63A5;&#x8868;<b>&#x7684;&#x8BED;&#x6CD5;&#x4E0E;&#x4F7F;&#x7528;&#x8868;&#x51FD;&#x6570;</b>&#x8054;&#x63A5;<b>&#x7684;&#x8BED;&#x6CD5;&#x76F8;&#x540C;&#x3002;</b>
+        </p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;&#x5F53;&#x524D;&#x4EC5;&#x652F;&#x6301;&#x4F7F;&#x7528;&#x4E34;&#x65F6;&#x8868;&#x7684;&#x5185;&#x90E8;&#x8054;&#x63A5;&#x3002;</b>
+        </p>
+        <p><b>&#x5047;&#x8BBE;</b>Rates<b>&#x662F;&#x4E00;&#x4E2A;</b><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/temporal_tables.html#temporal-table-functions"><b>&#x65F6;&#x6001;&#x8868;&#x51FD;&#x6570;</b></a><b>&#xFF0C;&#x5219;&#x8054;&#x63A5;&#x53EF;&#x4EE5;&#x7528;SQL&#x8868;&#x793A;&#x5982;&#x4E0B;&#xFF1A;</b>
+        </p>
+        <p><b>SELECT</b>
+        </p>
+        <p>o_amount, r_rate</p>
+        <p><b>FROM</b>
+        </p>
+        <p>Orders,</p>
+        <p> <b>LATERAL</b>  <b>TABLE</b> (Rates(o_proctime))</p>
+        <p><b>WHERE</b>
+        </p>
+        <p>r_currency <b>=</b> o_currency</p>
+        <p><b>&#x6709;&#x5173;&#x66F4;&#x591A;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;&#x68C0;&#x67E5;&#x66F4;&#x8BE6;&#x7EC6;&#x7684;</b>
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/temporal_tables.html"><b>&#x65F6;&#x6001;&#x8868;&#x6982;&#x5FF5;&#x63CF;&#x8FF0;</b>
+            </a>
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left">
+        <p><b>&#x5173;</b>
+        </p>
+        <p><b>&#x5173;&#x8054;&#x65F6;&#x6001;&#x8868;</b>
+          <br />Batch Streming</p>
+      </td>
+      <td style="text-align:left">
+        <p><a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/temporal_tables.html"><b>&#x65F6;&#x6001;&#x8868;</b></a><b>&#x662F;</b>&#x8DDF;&#x8E2A;&#x968F;&#x65F6;&#x95F4;&#x53D8;&#x5316;&#x7684;&#x8868;<b>&#x3002;</b>
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/temporal_tables.html#temporal-table"><b>&#x65F6;&#x6001;&#x8868;</b>
+            </a>&#x63D0;&#x4F9B;&#x5BF9;&#x7279;&#x5B9A;&#x65F6;&#x95F4;&#x70B9;&#x7684;&#x4E34;&#x65F6;&#x8868;&#x7248;&#x672C;&#x7684;&#x8BBF;&#x95EE;&#x3002;</p>
+        <p><b>&#x4EC5;&#x652F;&#x6301;&#x5E26;&#x6709;&#x5904;&#x7406;&#x65F6;&#x95F4;&#x65F6;&#x6001;&#x8868;&#x7684;&#x5185;&#x90E8;&#x8054;&#x63A5;&#x548C;&#x5DE6;&#x8054;&#x63A5;&#x3002;</b>
+        </p>
+        <p><b>&#x4E0B;&#x9762;&#x7684;&#x793A;&#x4F8B;&#x5047;&#x5B9A;LatestRates&#x662F;&#x4E00;&#x4E2A;&#x4EE5;&#x6700;&#x65B0;&#x901F;&#x7387;&#x5B9E;&#x73B0;&#x7684;</b>
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/temporal_tables.html#temporal-table"><b>&#x65F6;&#x6001;&#x8868;</b>
+            </a><b>&#x3002;</b>
+        </p>
+        <p><b>SELECT</b>
+        </p>
+        <p>o.amout, o.currency, r.rate, o.amount <b>*</b> r.rate</p>
+        <p><b>FROM</b>
+        </p>
+        <p>Orders <b>AS</b> o</p>
+        <p> <b>JOIN</b> LatestRates <b>FOR</b> SYSTEM_TIME <b>AS</b>  <b>OF</b> o.proctime <b>AS</b> r</p>
+        <p> <b>ON</b> r.currency <b>=</b> o.currency</p>
+        <p><b>&#x6709;&#x5173;&#x66F4;&#x591A;&#x4FE1;&#x606F;&#xFF0C;&#x8BF7;&#x68C0;&#x67E5;&#x66F4;&#x8BE6;&#x7EC6;&#x7684;&#x201C;</b>
+          <a
+          href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/streaming/temporal_tables.html"><b>&#x65F6;&#x6001;&#x8868;&#x201D;</b>
+            </a><b>&#x6982;&#x5FF5;&#x63CF;&#x8FF0;&#x3002;</b>
+        </p>
+        <p><b>&#x4EC5;&#x5728;&#x7728;&#x773C;&#x8BA1;&#x5212;&#x7A0B;&#x5E8F;&#x4E2D;&#x53D7;&#x652F;&#x6301;&#x3002;</b>
+        </p>
+      </td>
+    </tr>
+  </tbody>
+</table>### Set 操作
 
 #### OrderBy & Limit
 
