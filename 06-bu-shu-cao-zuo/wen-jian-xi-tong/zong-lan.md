@@ -14,10 +14,10 @@ Apache Flink使用文件系统来消耗和持久存储数据，以获取应用�
 
 Apache Flink项目支持以下文件系统：
 
-* Amazon S3对象存储由两种可选实现支持:`flink-s3-fs-presto`和`flink-s3-fs-hadoop`。这两个实现都是自包含的，没有依赖项占用。
+* Amazon S3对象存储由两种可选实现支持:`flink-s3-fs-presto`和`flink-s3-fs-hadoop`。这两个实现都是自带的，没有依赖项占用。
 * 在`maprfs:// URI`方案下的主Flink发行版中已经支持MapR FS文件系统适配器。必须在类路径中提供MapR库\(例如在lib目录中\)。
-* OpenStack Swift FS受`flink-swift-fs-hadoop`支持，注册在`Swift:// URI`方案下。该实现基于Hadoop项目，但是是自包含的，没有依赖项。要在使用Flink作为库时使用它，请添加相应的maven依赖项\(`org.apache.flink: Flink -swift-fs-hadoop:1.10.0`\)。
-* 阿里云对象存储服务受`flink-os -fs-hadoop`支持，注册在`oss:// URI`方案下。该实现基于Hadoop项目，但是是自包含的，没有依赖项。
+* OpenStack Swift FS受`flink-swift-fs-hadoop`支持，注册在`Swift:// URI`方案下。该实现基于Hadoop项目，但是是自带的，没有依赖项。要在使用Flink作为库时使用它，请添加相应的maven依赖项\(`org.apache.flink: Flink -swift-fs-hadoop:1.10.0`\)。
+* 阿里云对象存储服务受`flink-os -fs-hadoop`支持，注册在`oss:// URI`方案下。该实现基于Hadoop项目，但是自带的，没有依赖项。
 
 除了**MapR FS**，可以并且应该使用它们中的任何一个作为 [插件](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/plugins.html)。
 
