@@ -1,4 +1,4 @@
-# 流文件Sink
+# Streaming File Sink
 
 此连接器提供一个Sink，用于将分区文件写到支持Flink文件系统抽象的文件系统中。
 
@@ -357,6 +357,18 @@ val sink = StreamingFileSink
 ## 重要注意事项
 
 ### 一般
+
+{% hint style="danger" %}
+**重要提示1**:当使用Hadoop &lt; 2.7时，请使用OnCheckpointRollingPolicy在每个检查点上滚动零件文件。原因是，如果零件文件“遍历”检查点间隔，那么，在从故障中恢复时，StreamingFileSink可能会使用文件系统的truncate\(\)方法从正在处理的文件中丢弃未提交的数据。这个方法在2.7之前的Hadoop版本中是不支持的，Flink会抛出一个异常。
+{% endhint %}
+
+{% hint style="danger" %}
+**重要提示2**:考虑到Flink sink和udf通常不区分正常的作业终止\(例如，有限的输入流\)和由于失败而终止的作业，在正常的作业终止之后，最后一个正在进行的文件将不会过渡到“完成”状态。
+{% endhint %}
+
+{% hint style="danger" %}
+**重要说明3**：Flink和StreamingFileSink永远不会覆盖已提交的数据。 鉴于此，当尝试从旧的检查点/保存点还原时（假定该文件是由后续成功的检查点提交的正在处理的文件），Flink将拒绝继续进行操作，并且将由于无法定位正在处理的文件而引发异常。
+{% endhint %}
 
 ### S3特有的
 
