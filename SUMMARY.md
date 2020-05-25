@@ -165,6 +165,7 @@
     * [Savepoints](06-bu-shu-cao-zuo/zhuang-tai-rong-cuo/savepoints.md)
     * [状态后端](06-bu-shu-cao-zuo/zhuang-tai-rong-cuo/hou-duan-zhuang-tai.md)
     * [优化检查点和大状态](06-bu-shu-cao-zuo/zhuang-tai-rong-cuo/you-hua-jian-cha-dian-he-da-zhuang-tai.md)
+  * [配置](06-bu-shu-cao-zuo/pei-zhi-1.md)
   * [内存配置](06-bu-shu-cao-zuo/pei-zhi/README.md)
     * [设置任务执行器（Task Executor）内存](06-bu-shu-cao-zuo/pei-zhi/she-zhi-ren-wu-zhi-hang-qi-task-executor-nei-cun.md)
     * [内存模型详情](06-bu-shu-cao-zuo/pei-zhi/nei-cun-mo-xing-xiang-qing.md)
