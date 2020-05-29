@@ -978,7 +978,9 @@
       </td>
     </tr>
   </tbody>
-</table>通过匿名模式匹配从元组、case类和集合中提取，如下所示:
+</table>
+
+通过匿名模式匹配从元组、case类和集合中提取，如下所示:
 
 ```scala
 val data: DataStream[(Int, String, Double)] = // [...]
@@ -1013,7 +1015,9 @@ API不支持开箱即用。要使用此功能，您应该使用[Scala API扩展]
       </td>
     </tr>
   </tbody>
-</table>## 物理分区
+</table>
+
+## 物理分区
 
 Flink还通过以下函数对转换后的精确流分区进行低级别控制（如果需要）。
 
@@ -1073,7 +1077,9 @@ Flink还通过以下函数对转换后的精确流分区进行低级别控制（
       </td>
     </tr>
   </tbody>
-</table>![&#x91CD;&#x65B0;&#x8C03;&#x6574;&#x7684;&#x793A;&#x4F8B;&#x53EF;&#x89C6;&#x5316;&#x56FE;&#x5F62;](../../../.gitbook/assets/image%20%2817%29.png)
+</table>
+
+![&#x91CD;&#x65B0;&#x8C03;&#x6574;&#x7684;&#x793A;&#x4F8B;&#x53EF;&#x89C6;&#x5316;&#x56FE;&#x5F62;](../../../.gitbook/assets/image%20%2817%29.png)
 
 ## 任务链和资源组 <a id="task-chaining-and-resource-groups"></a>
 
@@ -1118,3 +1124,4 @@ Flink还通过以下函数对转换后的精确流分区进行低级别控制（
     </tr>
   </tbody>
 </table>
+

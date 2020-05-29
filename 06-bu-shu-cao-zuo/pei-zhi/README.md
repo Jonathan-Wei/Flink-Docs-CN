@@ -102,7 +102,9 @@ TaskManagers的配置文件可能不同，Flink不假设集群中有统一的机
       <td style="text-align:left"></td>
     </tr>
   </tbody>
-</table>### JobManager
+</table>
+
+### JobManager
 
 | Key | Default | Description |
 | :--- | :--- | :--- |
@@ -423,7 +425,9 @@ TaskManagers的配置文件可能不同，Flink不假设集群中有统一的机
       <td style="text-align:left">&#x8868;&#x793A;&#x53EF;&#x914D;&#x7F6E;&#x7AEF;&#x53E3;&#x7684;&#x7528;&#x9017;&#x53F7;&#x5206;&#x9694;&#x7684;&#x914D;&#x7F6E;&#x952E;&#x5217;&#x8868;&#x3002;&#x6240;&#x6709;&#x7AEF;&#x53E3;&#x952E;&#x90FD;&#x5C06;&#x52A8;&#x6001;&#x5730;&#x83B7;&#x5F97;&#x901A;&#x8FC7;Mesos&#x5206;&#x914D;&#x7684;&#x7AEF;&#x53E3;&#x3002;</td>
     </tr>
   </tbody>
-</table>#### **Mesos TaskManager**
+</table>
+
+#### **Mesos TaskManager**
 
 | Key | Default | Description |
 | :--- | :--- | :--- |

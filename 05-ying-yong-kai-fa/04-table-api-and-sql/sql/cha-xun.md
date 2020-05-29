@@ -295,7 +295,9 @@ Flink SQL对类似于Java的标识符（表，属性，函数名称）使用词�
       </td>
     </tr>
   </tbody>
-</table>### 扫描，投影，过滤\(Scan, Projection, and Filter\)
+</table>
+
+### 扫描，投影，过滤\(Scan, Projection, and Filter\)
 
 <table>
   <thead>
@@ -337,7 +339,9 @@ Flink SQL对类似于Java的标识符（表，属性，函数名称）使用词�
       </td>
     </tr>
   </tbody>
-</table>### 聚合\(Aggregations\)
+</table>
+
+### 聚合\(Aggregations\)
 
 <table>
   <thead>
@@ -450,7 +454,9 @@ Flink SQL对类似于Java的标识符（表，属性，函数名称）使用词�
       </td>
     </tr>
   </tbody>
-</table>### 关联\(Joins\)
+</table>
+
+### 关联\(Joins\)
 
 <table>
   <thead>
@@ -628,7 +634,9 @@ Flink SQL对类似于Java的标识符（表，属性，函数名称）使用词�
       </td>
     </tr>
   </tbody>
-</table>### Set 操作
+</table>
+
+### Set 操作
 
 <table>
   <thead>
@@ -723,7 +731,9 @@ Flink SQL对类似于Java的标识符（表，属性，函数名称）使用词�
       </td>
     </tr>
   </tbody>
-</table>### OrderBy & Limit
+</table>
+
+### OrderBy & Limit
 
 <table>
   <thead>
@@ -761,7 +771,9 @@ Flink SQL对类似于Java的标识符（表，属性，函数名称）使用词�
       </td>
     </tr>
   </tbody>
-</table>### Top-N
+</table>
+
+### Top-N
 
 {% hint style="danger" %}
 注意：Top-N仅支持Blink Planner
@@ -1058,7 +1070,9 @@ val result1 = tableEnv.sqlQuery(
           href="https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/sql.html#joins">&#x65F6;&#x95F4;&#x7A97;&#x53E3;&#x8FDE;&#x63A5;</a>&#x548C;<a href="https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/sql.html#aggregations">&#x7EC4;&#x7A97;&#x53E3;&#x6216;&#x7A97;&#x53E3;&#x805A;&#x5408;</a>&#x3002;</td>
     </tr>
   </tbody>
-</table>{% hint style="info" %}
+</table>
+
+{% hint style="info" %}
 注意:必须使用与group BY子句中的group window函数完全相同的参数调用辅助函数
 {% endhint %}
 
@@ -1197,3 +1211,4 @@ val result4 = tableEnv.sqlQuery(
     </tr>
   </tbody>
 </table>
+

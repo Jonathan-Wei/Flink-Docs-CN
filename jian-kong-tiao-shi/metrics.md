@@ -773,7 +773,9 @@ metrics.reporter.slf4j.interval: 60 SECONDS
       style="text-align:left">Gauge</td>
     </tr>
   </tbody>
-</table>### 检查点
+</table>
+
+### 检查点
 
 | Scope | Metrics | Description | Type |
 | :--- | :--- | :--- | :--- |
@@ -977,7 +979,9 @@ metrics.reporter.slf4j.interval: 60 SECONDS
       style="text-align:left">Gauge</td>
     </tr>
   </tbody>
-</table>### 连接器
+</table>
+
+### 连接器
 
 #### **Kafka连接器**
 

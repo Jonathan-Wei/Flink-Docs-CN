@@ -1246,7 +1246,9 @@ val nonDetermin: Pattern[Event, _] = start.followedByAny(
       </td>
     </tr>
   </tbody>
-</table>看看另一个例子，以便更好地看到`NO_SKIP`和`SKIP_TO_FIRST`之间的区别：模式：`(a | c) (b | c) c+.greedy d`和序列：`a b c1 c2 c3 d`然后结果将是：
+</table>
+
+看看另一个例子，以便更好地看到`NO_SKIP`和`SKIP_TO_FIRST`之间的区别：模式：`(a | c) (b | c) c+.greedy d`和序列：`a b c1 c2 c3 d`然后结果将是：
 
 <table>
   <thead>
@@ -1290,7 +1292,9 @@ val nonDetermin: Pattern[Event, _] = start.followedByAny(
       </td>
     </tr>
   </tbody>
-</table>为了更好地理解`NO_SKIP`和`SKIP_TO_NEXT`之间的区别，请看下面的例子：模式：`a b+`和序列：`a b1 b2 b3`然后结果将是：
+</table>
+
+为了更好地理解`NO_SKIP`和`SKIP_TO_NEXT`之间的区别，请看下面的例子：模式：`a b+`和序列：`a b1 b2 b3`然后结果将是：
 
 <table>
   <thead>
@@ -1335,7 +1339,9 @@ val nonDetermin: Pattern[Event, _] = start.followedByAny(
       </td>
     </tr>
   </tbody>
-</table>要指定要使用的跳过策略，只需`AfterMatchSkipStrategy`通过调用创建：
+</table>
+
+要指定要使用的跳过策略，只需`AfterMatchSkipStrategy`通过调用创建：
 
 | 功能 | 描述 |
 | :--- | :--- |

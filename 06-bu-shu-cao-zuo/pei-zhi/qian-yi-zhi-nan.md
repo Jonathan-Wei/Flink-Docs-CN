@@ -82,7 +82,9 @@ Flink附带的[默认`flink-conf.yaml`](https://ci.apache.org/projects/flink/fli
       </td>
     </tr>
   </tbody>
-</table> 尽管网络内存配置没有发生太大的变化，但建议检查其配置。如果其他内存组件有新的大小，它可以改变，例如，网络可以是总内存的一部分。 请参阅[新的详细内存模型](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/memory/mem_detail.html)。
+</table>
+
+ 尽管网络内存配置没有发生太大的变化，但建议检查其配置。如果其他内存组件有新的大小，它可以改变，例如，网络可以是总内存的一部分。 请参阅[新的详细内存模型](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/memory/mem_detail.html)。
 
 容器截止配置选项[`containerized.heap-cutoff-ratio`](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/memory/config.html#containerized-heap-cutoff-ratio) 和和[`containerized.heap-cutoff-min`](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/memory/config.html#containerized-heap-cutoff-min)不再对任务管理器进程有效，但它们对于作业管理器进程仍具有相同的语义。另请参阅[如何迁移容器边界](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/memory/mem_migration.html#container-cut-off-memory)。
 

@@ -374,7 +374,9 @@ object WordCount {
       </td>
     </tr>
   </tbody>
-</table>元组数据集可进行以下转换:
+</table>
+
+元组数据集可进行以下转换:
 
 <table>
   <thead>
@@ -642,7 +644,9 @@ object WordCount {
       </td>
     </tr>
   </tbody>
-</table>以下转换可用于元组的数据集：
+</table>
+
+以下转换可用于元组的数据集：
 
 <table>
   <thead>
@@ -668,7 +672,9 @@ object WordCount {
       </td>
     </tr>
   </tbody>
-</table>通过匿名模式匹配从元组，案例类和集合中提取，如下所示：
+</table>
+
+通过匿名模式匹配从元组，案例类和集合中提取，如下所示：
 
 ```scala
 val data: DataSet[(Int, String, Double)] = // [...]
@@ -1293,7 +1299,9 @@ Flink的DataSet API具有两种模式，这些模式在Flink的运行时创建�
       <td style="text-align:left">&#x53EF;&#x4EE5;&#x5728;&#x53D1;&#x5C04;&#x5BF9;&#x8C61;&#x540E;&#x5BF9;&#x5176;&#x8FDB;&#x884C;&#x4FEE;&#x6539;&#x5E76;&#x518D;&#x6B21;&#x53D1;&#x5C04;&#x3002;</td>
     </tr>
   </tbody>
-</table>**禁用对象重用（默认）模式的编码指南：**
+</table>
+
+**禁用对象重用（默认）模式的编码指南：**
 
 * 不要在方法调用之间记住和读取输入对象。 
 * 发出对象后不要读取它们。

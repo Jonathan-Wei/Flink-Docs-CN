@@ -207,7 +207,9 @@ data.map {
       </td>
     </tr>
   </tbody>
-</table>### DataStream API
+</table>
+
+### DataStream API
 
 <table>
   <thead>
@@ -377,7 +379,9 @@ data.map {
       </td>
     </tr>
   </tbody>
-</table>有关每种方法的语义的更多信息，请参阅 [DataSet](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/batch/index.html)和[DataStream](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/datastream_api.html) API文档。
+</table>
+
+有关每种方法的语义的更多信息，请参阅 [DataSet](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/batch/index.html)和[DataStream](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/datastream_api.html) API文档。
 
 要完全使用此扩展，您可以添加以下`import`：
 

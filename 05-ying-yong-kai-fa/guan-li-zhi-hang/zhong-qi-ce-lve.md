@@ -43,7 +43,9 @@
     </tr>
   </thead>
   <tbody></tbody>
-</table>除了定义默认的重启策略之外，还可以为每个Flink作业定义特定的重启策略。通过在`ExecutionEnvironment`上调用`setRestartStrategy`方法以编程方式设置此重新启动策略。请注意，这也适用于`StreamExecutionEnvironment`。
+</table>
+
+除了定义默认的重启策略之外，还可以为每个Flink作业定义特定的重启策略。通过在`ExecutionEnvironment`上调用`setRestartStrategy`方法以编程方式设置此重新启动策略。请注意，这也适用于`StreamExecutionEnvironment`。
 
 以下示例展示了我们如何为我们的工作设置固定延迟重启策略。如果发生故障，系统会尝试重新启动作业3次，并在连续重启尝试之间等待10秒。
 

@@ -1996,7 +1996,9 @@ table = input.over_window([OverWindow w].alias("w")) \
         window &#x3002;</td>
     </tr>
   </tbody>
-</table>**注意：**当前，同一select（）调用中的所有聚合函数都必须使用同一over window计算。
+</table>
+
+**注意：**当前，同一select（）调用中的所有聚合函数都必须使用同一over window计算。
 
 #### **无界\(Unbounded\) Over Windows**
 
