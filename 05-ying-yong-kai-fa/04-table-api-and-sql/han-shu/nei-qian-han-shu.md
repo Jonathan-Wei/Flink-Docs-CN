@@ -789,6 +789,17 @@ Flink Table API和SQL为用户提供了一组用于数据转换的内置函数�
         <p>&#x4F8B;&#x5982;&#xFF0C;&#x6570;&#x5B57;20&#x5BFC;&#x81F4;&#x201C;14&#x201D;&#xFF0C;&#x6570;&#x5B57;100&#x5BFC;&#x81F4;&#x201C;64&#x201D;&#xFF0C;&#x5B57;&#x7B26;&#x4E32;&#x201C;hello&#xFF0C;world&#x201D;&#x5BFC;&#x81F4;&#x201C;68656C6C6F2C776F726C64&#x201D;&#x3002;</p>
       </td>
     </tr>
+    <tr>
+      <td style="text-align:left">TRUNCATE(numeric1, integer2)</td>
+      <td style="text-align:left"></td>
+    </tr>
+    <tr>
+      <td style="text-align:left">PO()</td>
+      <td style="text-align:left">
+        <p>&#x8FD4;&#x56DE;&#x3C0;&#xFF08;pi&#xFF09;&#x7684;&#x503C;&#x3002;</p>
+        <p>&#x4EC5;&#x5728;Blink Planner&#x4E2D;&#x652F;&#x6301;&#x3002;</p>
+      </td>
+    </tr>
   </tbody>
 </table>
 {% endtab %}
