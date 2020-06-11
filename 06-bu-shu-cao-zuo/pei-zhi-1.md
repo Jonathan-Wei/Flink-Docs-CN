@@ -929,11 +929,628 @@ Flink为加载到会话集群的作业动态加载代码。此外，Flink尝试�
 
  **RocksDB可配置选项**
 
-\*\*\*\*
+ 这些选项可对ColumnFamilies的行为和资源进行细粒度控制。随着`state.backend.rocksdb.memory.managed`和`state.backend.rocksdb.memory.fixed-per-slot`（Apache Flink 1.10）的引入，只需要使用此处的选项进行高级性能调整。也可以在应用程序中通过`RocksDBStateBackend.setOptions(PptionsFactory)`指定这些选项。
 
-## JVM和日志记录选项
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **state.backend.rocksdb.block.blocksize** | \(none\) | MemorySize | The approximate size \(in bytes\) of user data packed per block. RocksDB has default blocksize as '4KB'. |
+| **state.backend.rocksdb.block.cache-size** | \(none\) | MemorySize | The amount of the cache for data blocks in RocksDB. RocksDB has default block-cache size as '8MB'. |
+| **state.backend.rocksdb.compaction.level.max-size-level-base** | \(none\) | MemorySize | The upper-bound of the total size of level base files in bytes. RocksDB has default configuration as '256MB'. |
+| **state.backend.rocksdb.compaction.level.target-file-size-base** | \(none\) | MemorySize | The target file size for compaction, which determines a level-1 file size. RocksDB has default configuration as '64MB'. |
+| **state.backend.rocksdb.compaction.level.use-dynamic-size** | \(none\) | Boolean | If true, RocksDB will pick target size of each level dynamically. From an empty DB, RocksDB would make last level the base level, which means merging L0 data into the last level, until it exceeds max\_bytes\_for\_level\_base. And then repeat this process for second last level and so on. RocksDB has default configuration as 'false'. For more information, please refer to [RocksDB's doc.](https://github.com/facebook/rocksdb/wiki/Leveled-Compaction#level_compaction_dynamic_level_bytes-is-true) |
+| **state.backend.rocksdb.compaction.style** | \(none\) | EnumPossible values: \[LEVEL, UNIVERSAL, FIFO\] | The specified compaction style for DB. Candidate compaction style is LEVEL, FIFO or UNIVERSAL, and RocksDB choose 'LEVEL' as default style. |
+| **state.backend.rocksdb.files.open** | \(none\) | Integer | The maximum number of open files \(per TaskManager\) that can be used by the DB, '-1' means no limit. RocksDB has default configuration as '-1'. |
+| **state.backend.rocksdb.thread.num** | \(none\) | Integer | The maximum number of concurrent background flush and compaction jobs \(per TaskManager\). RocksDB has default configuration as '1'. |
+| **state.backend.rocksdb.write-batch-size** | 2 mb | MemorySize | The max size of the consumed memory for RocksDB batch write, will flush just based on item count if this config set to 0. |
+| **state.backend.rocksdb.writebuffer.count** | \(none\) | Integer | Tne maximum number of write buffers that are built up in memory. RocksDB has default configuration as '2'. |
+| **state.backend.rocksdb.writebuffer.number-to-merge** | \(none\) | Integer | The minimum number of write buffers that will be merged together before writing to storage. RocksDB has default configuration as '1'. |
+| **state.backend.rocksdb.writebuffer.size** | \(none\) | MemorySize | The amount of data built up in memory \(backed by an unsorted log on disk\) before converting to a sorted on-disk files. RocksDB has default writebuffer size as '64MB'. |
+
+### 高级容错配置项
+
+这些参数可以帮助解决与故障转移相关的问题，以及错误地将组件视为失败的问题。
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">&#x914D;&#x7F6E;&#x9879;</th>
+      <th style="text-align:left">&#x9ED8;&#x8BA4;&#x503C;</th>
+      <th style="text-align:left">&#x7C7B;&#x578B;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><b>cluster.io-executor.pool-size</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The pool size of io executor for cluster entry-point and mini cluster.
+        It&apos;s undefined by default and will use the number of CPU cores (hardware
+        contexts) that the cluster entry-point JVM has access to.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>cluster.registration.error-delay</b>
+      </td>
+      <td style="text-align:left">10000</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">The pause made after an registration attempt caused an exception (other
+        than timeout) in milliseconds.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>cluster.registration.initial-timeout</b>
+      </td>
+      <td style="text-align:left">100</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">Initial registration timeout between cluster components in milliseconds.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>cluster.registration.max-timeout</b>
+      </td>
+      <td style="text-align:left">30000</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">Maximum registration timeout between cluster components in milliseconds.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>cluster.registration.refused-registration-delay</b>
+      </td>
+      <td style="text-align:left">30000</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">The pause made after the registration attempt was refused in milliseconds.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>cluster.services.shutdown-timeout</b>
+      </td>
+      <td style="text-align:left">30000</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">The shutdown timeout for cluster services like executors in milliseconds.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>heartbeat.interval</b>
+      </td>
+      <td style="text-align:left">10000</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">Time interval for requesting heartbeat from sender side.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>heartbeat.timeout</b>
+      </td>
+      <td style="text-align:left">50000</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">Timeout for requesting and receiving heartbeat for both sender and receiver
+        sides.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>jobmanager.execution.failover-strategy</b>
+      </td>
+      <td style="text-align:left">region</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">
+        <p>This option specifies how the job computation recovers from task failures.
+          Accepted values are:</p>
+        <ul>
+          <li>&apos;full&apos;: Restarts all tasks to recover the job.</li>
+          <li>&apos;region&apos;: Restarts all tasks that could be affected by the task
+            failure. More details can be found <a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/task_failure_recovery.html#restart-pipelined-region-failover-strategy">here</a>.</li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+### 高级调度配置项
+
+这些参数可以帮助微调特定情况下的调度。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **cluster.evenly-spread-out-slots** | false | Boolean | Enable the slot spread out allocation strategy. This strategy tries to spread out the slots evenly across all available `TaskExecutors`. |
+| **slot.idle.timeout** | 50000 | Long | The timeout in milliseconds for a idle slot in Slot Pool. |
+| **slot.request.timeout** | 300000 | Long | The timeout in milliseconds for requesting a slot from Slot Pool. |
+
+### 高级的高可用配置
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **high-availability.jobmanager.port** | "0" | String | The port \(range\) used by the Flink Master for its RPC connections in highly-available setups. In highly-available setups, this value is used instead of 'jobmanager.rpc.port'.A value of '0' means that a random free port is chosen. TaskManagers discover this port through the high-availability services \(leader election\), so a random port or a port range works without requiring any additional means of service discovery. |
+
+### 高级的高可用性ZooKeeper配置项
+
+
+
+| Key | Default | Type | Description |
+| :--- | :--- | :--- | :--- |
+| **high-availability.zookeeper.client.acl** | "open" | String | Defines the ACL \(open\|creator\) to be configured on ZK node. The configuration value can be set to “creator” if the ZooKeeper server configuration has the “authProvider” property mapped to use SASLAuthenticationProvider and the cluster is configured to run in secure mode \(Kerberos\). |
+| **high-availability.zookeeper.client.connection-timeout** | 15000 | Integer | Defines the connection timeout for ZooKeeper in ms. |
+| **high-availability.zookeeper.client.max-retry-attempts** | 3 | Integer | Defines the number of connection retries before the client gives up. |
+| **high-availability.zookeeper.client.retry-wait** | 5000 | Integer | Defines the pause between consecutive retries in ms. |
+| **high-availability.zookeeper.client.session-timeout** | 60000 | Integer | Defines the session timeout for the ZooKeeper session in ms. |
+| **high-availability.zookeeper.path.checkpoint-counter** | "/checkpoint-counter" | String | ZooKeeper root path \(ZNode\) for checkpoint counters. |
+| **high-availability.zookeeper.path.checkpoints** | "/checkpoints" | String | ZooKeeper root path \(ZNode\) for completed checkpoints. |
+| **high-availability.zookeeper.path.jobgraphs** | "/jobgraphs" | String | ZooKeeper root path \(ZNode\) for job graphs |
+| **high-availability.zookeeper.path.latch** | "/leaderlatch" | String | Defines the znode of the leader latch which is used to elect the leader. |
+| **high-availability.zookeeper.path.leader** | "/leader" | String | Defines the znode of the leader which contains the URL to the leader and the current leader session ID. |
+| **high-availability.zookeeper.path.mesos-workers** | "/mesos-workers" | String | The ZooKeeper root path for persisting the Mesos worker information. |
+| **high-availability.zookeeper.path.running-registry** | "/running\_job\_registry/" | String |  |
+
+### 高级安全SSL配置项
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">&#x914D;&#x7F6E;&#x9879;</th>
+      <th style="text-align:left">&#x9ED8;&#x8BA4;&#x503C;</th>
+      <th style="text-align:left">&#x7C7B;&#x578B;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><b>security.ssl.internal.close-notify-flush-timeout</b>
+      </td>
+      <td style="text-align:left">-1</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The timeout (in ms) for flushing the `close_notify` that was triggered
+        by closing a channel. If the `close_notify` was not flushed in the given
+        timeout the channel will be closed forcibly. (-1 = use system default)</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>security.ssl.internal.handshake-timeout</b>
+      </td>
+      <td style="text-align:left">-1</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The timeout (in ms) during SSL handshake. (-1 = use system default)</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>security.ssl.internal.session-cache-size</b>
+      </td>
+      <td style="text-align:left">-1</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The size of the cache used for storing SSL session objects. According
+        to https://github.com/netty/netty/issues/832, you should always set this
+        to an appropriate number to not run into a bug with stalling IO threads
+        during garbage collection. (-1 = use system default).</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>security.ssl.internal.session-timeout</b>
+      </td>
+      <td style="text-align:left">-1</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The timeout (in ms) for the cached SSL session objects. (-1 = use system
+        default)</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>security.ssl.provider</b>
+      </td>
+      <td style="text-align:left">&quot;JDK&quot;</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">
+        <p>The SSL engine provider to use for the ssl transport:</p>
+        <ul>
+          <li><code>JDK</code>: default Java-based SSL engine</li>
+          <li><code>OPENSSL</code>: openSSL-based SSL engine using system libraries</li>
+        </ul>
+        <p><code>OPENSSL</code> is based on <a href="http://netty.io/wiki/forked-tomcat-native.html#wiki-h2-4">netty-tcnative</a> and
+          comes in two flavours:</p>
+        <ul>
+          <li>dynamically linked: This will use your system&apos;s openSSL libraries
+            (if compatible) and requires <code>opt/flink-shaded-netty-tcnative-dynamic-*.jar</code> to
+            be copied to <code>lib/</code>
+          </li>
+          <li>statically linked: Due to potential licensing issues with openSSL (see
+            <a
+            href="https://issues.apache.org/jira/browse/LEGAL-393">LEGAL-393</a>), we cannot ship pre-built libraries. However, you can build
+              the required library yourself and put it into <code>lib/</code>:
+              <br /><code>git clone https://github.com/apache/flink-shaded.git &amp;amp;&amp;amp; cd flink-shaded &amp;amp;&amp;amp; mvn clean package -Pinclude-netty-tcnative-static -pl flink-shaded-netty-tcnative-static</code>
+          </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+### REST端点和客户端的高级选项
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **rest.await-leader-timeout** | 30000 | Long | The time in ms that the client waits for the leader address, e.g., Dispatcher or WebMonitorEndpoint |
+| **rest.client.max-content-length** | 104857600 | Integer | The maximum content length in bytes that the client will handle. |
+| **rest.connection-timeout** | 15000 | Long | The maximum time in ms for the client to establish a TCP connection. |
+| **rest.idleness-timeout** | 300000 | Long | The maximum time in ms for a connection to stay idle before failing. |
+| **rest.retry.delay** | 3000 | Long | The time in ms that the client waits between retries \(See also \`rest.retry.max-attempts\`\). |
+| **rest.retry.max-attempts** | 20 | Integer | The number of retries the client will attempt if a retryable operations fails. |
+| **rest.server.max-content-length** | 104857600 | Integer | The maximum content length in bytes that the server will handle. |
+| **rest.server.numThreads** | 4 | Integer | The number of threads for the asynchronous processing of requests. |
+| **rest.server.thread-priority** | 5 | Integer | Thread priority of the REST server's executor for processing asynchronous requests. Lowering the thread priority will give Flink's main components more CPU time whereas increasing will allocate more time for the REST server's processing. |
+
+### Flink Web UI的高级选项
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **web.access-control-allow-origin** | "\*" | String | Access-Control-Allow-Origin header for all responses from the web-frontend. |
+| **web.backpressure.cleanup-interval** | 600000 | Integer | Time, in milliseconds, after which cached stats are cleaned up if not accessed. |
+| **web.backpressure.delay-between-samples** | 50 | Integer | Delay between samples to determine back pressure in milliseconds. |
+| **web.backpressure.num-samples** | 100 | Integer | Number of samples to take to determine back pressure. |
+| **web.backpressure.refresh-interval** | 60000 | Integer | Time, in milliseconds, after which available stats are deprecated and need to be refreshed \(by resampling\). |
+| **web.checkpoints.history** | 10 | Integer | Number of checkpoints to remember for recent history. |
+| **web.history** | 5 | Integer | Number of archived jobs for the JobManager. |
+| **web.log.path** | \(none\) | String | Path to the log file \(may be in /log for standalone but under log directory when using YARN\). |
+| **web.refresh-interval** | 3000 | Long | Refresh interval for the web-frontend in milliseconds. |
+| **web.submit.enable** | true | Boolean | Flag indicating whether jobs can be uploaded and run from the web-frontend. |
+| **web.timeout** | 600000 | Long | Timeout for asynchronous operations by the web monitor in milliseconds. |
+| **web.tmpdir** | System.getProperty\("java.io.tmpdir"\) | String | Flink web directory which is used by the webmonitor. |
+| **web.upload.dir** | \(none\) | String | Directory for uploading the job jars. If not specified a dynamic directory will be used under the directory specified by JOB\_MANAGER\_WEB\_TMPDIR\_KEY. |
+
+### 完整的Flink Master配置项
+
+ **Master / JobManager**
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left"><b>&#x914D;&#x7F6E;&#x9879;</b>
+      </th>
+      <th style="text-align:left">&#x9ED8;&#x8BA4;&#x503C;</th>
+      <th style="text-align:left">&#x7C7B;&#x578B;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><b>jobmanager.archive.fs.dir</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Dictionary for JobManager to store the archives of completed jobs.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>jobmanager.execution.attempts-history-size</b>
+      </td>
+      <td style="text-align:left">16</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The maximum number of prior execution attempts kept in history.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>jobmanager.execution.failover-strategy</b>
+      </td>
+      <td style="text-align:left">region</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">
+        <p>This option specifies how the job computation recovers from task failures.
+          Accepted values are:</p>
+        <ul>
+          <li>&apos;full&apos;: Restarts all tasks to recover the job.</li>
+          <li>&apos;region&apos;: Restarts all tasks that could be affected by the task
+            failure. More details can be found <a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/task_failure_recovery.html#restart-pipelined-region-failover-strategy">here</a>.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>jobmanager.heap.size</b>
+      </td>
+      <td style="text-align:left">&quot;1024m&quot;</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">JVM heap size for the JobManager.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>jobmanager.rpc.address</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">The config parameter defining the network address to connect to for communication
+        with the job manager. This value is only interpreted in setups where a
+        single JobManager with static name or address exists (simple standalone
+        setups, or container setups with dynamic service name resolution). It is
+        not used in many high-availability setups, when a leader-election service
+        (like ZooKeeper) is used to elect and discover the JobManager leader from
+        potentially multiple standby JobManagers.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>jobmanager.rpc.port</b>
+      </td>
+      <td style="text-align:left">6123</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The config parameter defining the network port to connect to for communication
+        with the job manager. Like jobmanager.rpc.address, this value is only interpreted
+        in setups where a single JobManager with static name/address and port exists
+        (simple standalone setups, or container setups with dynamic service name
+        resolution). This config option is not used in many high-availability setups,
+        when a leader-election service (like ZooKeeper) is used to elect and discover
+        the JobManager leader from potentially multiple standby JobManagers.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>jobstore.cache-size</b>
+      </td>
+      <td style="text-align:left">52428800</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">The job store cache size in bytes which is used to keep completed jobs
+        in memory.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>jobstore.expiration-time</b>
+      </td>
+      <td style="text-align:left">3600</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">The time in seconds after which a completed job expires and is purged
+        from the job store.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>jobstore.max-capacity</b>
+      </td>
+      <td style="text-align:left">2147483647</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The max number of completed jobs that can be kept in the job store.</td>
+    </tr>
+  </tbody>
+</table>
+
+ **Blob Server**
+
+Blob **Server**是Flink Master / JobManager中的组件。它用于分发太大而无法附加到RPC消息且受益于缓存的对象（例如Jar文件或大型序列化代码对象）。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **blob.client.connect.timeout** | 0 | Integer | The connection timeout in milliseconds for the blob client. |
+| **blob.client.socket.timeout** | 300000 | Integer | The socket timeout in milliseconds for the blob client. |
+| **blob.fetch.backlog** | 1000 | Integer | The config parameter defining the backlog of BLOB fetches on the JobManager. |
+| **blob.fetch.num-concurrent** | 50 | Integer | The config parameter defining the maximum number of concurrent BLOB fetches that the JobManager serves. |
+| **blob.fetch.retries** | 5 | Integer | The config parameter defining number of retires for failed BLOB fetches. |
+| **blob.offload.minsize** | 1048576 | Integer | The minimum size for messages to be offloaded to the BlobServer. |
+| **blob.server.port** | "0" | String | The config parameter defining the server port of the blob service. |
+| **blob.service.cleanup.interval** | 3600 | Long | Cleanup interval of the blob caches at the task managers \(in seconds\). |
+| **blob.service.ssl.enabled** | true | Boolean | Flag to override ssl support for the blob service transport. |
+| **blob.storage.directory** | \(none\) | String | The config parameter defining the storage directory to be used by the blob server. |
+
+ **ResourceManager**
+
+以下配置项控制基本的资源管理器行为，而与所使用的资源编排管理框架（YARN，Mesos等）无关。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **containerized.heap-cutoff-min** | 600 | Integer | Minimum amount of heap memory to remove in Job Master containers, as a safety margin. |
+| **containerized.heap-cutoff-ratio** | 0.25 | Float | Percentage of heap space to remove from Job Master containers \(YARN / Mesos / Kubernetes\), to compensate for other JVM memory usage. |
+| **resourcemanager.job.timeout** | "5 minutes" | String | Timeout for jobs which don't have a job manager as leader assigned. |
+| **resourcemanager.rpc.port** | 0 | Integer | Defines the network port to connect to for communication with the resource manager. By default, the port of the JobManager, because the same ActorSystem is used. Its not possible to use this configuration key to define port ranges. |
+| **resourcemanager.standalone.start-up-time** | -1 | Long | Time in milliseconds of the start-up period of a standalone cluster. During this time, resource manager of the standalone cluster expects new task executors to be registered, and will not fail slot requests that can not be satisfied by any current registered slots. After this time, it will fail pending and new coming requests immediately that can not be satisfied by registered slots. If not set, 'slotmanager.request-timeout' will be used by default. |
+| **resourcemanager.taskmanager-timeout** | 30000 | Long | The timeout for an idle task manager to be released. |
+
+### 完整的TaskManager配置项
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">&#x914D;&#x7F6E;&#x9879;</th>
+      <th style="text-align:left">&#x9ED8;&#x8BA4;&#x503C;</th>
+      <th style="text-align:left">&#x7C7B;&#x578B;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><b>task.cancellation.interval</b>
+      </td>
+      <td style="text-align:left">30000</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">Time interval between two successive task cancellation attempts in milliseconds.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>task.cancellation.timeout</b>
+      </td>
+      <td style="text-align:left">180000</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">Timeout in milliseconds after which a task cancellation times out and
+        leads to a fatal TaskManager error. A value of 0 deactivates the watch
+        dog.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>task.cancellation.timers.timeout</b>
+      </td>
+      <td style="text-align:left">7500</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">Time we wait for the timers in milliseconds to finish all pending timer
+        threads when the stream task is cancelled.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>taskmanager.data.port</b>
+      </td>
+      <td style="text-align:left">0</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The task manager&#x2019;s port used for data exchange operations.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>taskmanager.data.ssl.enabled</b>
+      </td>
+      <td style="text-align:left">true</td>
+      <td style="text-align:left">Boolean</td>
+      <td style="text-align:left">Enable SSL support for the taskmanager data transport. This is applicable
+        only when the global flag for internal SSL (security.ssl.internal.enabled)
+        is set to true</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>taskmanager.debug.memory.log</b>
+      </td>
+      <td style="text-align:left">false</td>
+      <td style="text-align:left">Boolean</td>
+      <td style="text-align:left">Flag indicating whether to start a thread, which repeatedly logs the memory
+        usage of the JVM.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>taskmanager.debug.memory.log-interval</b>
+      </td>
+      <td style="text-align:left">5000</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">The interval (in ms) for the log thread to log the current memory usage.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>taskmanager.host</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">The address of the network interface that the TaskManager binds to. This
+        option can be used to define explicitly a binding address. Because different
+        TaskManagers need different values for this option, usually it is specified
+        in an additional non-shared TaskManager-specific config file.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>taskmanager.jvm-exit-on-oom</b>
+      </td>
+      <td style="text-align:left">false</td>
+      <td style="text-align:left">Boolean</td>
+      <td style="text-align:left">Whether to kill the TaskManager when the task thread throws an OutOfMemoryError.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>taskmanager.memory.segment-size</b>
+      </td>
+      <td style="text-align:left">32 kb</td>
+      <td style="text-align:left">MemorySize</td>
+      <td style="text-align:left">Size of memory buffers used by the network stack and the memory manager.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>taskmanager.network.bind-policy</b>
+      </td>
+      <td style="text-align:left">&quot;ip&quot;</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">
+        <p>The automatic address binding policy used by the TaskManager if &quot;taskmanager.host&quot;
+          is not set. The value should be one of the following:</p>
+        <ul>
+          <li>&quot;name&quot; - uses hostname as binding address</li>
+          <li>&quot;ip&quot; - uses host&apos;s ip address as binding address</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>taskmanager.numberOfTaskSlots</b>
+      </td>
+      <td style="text-align:left">1</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The number of parallel operator or user function instances that a single
+        TaskManager can run. If this value is larger than 1, a single TaskManager
+        takes multiple instances of a function or operator. That way, the TaskManager
+        can utilize multiple CPU cores, but at the same time, the available memory
+        is divided between the different operator or function instances. This value
+        is typically proportional to the number of physical CPU cores that the
+        TaskManager&apos;s machine has (e.g., equal to the number of cores, or
+        half the number of cores).</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>taskmanager.registration.initial-backoff</b>
+      </td>
+      <td style="text-align:left">500 ms</td>
+      <td style="text-align:left">Duration</td>
+      <td style="text-align:left">The initial registration backoff between two consecutive registration
+        attempts. The backoff is doubled for each new registration attempt until
+        it reaches the maximum registration backoff.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>taskmanager.registration.max-backoff</b>
+      </td>
+      <td style="text-align:left">30 s</td>
+      <td style="text-align:left">Duration</td>
+      <td style="text-align:left">The maximum registration backoff between two consecutive registration
+        attempts. The max registration backoff requires a time unit specifier (ms/s/min/h/d).</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>taskmanager.registration.refused-backoff</b>
+      </td>
+      <td style="text-align:left">10 s</td>
+      <td style="text-align:left">Duration</td>
+      <td style="text-align:left">The backoff after a registration has been refused by the job manager before
+        retrying to connect.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>taskmanager.registration.timeout</b>
+      </td>
+      <td style="text-align:left">5 min</td>
+      <td style="text-align:left">Duration</td>
+      <td style="text-align:left">Defines the timeout for the TaskManager registration. If the duration
+        is exceeded without a successful registration, then the TaskManager terminates.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>taskmanager.rpc.port</b>
+      </td>
+      <td style="text-align:left">&quot;0&quot;</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">The task manager&#x2019;s IPC port. Accepts a list of ports (&#x201C;50100,50101&#x201D;),
+        ranges (&#x201C;50100-50200&#x201D;) or a combination of both. It is recommended
+        to set a range of ports to avoid collisions when multiple TaskManagers
+        are running on the same machine.</td>
+    </tr>
+  </tbody>
+</table>
+
+ **数据传输网络堆栈**
+
+这些选项用于处理taskmanager之间的流和批处理数据交换的网络堆栈。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **taskmanager.network.blocking-shuffle.compression.enabled** | false | Boolean | Boolean flag indicating whether the shuffle data will be compressed for blocking shuffle mode. Note that data is compressed per buffer and compression can incur extra CPU overhead, so it is more effective for IO bounded scenario when data compression ratio is high. Currently, shuffle data compression is an experimental feature and the config option can be changed in the future. |
+| **taskmanager.network.blocking-shuffle.type** | "file" | String | The blocking shuffle type, either "mmap" or "file". The "auto" means selecting the property type automatically based on system memory architecture \(64 bit for mmap and 32 bit for file\). Note that the memory usage of mmap is not accounted by configured memory limits, but some resource frameworks like yarn would track this memory usage and kill the container once memory exceeding some threshold. Also note that this option is experimental and might be changed future. |
+| **taskmanager.network.detailed-metrics** | false | Boolean | Boolean flag to enable/disable more detailed metrics about inbound/outbound network queue lengths. |
+| **taskmanager.network.memory.buffers-per-channel** | 2 | Integer | Maximum number of network buffers to use for each outgoing/incoming channel \(subpartition/input channel\).In credit-based flow control mode, this indicates how many credits are exclusive in each input channel. It should be configured at least 2 for good performance. 1 buffer is for receiving in-flight data in the subpartition and 1 buffer is for parallel serialization. |
+| **taskmanager.network.memory.floating-buffers-per-gate** | 8 | Integer | Number of extra network buffers to use for each outgoing/incoming gate \(result partition/input gate\). In credit-based flow control mode, this indicates how many floating credits are shared among all the input channels. The floating buffers are distributed based on backlog \(real-time output buffers in the subpartition\) feedback, and can help relieve back-pressure caused by unbalanced data distribution among the subpartitions. This value should be increased in case of higher round trip times between nodes and/or larger number of machines in the cluster. |
+| **taskmanager.network.netty.client.connectTimeoutSec** | 120 | Integer | The Netty client connection timeout. |
+| **taskmanager.network.netty.client.numThreads** | -1 | Integer | The number of Netty client threads. |
+| **taskmanager.network.netty.num-arenas** | -1 | Integer | The number of Netty arenas. |
+| **taskmanager.network.netty.sendReceiveBufferSize** | 0 | Integer | The Netty send and receive buffer size. This defaults to the system buffer size \(cat /proc/sys/net/ipv4/tcp\_\[rw\]mem\) and is 4 MiB in modern Linux. |
+| **taskmanager.network.netty.server.backlog** | 0 | Integer | The netty server connection backlog. |
+| **taskmanager.network.netty.server.numThreads** | -1 | Integer | The number of Netty server threads. |
+| **taskmanager.network.netty.transport** | "nio" | String | The Netty transport type, either "nio" or "epoll" |
+| **taskmanager.network.request-backoff.initial** | 100 | Integer | Minimum backoff in milliseconds for partition requests of input channels. |
+| **taskmanager.network.request-backoff.max** | 10000 | Integer | Maximum backoff in milliseconds for partition requests of input channels. |
+
+### RPC / Akka
+
+Flink将Akka用于组件（JobManager / TaskManager / ResourceManager）之间的RPC。Flink不使用Akka进行数据传输。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **akka.ask.timeout** | "10 s" | String | Timeout used for all futures and blocking Akka calls. If Flink fails due to timeouts then you should try to increase this value. Timeouts can be caused by slow machines or a congested network. The timeout value requires a time-unit specifier \(ms/s/min/h/d\). |
+| **akka.client-socket-worker-pool.pool-size-factor** | 1.0 | Double | The pool size factor is used to determine thread pool size using the following formula: ceil\(available processors \* factor\). Resulting size is then bounded by the pool-size-min and pool-size-max values. |
+| **akka.client-socket-worker-pool.pool-size-max** | 2 | Integer | Max number of threads to cap factor-based number to. |
+| **akka.client-socket-worker-pool.pool-size-min** | 1 | Integer | Min number of threads to cap factor-based number to. |
+| **akka.client.timeout** | "60 s" | String | Timeout for all blocking calls on the client side. |
+| **akka.fork-join-executor.parallelism-factor** | 2.0 | Double | The parallelism factor is used to determine thread pool size using the following formula: ceil\(available processors \* factor\). Resulting size is then bounded by the parallelism-min and parallelism-max values. |
+| **akka.fork-join-executor.parallelism-max** | 64 | Integer | Max number of threads to cap factor-based parallelism number to. |
+| **akka.fork-join-executor.parallelism-min** | 8 | Integer | Min number of threads to cap factor-based parallelism number to. |
+| **akka.framesize** | "10485760b" | String | Maximum size of messages which are sent between the JobManager and the TaskManagers. If Flink fails because messages exceed this limit, then you should increase it. The message size requires a size-unit specifier. |
+| **akka.jvm-exit-on-fatal-error** | true | Boolean | Exit JVM on fatal Akka errors. |
+| **akka.log.lifecycle.events** | false | Boolean | Turns on the Akka’s remote logging of events. Set this value to 'true' in case of debugging. |
+| **akka.lookup.timeout** | "10 s" | String | Timeout used for the lookup of the JobManager. The timeout value has to contain a time-unit specifier \(ms/s/min/h/d\). |
+| **akka.retry-gate-closed-for** | 50 | Long | Milliseconds a gate should be closed for after a remote connection was disconnected. |
+| **akka.server-socket-worker-pool.pool-size-factor** | 1.0 | Double | The pool size factor is used to determine thread pool size using the following formula: ceil\(available processors \* factor\). Resulting size is then bounded by the pool-size-min and pool-size-max values. |
+| **akka.server-socket-worker-pool.pool-size-max** | 2 | Integer | Max number of threads to cap factor-based number to. |
+| **akka.server-socket-worker-pool.pool-size-min** | 1 | Integer | Min number of threads to cap factor-based number to. |
+| **akka.ssl.enabled** | true | Boolean | Turns on SSL for Akka’s remote communication. This is applicable only when the global ssl flag security.ssl.enabled is set to true. |
+| **akka.startup-timeout** | \(none\) | String | Timeout after which the startup of a remote component is considered being failed. |
+| **akka.tcp.timeout** | "20 s" | String | Timeout for all outbound connections. If you should experience problems with connecting to a TaskManager due to a slow network, you should increase this value. |
+| **akka.throughput** | 15 | Integer | Number of messages that are processed in a batch before returning the thread to the pool. Low values denote a fair scheduling whereas high values can increase the performance at the cost of unfairness. |
+| **akka.transport.heartbeat.interval** | "1000 s" | String | Heartbeat interval for Akka’s transport failure detector. Since Flink uses TCP, the detector is not necessary. Therefore, the detector is disabled by setting the interval to a very high value. In case you should need the transport failure detector, set the interval to some reasonable value. The interval value requires a time-unit specifier \(ms/s/min/h/d\). |
+| **akka.transport.heartbeat.pause** | "6000 s" | String | Acceptable heartbeat pause for Akka’s transport failure detector. Since Flink uses TCP, the detector is not necessary. Therefore, the detector is disabled by setting the pause to a very high value. In case you should need the transport failure detector, set the pause to some reasonable value. The pause value requires a time-unit specifier \(ms/s/min/h/d\). |
+| **akka.transport.threshold** | 300.0 | Double | Threshold for the transport failure detector. Since Flink uses TCP, the detector is not necessary and, thus, the threshold is set to a high value. |
+
+## JVM和日志记录配置项
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **env.hadoop.conf.dir** | \(none\) | String | Path to hadoop configuration directory. It is required to read HDFS and/or YARN configuration. You can also set it via environment variable. |
+| **env.java.opts** | \(none\) | String | Java options to start the JVM of all Flink processes with. |
+| **env.java.opts.client** | \(none\) | String | Java options to start the JVM of the Flink Client with. |
+| **env.java.opts.historyserver** | \(none\) | String | Java options to start the JVM of the HistoryServer with. |
+| **env.java.opts.jobmanager** | \(none\) | String | Java options to start the JVM of the JobManager with. |
+| **env.java.opts.taskmanager** | \(none\) | String | Java options to start the JVM of the TaskManager with. |
+| **env.log.dir** | \(none\) | String | Defines the directory where the Flink logs are saved. It has to be an absolute path. \(Defaults to the log directory under Flink’s home\) |
+| **env.log.max** | 5 | Integer | The maximum number of old log files to keep. |
+| **env.ssh.opts** | \(none\) | String | Additional command line options passed to SSH clients when starting or stopping JobManager, TaskManager, and Zookeeper services \(start-cluster.sh, stop-cluster.sh, start-zookeeper-quorum.sh, stop-zookeeper-quorum.sh\). |
+| **env.yarn.conf.dir** | \(none\) | String | Path to yarn configuration directory. It is required to run flink on YARN. You can also set it via environment variable. |
 
 ## 转发环境变量
+
+你可以配置环境变量，以在Yarn / Mesos上启动的Flink Master和TaskManager进程上进行设置。
+
+* `containerized.master.env.`：前缀，用于将自定义环境变量传递给Flink的Master进程。例如，要将LD\_LIBRARY\_PATH作为env变量传递给Master服务器，请在flink-conf.yaml中设置containerized.master.env.LD\_LIBRARY\_PATH：“ / usr / lib / native”。
+* `containerized.taskmanager.env.`：与上述类似，此配置前缀允许为工作程序（TaskManagers）设置自定义环境变量。
 
 ## 不推荐使用的配置项
 
