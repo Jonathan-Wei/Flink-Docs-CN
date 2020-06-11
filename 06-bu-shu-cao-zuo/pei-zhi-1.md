@@ -232,15 +232,397 @@ Flink尝试使用户免受配置JVM进行数据密集型处理的复杂性的影
 
 ### 与外部系统进行身份验证
 
+ **ZooKeeper认证/授权**
+
+当连接到安全的ZooKeeper仲裁时，这些选项是必需的。
+
+| **配置项** | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **zookeeper.sasl.disable** | false | Boolean |  |
+| **zookeeper.sasl.login-context-name** | "Client" | String |  |
+| **zookeeper.sasl.service-name** | "zookeeper" | String |  |
+
+ **基于Kerberos的身份验证/授权**
+
+有关设置指南和外部系统列表，请参考[Flink和Kerberos](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/security-kerberos.html)文档，Flink可以通过Kerberos对自己进行身份验证。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **security.kerberos.login.contexts** | \(none\) | String | A comma-separated list of login contexts to provide the Kerberos credentials to \(for example, \`Client,KafkaClient\` to use the credentials for ZooKeeper authentication and for Kafka authentication\) |
+| **security.kerberos.login.keytab** | \(none\) | String | Absolute path to a Kerberos keytab file that contains the user credentials. |
+| **security.kerberos.login.principal** | \(none\) | String | Kerberos principal name associated with the keytab. |
+| **security.kerberos.login.use-ticket-cache** | true | Boolean | Indicates whether to read from your Kerberos ticke |
+
 ## 资源编排框架 <a id="resource-orchestration-frameworks"></a>
+
+本节包含与将Flink集成到资源编配框架\(如Kubernetes、Yarn、Mesos等\)相关的选项。
+
+注意，将Flink与资源编排框架集成并不总是必要的。例如，您可以轻松地在Kubernetes上部署Flink应用程序，而不需要Flink知道它在Kubernetes上运行\(这里不指定任何Kubernetes配置选项\)。有关示例，请参阅此[配置安装指南](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/deployment/kubernetes.html)。
+
+对于Flink本身主动从协调器请求和释放资源的设置，此部分中的选项是必需的。
 
 ### Yarn
 
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">&#x914D;&#x7F6E;&#x9879;</th>
+      <th style="text-align:left">&#x9ED8;&#x8BA4;&#x503C;</th>
+      <th style="text-align:left">&#x7C7B;&#x578B;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><b>yarn.application-attempt-failures-validity-interval</b>
+      </td>
+      <td style="text-align:left">10000</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">Time window in milliseconds which defines the number of application attempt
+        failures when restarting the AM. Failures which fall outside of this window
+        are not being considered. Set this value to -1 in order to count globally.
+        See <a href="https://hortonworks.com/blog/apache-hadoop-yarn-hdp-2-2-fault-tolerance-features-long-running-services/">here</a> for
+        more information.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.application-attempts</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Number of ApplicationMaster restarts. Note that that the entire Flink
+        cluster will restart and the YARN Client will loose the connection. Also,
+        the JobManager address will change and you&#x2019;ll need to set the JM
+        host:port manually. It is recommended to leave this option at 1.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.application-master.port</b>
+      </td>
+      <td style="text-align:left">&quot;0&quot;</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">With this configuration option, users can specify a port, a range of ports
+        or a list of ports for the Application Master (and JobManager) RPC port.
+        By default we recommend using the default value (0) to let the operating
+        system choose an appropriate port. In particular when multiple AMs are
+        running on the same physical host, fixed port assignments prevent the AM
+        from starting. For example when running Flink on YARN on an environment
+        with a restrictive firewall, this option allows specifying a range of allowed
+        ports.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.application.id</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">The YARN application id of the running yarn cluster. This is the YARN
+        cluster where the pipeline is going to be executed.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.application.name</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">A custom name for your YARN application.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.application.node-label</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Specify YARN node label for the YARN application.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.application.priority</b>
+      </td>
+      <td style="text-align:left">-1</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">A non-negative integer indicating the priority for submitting a Flink
+        YARN application. It will only take effect if YARN priority scheduling
+        setting is enabled. Larger integer corresponds with higher priority. If
+        priority is negative or set to &apos;-1&apos;(default), Flink will unset
+        yarn priority setting and use cluster default priority. Please refer to
+        YARN&apos;s official documentation for specific settings required to enable
+        priority scheduling for the targeted YARN version.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.application.queue</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">The YARN queue on which to put the current pipeline.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.application.type</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">A custom type for your YARN application..</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.appmaster.rpc.address</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">The hostname or address where the application master RPC system is listening.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.appmaster.rpc.port</b>
+      </td>
+      <td style="text-align:left">-1</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The port where the application master RPC system is listening.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.appmaster.vcores</b>
+      </td>
+      <td style="text-align:left">1</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The number of virtual cores (vcores) used by YARN application master.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.containers.vcores</b>
+      </td>
+      <td style="text-align:left">-1</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The number of virtual cores (vcores) per YARN container. By default, the
+        number of vcores is set to the number of slots per TaskManager, if set,
+        or to 1, otherwise. In order for this parameter to be used your cluster
+        must have CPU scheduling enabled. You can do this by setting the <code>org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler</code>.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.flink-dist-jar</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">The location of the Flink dist jar.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.heartbeat.container-request-interval</b>
+      </td>
+      <td style="text-align:left">500</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">
+        <p>Time between heartbeats with the ResourceManager in milliseconds if Flink
+          requests containers:</p>
+        <ul>
+          <li>The lower this value is, the faster Flink will get notified about container
+            allocations since requests and allocations are transmitted via heartbeats.</li>
+          <li>The lower this value is, the more excessive containers might get allocated
+            which will eventually be released but put pressure on Yarn.</li>
+        </ul>
+        <p>If you observe too many container allocations on the ResourceManager,
+          then it is recommended to increase this value. See <a href="https://issues.apache.org/jira/browse/YARN-1902">this link</a> for
+          more information.</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.heartbeat.interval</b>
+      </td>
+      <td style="text-align:left">5</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">Time between heartbeats with the ResourceManager in seconds.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.maximum-failed-containers</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Maximum number of containers the system is going to reallocate in case
+        of a failure.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.per-job-cluster.include-user-jar</b>
+      </td>
+      <td style="text-align:left">&quot;ORDER&quot;</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Defines whether user-jars are included in the system class path for per-job-clusters
+        as well as their positioning in the path. They can be positioned at the
+        beginning (&quot;FIRST&quot;), at the end (&quot;LAST&quot;), or be positioned
+        based on their name (&quot;ORDER&quot;). &quot;DISABLED&quot; means the
+        user-jars are excluded from the system class path.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.properties-file.location</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">When a Flink job is submitted to YARN, the JobManager&#x2019;s host and
+        the number of available processing slots is written into a properties file,
+        so that the Flink client is able to pick those details up. This configuration
+        parameter allows changing the default location of that file (for example
+        for environments sharing a Flink installation between users).</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.ship-directories</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">List&lt;String&gt;</td>
+      <td style="text-align:left">A semicolon-separated list of directories to be shipped to the YARN cluster.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>yarn.tags</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">A comma-separated list of tags to apply to the Flink YARN application.</td>
+    </tr>
+  </tbody>
+</table>
+
 ### Kubernetes
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **kubernetes.cluster-id** | \(none\) | String | The cluster id used for identifying the unique flink cluster. If it's not set, the client will generate a random UUID name. |
+| **kubernetes.config.file** | \(none\) | String | The kubernetes config file will be used to create the client. The default is located at ~/.kube/config |
+| **kubernetes.container-start-command-template** | "%java% %classpath% %jvmmem% %jvmopts% %logging% %class% %args% %redirects%" | String | Template for the kubernetes jobmanager and taskmanager container start invocation. |
+| **kubernetes.container.image** | "flink:latest" | String | Image to use for Flink containers. |
+| **kubernetes.container.image.pull-policy** | "IfNotPresent" | String | Kubernetes image pull policy. Valid values are Always, Never, and IfNotPresent. The default policy is IfNotPresent to avoid putting pressure to image repository. |
+| **kubernetes.entry.path** | "/opt/flink/bin/kubernetes-entry.sh" | String | The entrypoint script of kubernetes in the image. It will be used as command for jobmanager and taskmanager container. |
+| **kubernetes.flink.conf.dir** | "/opt/flink/conf" | String | The flink conf directory that will be mounted in pod. The flink-conf.yaml, log4j.properties, logback.xml in this path will be overwritten from config map. |
+| **kubernetes.flink.log.dir** | "/opt/flink/log" | String | The directory that logs of jobmanager and taskmanager be saved in the pod. |
+| **kubernetes.jobmanager.cpu** | 1.0 | Double | The number of cpu used by job manager |
+| **kubernetes.jobmanager.service-account** | "default" | String | Service account that is used by jobmanager within kubernetes cluster. The job manager uses this service account when requesting taskmanager pods from the API server. |
+| **kubernetes.namespace** | "default" | String | The namespace that will be used for running the jobmanager and taskmanager pods. |
+| **kubernetes.rest-service.exposed.type** | "LoadBalancer" | String | It could be ClusterIP/NodePort/LoadBalancer\(default\). When set to ClusterIP, the rest servicewill not be created. |
+| **kubernetes.service.create-timeout** | "1 min" | String | Timeout used for creating the service. The timeout value requires a time-unit specifier \(ms/s/min/h/d\). |
+| **kubernetes.taskmanager.cpu** | -1.0 | Double | The number of cpu used by task manager. By default, the cpu is set to the number of slots per TaskManager |
 
 ### Mesos
 
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">&#x914D;&#x7F6E;&#x9879;</th>
+      <th style="text-align:left">&#x9ED8;&#x8BA4;&#x503C;</th>
+      <th style="text-align:left">&#x7C7B;&#x578B;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><b>mesos.failover-timeout</b>
+      </td>
+      <td style="text-align:left">604800</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The failover timeout in seconds for the Mesos scheduler, after which running
+        tasks are automatically shut down.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>mesos.master</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">
+        <p>The Mesos master URL. The value should be in one of the following forms:</p>
+        <ul>
+          <li>host:port</li>
+          <li>zk://host1:port1,host2:port2,.../path</li>
+          <li>zk://username:password@host1:port1,host2:port2,.../path</li>
+          <li>file:///path/to/file</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>mesos.resourcemanager.artifactserver.port</b>
+      </td>
+      <td style="text-align:left">0</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The config parameter defining the Mesos artifact server port to use. Setting
+        the port to 0 will let the OS choose an available port.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>mesos.resourcemanager.artifactserver.ssl.enabled</b>
+      </td>
+      <td style="text-align:left">true</td>
+      <td style="text-align:left">Boolean</td>
+      <td style="text-align:left">Enables SSL for the Flink artifact server. Note that security.ssl.enabled
+        also needs to be set to true encryption to enable encryption.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>mesos.resourcemanager.declined-offer-refuse-duration</b>
+      </td>
+      <td style="text-align:left">5000</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">Amount of time to ask the Mesos master to not resend a declined resource
+        offer again. This ensures a declined resource offer isn&apos;t resent immediately
+        after being declined</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>mesos.resourcemanager.framework.name</b>
+      </td>
+      <td style="text-align:left">&quot;Flink&quot;</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Mesos framework name</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>mesos.resourcemanager.framework.principal</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Mesos framework principal</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>mesos.resourcemanager.framework.role</b>
+      </td>
+      <td style="text-align:left">&quot;*&quot;</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Mesos framework role definition</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>mesos.resourcemanager.framework.secret</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Mesos framework secret</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>mesos.resourcemanager.framework.user</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Mesos framework user</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>mesos.resourcemanager.tasks.port-assignments</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Comma-separated list of configuration keys which represent a configurable
+        port. All port keys will dynamically get a port assigned through Mesos.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>mesos.resourcemanager.unused-offer-expiration</b>
+      </td>
+      <td style="text-align:left">120000</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">Amount of time to wait for unused expired offers before declining them.
+        This ensures your scheduler will not hoard unuseful offers.</td>
+    </tr>
+  </tbody>
+</table>
+
+ **Mesos TaskManager**
+
+| **配置项** | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **mesos.constraints.hard.hostattribute** | \(none\) | String | Constraints for task placement on Mesos based on agent attributes. Takes a comma-separated list of key:value pairs corresponding to the attributes exposed by the target mesos agents. Example: az:eu-west-1a,series:t2 |
+| **mesos.resourcemanager.tasks.bootstrap-cmd** | \(none\) | String | A command which is executed before the TaskManager is started. |
+| **mesos.resourcemanager.tasks.container.docker.force-pull-image** | false | Boolean | Instruct the docker containerizer to forcefully pull the image rather than reuse a cached version. |
+| **mesos.resourcemanager.tasks.container.docker.parameters** | \(none\) | String | Custom parameters to be passed into docker run command when using the docker containerizer. Comma separated list of "key=value" pairs. The "value" may contain '='. |
+| **mesos.resourcemanager.tasks.container.image.name** | \(none\) | String | Image name to use for the container. |
+| **mesos.resourcemanager.tasks.container.type** | "mesos" | String | Type of the containerization used: “mesos” or “docker”. |
+| **mesos.resourcemanager.tasks.container.volumes** | \(none\) | String | A comma separated list of \[host\_path:\]container\_path\[:RO\|RW\]. This allows for mounting additional volumes into your container. |
+| **mesos.resourcemanager.tasks.cpus** | 0.0 | Double | CPUs to assign to the Mesos workers. |
+| **mesos.resourcemanager.tasks.disk** | 0 | Integer | Disk space to assign to the Mesos workers in MB. |
+| **mesos.resourcemanager.tasks.gpus** | 0 | Integer | GPUs to assign to the Mesos workers. |
+| **mesos.resourcemanager.tasks.hostname** | \(none\) | String | Optional value to define the TaskManager’s hostname. The pattern \_TASK\_ is replaced by the actual id of the Mesos task. This can be used to configure the TaskManager to use Mesos DNS \(e.g. \_TASK\_.flink-service.mesos\) for name lookups. |
+| **mesos.resourcemanager.tasks.taskmanager-cmd** | "$FLINK\_HOME/bin/mesos-taskmanager.sh" | String |  |
+| **mesos.resourcemanager.tasks.uris** | \(none\) | String | A comma separated list of URIs of custom artifacts to be downloaded into the sandbox of Mesos workers. |
+| **taskmanager.numberOfTaskSlots** | 1 | Integer | The number of parallel operator or user function instances that a single TaskManager can run. If this value is larger than 1, a single TaskManager takes multiple instances of a function or operator. That way, the TaskManager can utilize multiple CPU cores, but at the same time, the available memory is divided between the different operator or function instances. This value is typically proportional to the number of physical CPU cores that the TaskManager's machine has \(e.g., equal to the number of cores, or half the number of cores\). |
+
 ## 状态后端
+
+ 请参阅[状态后端文档](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/state/state_backends.html)以了解[州后端](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/state/state_backends.html)的背景。
 
 ### RocksDB状态后端
 
