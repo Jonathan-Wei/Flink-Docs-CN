@@ -1,6 +1,6 @@
 # 配置
 
-类型p配置项描述描述配置项所有配置都在`conf/flink-conf.yaml`中完成，该配置应该是YAML键值对的平面集合，格式为`key:value`。
+类型类型p配置项描述描述配置项所有配置都在`conf/flink-conf.yaml`中完成，该配置应该是YAML键值对的平面集合，格式为`key:value`。
 
 启动Flink进程时，将分析并评估配置。 对配置文件的变更要求重新启动相关进程。
 
@@ -902,11 +902,34 @@ Flink为加载到会话集群的作业动态加载代码。此外，Flink尝试�
 
 有关详细信息，请参阅[调试类加载文档](https://ci.apache.org/projects/flink/flink-docs-release-1.10/monitoring/debugging_classloading.html)。
 
-| 配置项 | 默认值 | 类型类型 | 描述 |
+| 配置项 | 默认值 | 类型 | 描述 |
 | :--- | :--- | :--- | :--- |
 | **classloader.parent-first-patterns.additional** | \(none\) | String | A \(semicolon-separated\) list of patterns that specifies which classes should always be resolved through the parent ClassLoader first. A pattern is a simple prefix that is checked against the fully qualified class name. These patterns are appended to "classloader.parent-first-patterns.default". |
 | **classloader.parent-first-patterns.default** | "java.;scala.;org.apache.flink.;com.esotericsoftware.kryo;org.apache.hadoop.;javax.annotation.;org.slf4j;org.apache.log4j;org.apache.logging;org.apache.commons.logging;ch.qos.logback;org.xml;javax.xml;org.apache.xerces;org.w3c" | String | A \(semicolon-separated\) list of patterns that specifies which classes should always be resolved through the parent ClassLoader first. A pattern is a simple prefix that is checked against the fully qualified class name. This setting should generally not be modified. To add another pattern we recommend to use "classloader.parent-first-patterns.additional" instead. |
 | **classloader.resolve-order** | "child-first" | String | Defines the class resolution strategy when loading classes from user code, meaning whether to first check the user code jar \("child-first"\) or the application classpath \("parent-first"\). The default settings indicate to load classes first from the user code jar, which means that user code jars can include and load different dependencies than Flink uses \(transitively\). |
+
+### 高级状态后端选项
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **state.backend.async** | true | Boolean | Option whether the state backend should use an asynchronous snapshot method where possible and configurable. Some state backends may not support asynchronous snapshots, or only support asynchronous snapshots, and ignore this option. |
+| **state.backend.fs.memory-threshold** | 1024 | Integer | The minimum size of state data files. All state chunks smaller than that are stored inline in the root checkpoint metadata file. |
+| **state.backend.fs.write-buffer-size** | 4096 | Integer | The default size of the write buffer for the checkpoint streams that write to file systems. The actual write buffer size is determined to be the maximum of the value of this option and option 'state.backend.fs.memory-threshold'. |
+
+### 高级RocksDB状态后端选项
+
+调整RocksDB和RocksDB检查点的高级选项。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **state.backend.rocksdb.checkpoint.transfer.thread.num** | 1 | Integer | The number of threads \(per stateful operator\) used to transfer \(download and upload\) files in RocksDBStateBackend. |
+| **state.backend.rocksdb.localdir** | \(none\) | String | The local directory \(on the TaskManager\) where RocksDB puts its files. |
+| **state.backend.rocksdb.options-factory** | "org.apache.flink.contrib.streaming.state.DefaultConfigurableOptionsFactory" | String | The options factory class for RocksDB to create DBOptions and ColumnFamilyOptions. The default options factory is org.apache.flink.contrib.streaming.state.DefaultConfigurableOptionsFactory, and it would read the configured options which provided in 'RocksDBConfigurableOptions'. |
+| **state.backend.rocksdb.predefined-options** | "DEFAULT" | String | The predefined settings for RocksDB DBOptions and ColumnFamilyOptions by Flink community. Current supported candidate predefined-options are DEFAULT, SPINNING\_DISK\_OPTIMIZED, SPINNING\_DISK\_OPTIMIZED\_HIGH\_MEM or FLASH\_SSD\_OPTIMIZED. Note that user customized options and options from the OptionsFactory are applied on top of these predefined ones. |
+
+ **RocksDB可配置选项**
+
+\*\*\*\*
 
 ## JVM和日志记录选项
 
