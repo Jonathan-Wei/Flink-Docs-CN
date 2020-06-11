@@ -81,7 +81,7 @@ _配置Flink应用程序或集群的常用配置项。_
 
 ### 容错能力
 
-这些配置选项控制Flink在执行过程中发生故障时的重启行为。通过在`flink-conf.yaml`中配置这些选项，可以定义集群的默认重启策略。
+以下配置项控制Flink在执行过程中发生故障时的重启行为。通过在`flink-conf.yaml`中配置这些选项，可以定义集群的默认重启策略。
 
 仅当尚未通过`ExecutionConfig`设置特定于作业的重启策略时，默认重启策略才会生效。
 
@@ -89,9 +89,9 @@ _配置Flink应用程序或集群的常用配置项。_
   <thead>
     <tr>
       <th style="text-align:left">&#x914D;&#x7F6E;&#x9879;</th>
-      <th style="text-align:left">Default</th>
-      <th style="text-align:left">Type</th>
-      <th style="text-align:left">Description</th>
+      <th style="text-align:left">&#x9ED8;&#x8BA4;&#x503C;</th>
+      <th style="text-align:left">&#x7C7B;&#x578B;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
     </tr>
   </thead>
   <tbody>
@@ -118,17 +118,117 @@ _配置Flink应用程序或集群的常用配置项。_
   </tbody>
 </table>
 
+ **固定延迟重启策略**
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **restart-strategy.fixed-delay.attempts** | 1 | Integer | The number of times that Flink retries the execution before the job is declared as failed if `restart-strategy` has been set to `fixed-delay`. |
+| **restart-strategy.fixed-delay.delay** | 1 s | Duration | Delay between two consecutive restart attempts if `restart-strategy` has been set to `fixed-delay`. Delaying the retries can be helpful when the program interacts with external systems where for example connections or pending transactions should reach a timeout before re-execution is attempted. It can be specified using notation: "1 min", "20 s" |
+
+ **故障率重启策略**
+
+| **配置项** | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **restart-strategy.failure-rate.delay** | 1 s | Duration | Delay between two consecutive restart attempts if `restart-strategy` has been set to `failure-rate`. It can be specified using notation: "1 min", "20 s" |
+| **restart-strategy.failure-rate.failure-rate-interval** | 1 min | Duration | Time interval for measuring failure rate if `restart-strategy` has been set to `failure-rate`. It can be specified using notation: "1 min", "20 s" |
+| **restart-strategy.failure-rate.max-failures-per-interval** | 1 | Integer | Maximum number of restarts in given time interval before failing a job if `restart-strategy` has been set to `failure-rate`. |
+
 ### 检查点及状态后端
+
+以下是配置项项控制状态后端和检查点行为的基本设置。
+
+这些选项仅适用于以连续流方式执行的作业/应用程序。以批处理方式执行的作业/应用程序不使用状态后端和检查点，而是使用为批处理优化的不同内部数据结构。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **state.backend** | \(none\) | String | The state backend to be used to store and checkpoint state. |
+| **state.checkpoints.dir** | \(none\) | String | The default directory used for storing the data files and meta data of checkpoints in a Flink supported filesystem. The storage path must be accessible from all participating processes/nodes\(i.e. all TaskManagers and JobManagers\). |
+| **state.savepoints.dir** | \(none\) | String | The default directory for savepoints. Used by the state backends that write savepoints to file systems \(MemoryStateBackend, FsStateBackend, RocksDBStateBackend\). |
+| **state.backend.incremental** | false | Boolean | Option whether the state backend should create incremental checkpoints, if possible. For an incremental checkpoint, only a diff from the previous checkpoint is stored, rather than the complete checkpoint state. Some state backends may not support incremental checkpoints and ignore this option. |
+| **state.backend.local-recovery** | false | Boolean | This option configures local recovery for this state backend. By default, local recovery is deactivated. Local recovery currently only covers keyed state backends. Currently, MemoryStateBackend does not support local recovery and ignore this option. |
+| **state.checkpoints.num-retained** | 1 | Integer | The maximum number of completed checkpoints to retain. |
+| **taskmanager.state.local.root-dirs** | \(none\) | String | The config parameter defining the root directories for storing file-based state for local recovery. Local recovery currently only covers keyed state backends. Currently, MemoryStateBackend does not support local recovery and ignore this option |
 
 ### 高可用性
 
+这里的高可用性是指主控（JobManager）进程从故障中恢复的能力。
+
+JobManager确保跨TaskManager恢复期间的一致性。为了使JobManager自身一致地恢复，外部服务必须存储最少数量的恢复元数据（例如“上次提交的检查点的ID”），并帮助选择和锁定哪个JobManager是领导者（避免出现脑裂情况） ）。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **high-availability** | "NONE" | String | Defines high-availability mode used for the cluster execution. To enable high-availability, set this mode to "ZOOKEEPER" or specify FQN of factory class. |
+| **high-availability.cluster-id** | "/default" | String | The ID of the Flink cluster, used to separate multiple Flink clusters from each other. Needs to be set for standalone clusters but is automatically inferred in YARN and Mesos. |
+| **high-availability.storageDir** | \(none\) | String | File system path \(URI\) where Flink persists metadata in high-availability setups. |
+
+ **ZooKeeper的高可用性配置选项**
+
+| **配置项** | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **high-availability.zookeeper.path.root** | "/flink" | String | The root path under which Flink stores its entries in ZooKeeper. |
+| **high-availability.zookeeper.quorum** | \(none\) | String | The ZooKeeper quorum to use, when running Flink in a high-availability mode with ZooKeeper. |
+
 ### 内存配置
+
+这些配置值控制TaskManager和JobManager使用内存的方式。
+
+Flink尝试使用户免受配置JVM进行数据密集型处理的复杂性的影响。在大多数情况下，用户只需要设置值`taskmanager.memory.process.size`或`taskmanager.memory.flink.size`（取决于设置的方式），并可能通过调整JVM堆与托管内存的比率`taskmanager.memory.managed.fraction`。下面的其他选项可用于执行性能调整和修复与内存相关的错误。
+
+有关这些选项如何交互的详细说明，请参阅[TaskManager内存配置文档](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/memory/mem_setup.html)。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **taskmanager.memory.flink.size** | \(none\) | MemorySize | Total Flink Memory size for the TaskExecutors. This includes all the memory that a TaskExecutor consumes, except for JVM Metaspace and JVM Overhead. It consists of Framework Heap Memory, Task Heap Memory, Task Off-Heap Memory, Managed Memory, and Network Memory. See also 'taskmanager.memory.process.size' for total process memory size configuration. |
+| **taskmanager.memory.framework.heap.size** | 128 mb | MemorySize | Framework Heap Memory size for TaskExecutors. This is the size of JVM heap memory reserved for TaskExecutor framework, which will not be allocated to task slots. |
+| **taskmanager.memory.framework.off-heap.size** | 128 mb | MemorySize | Framework Off-Heap Memory size for TaskExecutors. This is the size of off-heap memory \(JVM direct memory and native memory\) reserved for TaskExecutor framework, which will not be allocated to task slots. The configured value will be fully counted when Flink calculates the JVM max direct memory size parameter. |
+| **taskmanager.memory.jvm-metaspace.size** | 256 mb | MemorySize | JVM Metaspace Size for the TaskExecutors. |
+| **taskmanager.memory.jvm-overhead.fraction** | 0.1 | Float | Fraction of Total Process Memory to be reserved for JVM Overhead. This is off-heap memory reserved for JVM overhead, such as thread stack space, compile cache, etc. This includes native memory but not direct memory, and will not be counted when Flink calculates JVM max direct memory size parameter. The size of JVM Overhead is derived to make up the configured fraction of the Total Process Memory. If the derived size is less/greater than the configured min/max size, the min/max size will be used. The exact size of JVM Overhead can be explicitly specified by setting the min/max size to the same value. |
+| **taskmanager.memory.jvm-overhead.max** | 1 gb | MemorySize | Max JVM Overhead size for the TaskExecutors. This is off-heap memory reserved for JVM overhead, such as thread stack space, compile cache, etc. This includes native memory but not direct memory, and will not be counted when Flink calculates JVM max direct memory size parameter. The size of JVM Overhead is derived to make up the configured fraction of the Total Process Memory. If the derived size is less/greater than the configured min/max size, the min/max size will be used. The exact size of JVM Overhead can be explicitly specified by setting the min/max size to the same value. |
+| **taskmanager.memory.jvm-overhead.min** | 192 mb | MemorySize | Min JVM Overhead size for the TaskExecutors. This is off-heap memory reserved for JVM overhead, such as thread stack space, compile cache, etc. This includes native memory but not direct memory, and will not be counted when Flink calculates JVM max direct memory size parameter. The size of JVM Overhead is derived to make up the configured fraction of the Total Process Memory. If the derived size is less/greater than the configured min/max size, the min/max size will be used. The exact size of JVM Overhead can be explicitly specified by setting the min/max size to the same value. |
+| **taskmanager.memory.managed.fraction** | 0.4 | Float | Fraction of Total Flink Memory to be used as Managed Memory, if Managed Memory size is not explicitly specified. |
+| **taskmanager.memory.managed.size** | \(none\) | MemorySize | Managed Memory size for TaskExecutors. This is the size of off-heap memory managed by the memory manager, reserved for sorting, hash tables, caching of intermediate results and RocksDB state backend. Memory consumers can either allocate memory from the memory manager in the form of MemorySegments, or reserve bytes from the memory manager and keep their memory usage within that boundary. If unspecified, it will be derived to make up the configured fraction of the Total Flink Memory. |
+| **taskmanager.memory.network.fraction** | 0.1 | Float | Fraction of Total Flink Memory to be used as Network Memory. Network Memory is off-heap memory reserved for ShuffleEnvironment \(e.g., network buffers\). Network Memory size is derived to make up the configured fraction of the Total Flink Memory. If the derived size is less/greater than the configured min/max size, the min/max size will be used. The exact size of Network Memory can be explicitly specified by setting the min/max size to the same value. |
+| **taskmanager.memory.network.max** | 1 gb | MemorySize | Max Network Memory size for TaskExecutors. Network Memory is off-heap memory reserved for ShuffleEnvironment \(e.g., network buffers\). Network Memory size is derived to make up the configured fraction of the Total Flink Memory. If the derived size is less/greater than the configured min/max size, the min/max size will be used. The exact size of Network Memory can be explicitly specified by setting the min/max to the same value. |
+| **taskmanager.memory.network.min** | 64 mb | MemorySize | Min Network Memory size for TaskExecutors. Network Memory is off-heap memory reserved for ShuffleEnvironment \(e.g., network buffers\). Network Memory size is derived to make up the configured fraction of the Total Flink Memory. If the derived size is less/greater than the configured min/max size, the min/max size will be used. The exact size of Network Memory can be explicitly specified by setting the min/max to the same value. |
+| **taskmanager.memory.process.size** | \(none\) | MemorySize | Total Process Memory size for the TaskExecutors. This includes all the memory that a TaskExecutor consumes, consisting of Total Flink Memory, JVM Metaspace, and JVM Overhead. On containerized setups, this should be set to the container memory. See also 'taskmanager.memory.flink.size' for total Flink memory size configuration. |
+| **taskmanager.memory.task.heap.size** | \(none\) | MemorySize | Task Heap Memory size for TaskExecutors. This is the size of JVM heap memory reserved for tasks. If not specified, it will be derived as Total Flink Memory minus Framework Heap Memory, Task Off-Heap Memory, Managed Memory and Network Memory. |
+| **taskmanager.memory.task.off-heap.size** | 0 bytes | MemorySize | Task Off-Heap Memory size for TaskExecutors. This is the size of off heap memory \(JVM direct memory and native memory\) reserved for tasks. The configured value will be fully counted when Flink calculates the JVM max direct memory size parameter. |
 
 ### 其他配置
 
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **fs.default-scheme** | \(none\) | String | The default filesystem scheme, used for paths that do not declare a scheme explicitly. May contain an authority, e.g. host:port in case of an HDFS NameNode. |
+| **io.tmp.dirs** | 'LOCAL\_DIRS' on Yarn. '\_FLINK\_TMP\_DIR' on Mesos. System.getProperty\("java.io.tmpdir"\) in standalone. | String | Directories for temporary files, separated by",", "\|", or the system's java.io.File.pathSeparator. |
+
 ## 安全
 
+用于配置Flink的安全性和与外部系统的安全交互的选项。
+
 ### SSL协议
+
+ Flink的网络连接可以通过SSL进行保护。有关详细的设置指南和背景，请参考[SSL设置文档](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/security-ssl.html)。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **security.ssl.algorithms** | "TLS\_RSA\_WITH\_AES\_128\_CBC\_SHA" | String | The comma separated list of standard SSL algorithms to be supported. Read more [here](http://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#ciphersuites) |
+| **security.ssl.internal.cert.fingerprint** | \(none\) | String | The sha1 fingerprint of the internal certificate. This further protects the internal communication to present the exact certificate used by Flink.This is necessary where one cannot use private CA\(self signed\) or there is internal firm wide CA is required |
+| **security.ssl.internal.enabled** | false | Boolean | Turns on SSL for internal network communication. Optionally, specific components may override this through their own settings \(rpc, data transport, REST, etc\). |
+| **security.ssl.internal.key-password** | \(none\) | String | The secret to decrypt the key in the keystore for Flink's internal endpoints \(rpc, data transport, blob server\). |
+| **security.ssl.internal.keystore** | \(none\) | String | The Java keystore file with SSL Key and Certificate, to be used Flink's internal endpoints \(rpc, data transport, blob server\). |
+| **security.ssl.internal.keystore-password** | \(none\) | String | The secret to decrypt the keystore file for Flink's for Flink's internal endpoints \(rpc, data transport, blob server\). |
+| **security.ssl.internal.truststore** | \(none\) | String | The truststore file containing the public CA certificates to verify the peer for Flink's internal endpoints \(rpc, data transport, blob server\). |
+| **security.ssl.internal.truststore-password** | \(none\) | String | The password to decrypt the truststore for Flink's internal endpoints \(rpc, data transport, blob server\). |
+| **security.ssl.protocol** | "TLSv1.2" | String | The SSL protocol version to be supported for the ssl transport. Note that it doesn’t support comma separated list. |
+| **security.ssl.rest.authentication-enabled** | false | Boolean | Turns on mutual SSL authentication for external communication via the REST endpoints. |
+| **security.ssl.rest.cert.fingerprint** | \(none\) | String | The sha1 fingerprint of the rest certificate. This further protects the rest REST endpoints to present certificate which is only used by proxy serverThis is necessary where once uses public CA or internal firm wide CA |
+| **security.ssl.rest.enabled** | false | Boolean | Turns on SSL for external communication via the REST endpoints. |
+| **security.ssl.rest.key-password** | \(none\) | String | The secret to decrypt the key in the keystore for Flink's external REST endpoints. |
+| **security.ssl.rest.keystore** | \(none\) | String | The Java keystore file with SSL Key and Certificate, to be used Flink's external REST endpoints. |
+| **security.ssl.rest.keystore-password** | \(none\) | String | The secret to decrypt the keystore file for Flink's for Flink's external REST endpoints. |
+| **security.ssl.rest.truststore** | \(none\) | String | The truststore file containing the public CA certificates to verify the peer for Flink's external REST endpoints. |
+| **security.ssl.rest.truststore-password** | \(none\) | String | The password to decrypt the truststore for Flink's external REST endpoints. |
+| **security.ssl.verify-hostname** | true | Boolean | Flag to enable peer’s hostname verification during ssl handshake. |
 
 ### 与外部系统进行身份验证
 
