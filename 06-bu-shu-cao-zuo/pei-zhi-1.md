@@ -51,7 +51,13 @@
 
 #### 其他
 
+* `io.tmp.dirs`：Flink放置本地数据的目录，默认为系统临时目录（`java.io.tmpdir`属性）。如果配置了目录列表，则Flink将在目录中轮换文件。
 
+  默认情况下，放在这些目录中的数据包括RocksDB创建的文件，溢出的中间结果（批处理算法）和缓存的jar文件。
+
+  持久性/恢复不依赖此数据，但是如果删除此数据，通常会导致重量级的恢复操作。因此，建议将其设置为不会自动定期清除的目录。
+
+  默认情况下，Yarn，Mesos和Kubernetes设置会自动将此值配置为本地工作目录。
 
 ## 通用设置选项
 
@@ -61,7 +67,17 @@ _配置Flink应用程序或集群的常用配置项。_
 
 用于为不同的Flink组件配置主机名和端口的配置项。
 
-
+| 配置项 | 默认值 |  | 描默认 |
+| :--- | :--- | :--- | :--- |
+| **jobmanager.rpc.address** | \(none\) | String | The config parameter defining the network address to connect to for communication with the job manager. This value is only interpreted in setups where a single JobManager with static name or address exists \(simple standalone setups, or container setups with dynamic service name resolution\). It is not used in many high-availability setups, when a leader-election service \(like ZooKeeper\) is used to elect and discover the JobManager leader from potentially multiple standby JobManagers. |
+| **jobmanager.rpc.port** | 6123 | Integer | The config parameter defining the network port to connect to for communication with the job manager. Like jobmanager.rpc.address, this value is only interpreted in setups where a single JobManager with static name/address and port exists \(simple standalone setups, or container setups with dynamic service name resolution\). This config option is not used in many high-availability setups, when a leader-election service \(like ZooKeeper\) is used to elect and discover the JobManager leader from potentially multiple standby JobManagers. |
+| **rest.address** | \(none\) | String | The address that should be used by clients to connect to the server. |
+| **rest.bind-address** | \(none\) | String | The address that the server binds itself. |
+| **rest.bind-port** | "8081" | String | The port that the server binds itself. Accepts a list of ports \(“50100,50101”\), ranges \(“50100-50200”\) or a combination of both. It is recommended to set a range of ports to avoid collisions when multiple Rest servers are running on the same machine. |
+| **rest.port** | 8081 | Integer | The port that the client connects to. If rest.bind-port has not been specified, then the REST server will bind to this port. |
+| **taskmanager.data.port** | 0 | Integer | The task manager’s port used for data exchange operations. |
+| **taskmanager.host** | \(none\) | String | The address of the network interface that the TaskManager binds to. This option can be used to define explicitly a binding address. Because different TaskManagers need different values for this option, usually it is specified in an additional non-shared TaskManager-specific config file. |
+| **taskmanager.rpc.port** | "0" | String | The task manager’s IPC port. Accepts a list of ports \(“50100,50101”\), ranges \(“50100-50200”\) or a combination of both. It is recommended to set a range of ports to avoid collisions when multiple TaskManagers are running on the same machine. |
 
 ### 容错能力
 
