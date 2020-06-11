@@ -1,6 +1,6 @@
 # 配置
 
-描述描述配置项所有配置都在`conf/flink-conf.yaml`中完成，该配置应该是YAML键值对的平面集合，格式为`key:value`。
+p配置项描述描述配置项所有配置都在`conf/flink-conf.yaml`中完成，该配置应该是YAML键值对的平面集合，格式为`key:value`。
 
 启动Flink进程时，将分析并评估配置。 对配置文件的变更要求重新启动相关进程。
 
@@ -881,7 +881,7 @@ Flink尝试使用户免受配置JVM进行数据密集型处理的复杂性的影
 
  _可查询状态_是一项实验性功能，可让_你_访问Flink的内部状态，如键/值存储。有关详细信息，请参见可查询[状态文档](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/stream/state/queryable_state.html)。
 
-| 配置项 | 默认值 | 类型 | 描述 |
+| Key | Default | Type | Description |
 | :--- | :--- | :--- | :--- |
 | **queryable-state.client.network-threads** | 0 | Integer | Number of network \(Netty's event loop\) Threads for queryable state client. |
 | **queryable-state.enable** | false | Boolean | Option whether the queryable state proxy and server should be enabled where possible and configurable. |
@@ -890,7 +890,7 @@ Flink尝试使用户免受配置JVM进行数据密集型处理的复杂性的影
 | **queryable-state.proxy.query-threads** | 0 | Integer | Number of query Threads for queryable state proxy. Uses the number of slots if set to 0. |
 | **queryable-state.server.network-threads** | 0 | Integer | Number of network \(Netty's event loop\) Threads for queryable state server. |
 | **queryable-state.server.ports** | "9067" | String | The port range of the queryable state server. The specified range can be a single port: "9123", a range of ports: "50100-50200", or a list of ranges and ports: "50100-50200,50300-50400,51234". |
-| **queryable-state.server.query-threads** | 0 | Integer | Number of query Threads for queryable state server. Uses the number of slots if set to 0. |
+| **queryable-state.server.query-threads** | 0 | Integer | Number of query Threads for queryable state server. Uses the number of slots if set to 0.配置项默认值 |
 
 ## 调试&专家调优
 
