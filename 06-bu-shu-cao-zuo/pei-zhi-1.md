@@ -622,7 +622,7 @@ Flink尝试使用户免受配置JVM进行数据密集型处理的复杂性的影
 
 ## 状态后端
 
- 请参阅[状态后端文档](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/state/state_backends.html)以了解[州后端](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/state/state_backends.html)的背景。
+ 请参阅[状态后端文档](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/state/state_backends.html)以及[状态后端](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/state/state_backends.html)的背景。
 
 ### RocksDB状态后端
 
