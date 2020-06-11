@@ -626,13 +626,271 @@ Flink尝试使用户免受配置JVM进行数据密集型处理的复杂性的影
 
 ### RocksDB状态后端
 
+ 这些是配置RocksDB状态后端通常需要的选项。有关高级低级配置和故障排除所必需的选项，请参见[Advanced RocksDB后端部分](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/config.html#advanced-rocksdb-state-backends-options)。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **state.backend.rocksdb.memory.fixed-per-slot** | \(none\) | MemorySize | The fixed total amount of memory, shared among all RocksDB instances per slot. This option overrides the 'state.backend.rocksdb.memory.managed' option when configured. If neither this option, nor the 'state.backend.rocksdb.memory.managed' optionare set, then each RocksDB column family state has its own memory caches \(as controlled by the column family options\). |
+| **state.backend.rocksdb.memory.high-prio-pool-ratio** | 0.1 | Double | The fraction of cache memory that is reserved for high-priority data like index, filter, and compression dictionary blocks. This option only has an effect when 'state.backend.rocksdb.memory.managed' or 'state.backend.rocksdb.memory.fixed-per-slot' are configured. |
+| **state.backend.rocksdb.memory.managed** | true | Boolean | If set, the RocksDB state backend will automatically configure itself to use the managed memory budget of the task slot, and divide the memory over write buffers, indexes, block caches, etc. That way, the three major uses of memory of RocksDB will be capped. |
+| **state.backend.rocksdb.memory.write-buffer-ratio** | 0.5 | Double | The maximum amount of memory that write buffers may take, as a fraction of the total shared memory. This option only has an effect when 'state.backend.rocksdb.memory.managed' or 'state.backend.rocksdb.memory.fixed-per-slot' are configured. |
+| **state.backend.rocksdb.timer-service.factory** | "ROCKSDB" | String | This determines the factory for timer service state implementation. Options are either HEAP \(heap-based\) or ROCKSDB for an implementation based on RocksDB. |
+
 ## 指标
+
+ 请参阅[指标系统文档](https://ci.apache.org/projects/flink/flink-docs-release-1.10/monitoring/metrics.html)以了解Flink指标基础结构的背景。
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">&#x914D;&#x7F6E;&#x9879;</th>
+      <th style="text-align:left">&#x9ED8;&#x8BA4;&#x503C;</th>
+      <th style="text-align:left">&#x7C7B;&#x578B;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><b>metrics.fetcher.update-interval</b>
+      </td>
+      <td style="text-align:left">10000</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">Update interval for the metric fetcher used by the web UI in milliseconds.
+        Decrease this value for faster updating metrics. Increase this value if
+        the metric fetcher causes too much load. Setting this value to 0 disables
+        the metric fetching completely.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.internal.query-service.port</b>
+      </td>
+      <td style="text-align:left">&quot;0&quot;</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">The port range used for Flink&apos;s internal metric query service. Accepts
+        a list of ports (&#x201C;50100,50101&#x201D;), ranges(&#x201C;50100-50200&#x201D;)
+        or a combination of both. It is recommended to set a range of ports to
+        avoid collisions when multiple Flink components are running on the same
+        machine. Per default Flink will pick a random port.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.internal.query-service.thread-priority</b>
+      </td>
+      <td style="text-align:left">1</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The thread priority used for Flink&apos;s internal metric query service.
+        The thread is created by Akka&apos;s thread pool executor. The range of
+        the priority is from 1 (MIN_PRIORITY) to 10 (MAX_PRIORITY). Warning, increasing
+        this value may bring the main Flink components down.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.latency.granularity</b>
+      </td>
+      <td style="text-align:left">&quot;operator&quot;</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">
+        <p>Defines the granularity of latency metrics. Accepted values are:</p>
+        <ul>
+          <li>single - Track latency without differentiating between sources and subtasks.</li>
+          <li>operator - Track latency while differentiating between sources, but not
+            subtasks.</li>
+          <li>subtask - Track latency while differentiating between sources and subtasks.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.latency.history-size</b>
+      </td>
+      <td style="text-align:left">128</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">Defines the number of measured latencies to maintain at each operator.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.latency.interval</b>
+      </td>
+      <td style="text-align:left">0</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">Defines the interval at which latency tracking marks are emitted from
+        the sources. Disables latency tracking if set to 0 or a negative value.
+        Enabling this feature can significantly impact the performance of the cluster.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.reporter.&lt;name&gt;.&lt;parameter&gt;</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Configures the parameter &lt;parameter&gt; for the reporter named &lt;name&gt;.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.reporter.&lt;name&gt;.class</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">The reporter class to use for the reporter named &lt;name&gt;.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.reporter.&lt;name&gt;.interval</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">The reporter interval to use for the reporter named &lt;name&gt;.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.reporters</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">An optional list of reporter names. If configured, only reporters whose
+        name matches any of the names in the list will be started. Otherwise, all
+        reporters that could be found in the configuration will be started.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.scope.delimiter</b>
+      </td>
+      <td style="text-align:left">&quot;.&quot;</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Delimiter used to assemble the metric identifier.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.scope.jm</b>
+      </td>
+      <td style="text-align:left">&quot;&lt;host&gt;.jobmanager&quot;</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Defines the scope format string that is applied to all metrics scoped
+        to a JobManager.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.scope.jm.job</b>
+      </td>
+      <td style="text-align:left">&quot;&lt;host&gt;.jobmanager.&lt;job_name&gt;&quot;</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Defines the scope format string that is applied to all metrics scoped
+        to a job on a JobManager.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.scope.operator</b>
+      </td>
+      <td style="text-align:left">&quot;&lt;host&gt;.taskmanager.&lt;tm_id&gt;.&lt;job_name&gt;.&lt;operator_name&gt;.&lt;subtask_index&gt;&quot;</td>
+      <td
+      style="text-align:left">String</td>
+        <td style="text-align:left">Defines the scope format string that is applied to all metrics scoped
+          to an operator.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.scope.task</b>
+      </td>
+      <td style="text-align:left">&quot;&lt;host&gt;.taskmanager.&lt;tm_id&gt;.&lt;job_name&gt;.&lt;task_name&gt;.&lt;subtask_index&gt;&quot;</td>
+      <td
+      style="text-align:left">String</td>
+        <td style="text-align:left">Defines the scope format string that is applied to all metrics scoped
+          to a task.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.scope.tm</b>
+      </td>
+      <td style="text-align:left">&quot;&lt;host&gt;.taskmanager.&lt;tm_id&gt;&quot;</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">Defines the scope format string that is applied to all metrics scoped
+        to a TaskManager.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.scope.tm.job</b>
+      </td>
+      <td style="text-align:left">&quot;&lt;host&gt;.taskmanager.&lt;tm_id&gt;.&lt;job_name&gt;&quot;</td>
+      <td
+      style="text-align:left">String</td>
+        <td style="text-align:left">Defines the scope format string that is applied to all metrics scoped
+          to a job on a TaskManager.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.system-resource</b>
+      </td>
+      <td style="text-align:left">false</td>
+      <td style="text-align:left">Boolean</td>
+      <td style="text-align:left">Flag indicating whether Flink should report system resource metrics such
+        as machine&apos;s CPU, memory or network usage.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>metrics.system-resource-probing-interval</b>
+      </td>
+      <td style="text-align:left">5000</td>
+      <td style="text-align:left">Long</td>
+      <td style="text-align:left">Interval between probing of system resource metrics specified in milliseconds.
+        Has an effect only when &apos;metrics.system-resource&apos; is enabled.</td>
+    </tr>
+  </tbody>
+</table>
 
 ### RocksDB本地指标
 
+对于使用RocksDB状态后端的应用程序，Flink可以报告来自RocksDB本机代码的指标。这里的度量范围是操作符，然后进一步细分为列族;值被报告为无符号的long。
+
+{% hint style="warning" %}
+注意:启用RocksDB的本机指标可能会导致性能下降，应该仔细设置。
+{% endhint %}
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **state.backend.rocksdb.metrics.actual-delayed-write-rate** | false | Boolean | Monitor the current actual delayed write rate. 0 means no delay. |
+| **state.backend.rocksdb.metrics.background-errors** | false | Boolean | Monitor the number of background errors in RocksDB. |
+| **state.backend.rocksdb.metrics.block-cache-capacity** | false | Boolean | Monitor block cache capacity. |
+| **state.backend.rocksdb.metrics.block-cache-pinned-usage** | false | Boolean | Monitor the memory size for the entries being pinned in block cache. |
+| **state.backend.rocksdb.metrics.block-cache-usage** | false | Boolean | Monitor the memory size for the entries residing in block cache. |
+| **state.backend.rocksdb.metrics.column-family-as-variable** | false | Boolean | Whether to expose the column family as a variable. |
+| **state.backend.rocksdb.metrics.compaction-pending** | false | Boolean | Track pending compactions in RocksDB. Returns 1 if a compaction is pending, 0 otherwise. |
+| **state.backend.rocksdb.metrics.cur-size-active-mem-table** | false | Boolean | Monitor the approximate size of the active memtable in bytes. |
+| **state.backend.rocksdb.metrics.cur-size-all-mem-tables** | false | Boolean | Monitor the approximate size of the active and unflushed immutable memtables in bytes. |
+| **state.backend.rocksdb.metrics.estimate-live-data-size** | false | Boolean | Estimate of the amount of live data in bytes. |
+| **state.backend.rocksdb.metrics.estimate-num-keys** | false | Boolean | Estimate the number of keys in RocksDB. |
+| **state.backend.rocksdb.metrics.estimate-pending-compaction-bytes** | false | Boolean | Estimated total number of bytes compaction needs to rewrite to get all levels down to under target size. Not valid for other compactions than level-based. |
+| **state.backend.rocksdb.metrics.estimate-table-readers-mem** | false | Boolean | Estimate the memory used for reading SST tables, excluding memory used in block cache \(e.g.,filter and index blocks\) in bytes. |
+| **state.backend.rocksdb.metrics.is-write-stopped** | false | Boolean | Track whether write has been stopped in RocksDB. Returns 1 if write has been stopped, 0 otherwise. |
+| **state.backend.rocksdb.metrics.mem-table-flush-pending** | false | Boolean | Monitor the number of pending memtable flushes in RocksDB. |
+| **state.backend.rocksdb.metrics.num-deletes-active-mem-table** | false | Boolean | Monitor the total number of delete entries in the active memtable. |
+| **state.backend.rocksdb.metrics.num-deletes-imm-mem-tables** | false | Boolean | Monitor the total number of delete entries in the unflushed immutable memtables. |
+| **state.backend.rocksdb.metrics.num-entries-active-mem-table** | false | Boolean | Monitor the total number of entries in the active memtable. |
+| **state.backend.rocksdb.metrics.num-entries-imm-mem-tables** | false | Boolean | Monitor the total number of entries in the unflushed immutable memtables. |
+| **state.backend.rocksdb.metrics.num-immutable-mem-table** | false | Boolean | Monitor the number of immutable memtables in RocksDB. |
+| **state.backend.rocksdb.metrics.num-live-versions** | false | Boolean | Monitor number of live versions. Version is an internal data structure. See RocksDB file version\_set.h for details. More live versions often mean more SST files are held from being deleted, by iterators or unfinished compactions. |
+| **state.backend.rocksdb.metrics.num-running-compactions** | false | Boolean | Monitor the number of currently running compactions. |
+| **state.backend.rocksdb.metrics.num-running-flushes** | false | Boolean | Monitor the number of currently running flushes. |
+| **state.backend.rocksdb.metrics.num-snapshots** | false | Boolean | Monitor the number of unreleased snapshots of the database. |
+| **state.backend.rocksdb.metrics.size-all-mem-tables** | false | Boolean | Monitor the approximate size of the active, unflushed immutable, and pinned immutable memtables in bytes. |
+| **state.backend.rocksdb.metrics.total-sst-files-size** | false | Boolean | Monitor the total size \(bytes\) of all SST files.WARNING: may slow down online queries if there are too many files. |
+
 ## History Server <a id="history-server"></a>
 
+历史记录服务器保留已完成作业的信息（图形，运行时，统计信息）。要启用它，您必须在JobManager（`jobmanager.archive.fs.dir`）中启用“作业存档” 。
+
+有关详细信息，请参见[History Server Docs](https://ci.apache.org/projects/flink/flink-docs-release-1.10/monitoring/historyserver.html)。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **historyserver.archive.clean-expired-jobs** | false | Boolean | Whether HistoryServer should cleanup jobs that are no longer present \`historyserver.archive.fs.dir\`. |
+| **historyserver.archive.fs.dir** | \(none\) | String | Comma separated list of directories to fetch archived jobs from. The history server will monitor these directories for archived jobs. You can configure the JobManager to archive jobs to a directory via \`jobmanager.archive.fs.dir\`. |
+| **historyserver.archive.fs.refresh-interval** | 10000 | Long | Interval in milliseconds for refreshing the archived job directories. |
+| **historyserver.web.address** | \(none\) | String | Address of the HistoryServer's web interface. |
+| **historyserver.web.port** | 8082 | Integer | Port of the HistoryServers's web interface. |
+| **historyserver.web.refresh-interval** | 10000 | Long | The refresh interval for the HistoryServer web-frontend in milliseconds. |
+| **historyserver.web.ssl.enabled** | false | Boolean | Enable HTTPs access to the HistoryServer web frontend. This is applicable only when the global SSL flag security.ssl.enabled is set to true. |
+| **historyserver.web.tmpdir** | \(none\) | String | This configuration parameter allows defining the Flink web directory to be used by the history server web interface. The web interface will copy its static files into the directory. |
+
 ## 实验性 <a id="experimental"></a>
+
+ _Flink中的实验功能选项。_
+
+### 可查询状态
+
+ _可查询状态_是一项实验性功能，可让_你_访问Flink的内部状态，如键/值存储。有关详细信息，请参见可查询[状态文档](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/stream/state/queryable_state.html)。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **queryable-state.client.network-threads** | 0 | Integer | Number of network \(Netty's event loop\) Threads for queryable state client. |
+| **queryable-state.enable** | false | Boolean | Option whether the queryable state proxy and server should be enabled where possible and configurable. |
+| **queryable-state.proxy.network-threads** | 0 | Integer | Number of network \(Netty's event loop\) Threads for queryable state proxy. |
+| **queryable-state.proxy.ports** | "9069" | String | The port range of the queryable state proxy. The specified range can be a single port: "9123", a range of ports: "50100-50200", or a list of ranges and ports: "50100-50200,50300-50400,51234". |
+| **queryable-state.proxy.query-threads** | 0 | Integer | Number of query Threads for queryable state proxy. Uses the number of slots if set to 0. |
+| **queryable-state.server.network-threads** | 0 | Integer | Number of network \(Netty's event loop\) Threads for queryable state server. |
+| **queryable-state.server.ports** | "9067" | String | The port range of the queryable state server. The specified range can be a single port: "9123", a range of ports: "50100-50200", or a list of ranges and ports: "50100-50200,50300-50400,51234". |
+| **queryable-state.server.query-threads** | 0 | Integer | Number of query Threads for queryable state server. Uses the number of slots if set to 0. |
 
 ## 调试&专家调优
 
