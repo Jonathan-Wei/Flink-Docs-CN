@@ -67,7 +67,7 @@ _配置Flink应用程序或集群的常用配置项。_
 
 用于为不同的Flink组件配置主机名和端口的配置项。
 
-| 配置项 | 默认值 |  | 描默认 |
+| 配置项 | 默认值 | 类型 | 描默认 |
 | :--- | :--- | :--- | :--- |
 | **jobmanager.rpc.address** | \(none\) | String | The config parameter defining the network address to connect to for communication with the job manager. This value is only interpreted in setups where a single JobManager with static name or address exists \(simple standalone setups, or container setups with dynamic service name resolution\). It is not used in many high-availability setups, when a leader-election service \(like ZooKeeper\) is used to elect and discover the JobManager leader from potentially multiple standby JobManagers. |
 | **jobmanager.rpc.port** | 6123 | Integer | The config parameter defining the network port to connect to for communication with the job manager. Like jobmanager.rpc.address, this value is only interpreted in setups where a single JobManager with static name/address and port exists \(simple standalone setups, or container setups with dynamic service name resolution\). This config option is not used in many high-availability setups, when a leader-election service \(like ZooKeeper\) is used to elect and discover the JobManager leader from potentially multiple standby JobManagers. |
@@ -80,6 +80,43 @@ _配置Flink应用程序或集群的常用配置项。_
 | **taskmanager.rpc.port** | "0" | String | The task manager’s IPC port. Accepts a list of ports \(“50100,50101”\), ranges \(“50100-50200”\) or a combination of both. It is recommended to set a range of ports to avoid collisions when multiple TaskManagers are running on the same machine. |
 
 ### 容错能力
+
+这些配置选项控制Flink在执行过程中发生故障时的重启行为。通过在`flink-conf.yaml`中配置这些选项，可以定义集群的默认重启策略。
+
+仅当尚未通过`ExecutionConfig`设置特定于作业的重启策略时，默认重启策略才会生效。
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">&#x914D;&#x7F6E;&#x9879;</th>
+      <th style="text-align:left">Default</th>
+      <th style="text-align:left">Type</th>
+      <th style="text-align:left">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><b>restart-strategy</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">String</td>
+      <td style="text-align:left">
+        <p>Defines the restart strategy to use in case of job failures.
+          <br />Accepted values are:</p>
+        <ul>
+          <li><code>none</code>, <code>off</code>, <code>disable</code>: No restart strategy.</li>
+          <li><code>fixeddelay</code>, <code>fixed-delay</code>: Fixed delay restart
+            strategy. More details can be found <a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/task_failure_recovery.html#fixed-delay-restart-strategy">here</a>.</li>
+          <li><code>failurerate</code>, <code>failure-rate</code>: Failure rate restart
+            strategy. More details can be found <a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/task_failure_recovery.html#failure-rate-restart-strategy">here</a>.</li>
+        </ul>
+        <p>If checkpointing is disabled, the default value is <code>none</code>. If
+          checkpointing is enabled, the default value is <code>fixed-delay</code> with <code>Integer.MAX_VALUE</code> restart
+          attempts and &apos;<code>1 s</code>&apos; delay.</p>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ### 检查点及状态后端
 
