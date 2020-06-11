@@ -1,6 +1,6 @@
 # 配置
 
-p配置项描述描述配置项所有配置都在`conf/flink-conf.yaml`中完成，该配置应该是YAML键值对的平面集合，格式为`key:value`。
+类型p配置项描述描述配置项所有配置都在`conf/flink-conf.yaml`中完成，该配置应该是YAML键值对的平面集合，格式为`key:value`。
 
 启动Flink进程时，将分析并评估配置。 对配置文件的变更要求重新启动相关进程。
 
