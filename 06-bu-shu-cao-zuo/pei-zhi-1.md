@@ -881,7 +881,7 @@ Flink尝试使用户免受配置JVM进行数据密集型处理的复杂性的影
 
  _可查询状态_是一项实验性功能，可让_你_访问Flink的内部状态，如键/值存储。有关详细信息，请参见可查询[状态文档](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/stream/state/queryable_state.html)。
 
-| Key | Default | Type | Description |
+| 配置项 | 默认值 | 类型 | 描述 |
 | :--- | :--- | :--- | :--- |
 | **queryable-state.client.network-threads** | 0 | Integer | Number of network \(Netty's event loop\) Threads for queryable state client. |
 | **queryable-state.enable** | false | Boolean | Option whether the queryable state proxy and server should be enabled where possible and configurable. |
@@ -893,6 +893,20 @@ Flink尝试使用户免受配置JVM进行数据密集型处理的复杂性的影
 | **queryable-state.server.query-threads** | 0 | Integer | Number of query Threads for queryable state server. Uses the number of slots if set to 0.配置项默认值 |
 
 ## 调试&专家调优
+
+下面的选项是针对专业用户和用于修复/调试问题的。大多数情况下不需要配置这些选项。
+
+### 类加载
+
+Flink为加载到会话集群的作业动态加载代码。此外，Flink尝试从应用程序隐藏类路径中的许多依赖项。这有助于减少应用程序代码和类路径中的依赖关系之间的依赖关系冲突。
+
+有关详细信息，请参阅[调试类加载文档](https://ci.apache.org/projects/flink/flink-docs-release-1.10/monitoring/debugging_classloading.html)。
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **classloader.parent-first-patterns.additional** | \(none\) | String | A \(semicolon-separated\) list of patterns that specifies which classes should always be resolved through the parent ClassLoader first. A pattern is a simple prefix that is checked against the fully qualified class name. These patterns are appended to "classloader.parent-first-patterns.default". |
+| **classloader.parent-first-patterns.default** | "java.;scala.;org.apache.flink.;com.esotericsoftware.kryo;org.apache.hadoop.;javax.annotation.;org.slf4j;org.apache.log4j;org.apache.logging;org.apache.commons.logging;ch.qos.logback;org.xml;javax.xml;org.apache.xerces;org.w3c" | String | A \(semicolon-separated\) list of patterns that specifies which classes should always be resolved through the parent ClassLoader first. A pattern is a simple prefix that is checked against the fully qualified class name. This setting should generally not be modified. To add another pattern we recommend to use "classloader.parent-first-patterns.additional" instead. |
+| **classloader.resolve-order** | "child-first" | String | Defines the class resolution strategy when loading classes from user code, meaning whether to first check the user code jar \("child-first"\) or the application classpath \("parent-first"\). The default settings indicate to load classes first from the user code jar, which means that user code jars can include and load different dependencies than Flink uses \(transitively\). |
 
 ## JVM和日志记录选项
 
