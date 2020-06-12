@@ -1554,7 +1554,305 @@ Flink将Akka用于组件（JobManager / TaskManager / ResourceManager）之间�
 
 ## 不推荐使用的配置项
 
+这些选项与Flink中不再被积极开发的部分相关。这些选项可能会在将来的版本中删除。
+
+ **DataSet API优化器**
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **compiler.delimited-informat.max-line-samples** | 10 | Integer | he maximum number of line samples taken by the compiler for delimited inputs. The samples are used to estimate the number of records. This value can be overridden for a specific input with the input format’s parameters. |
+| **compiler.delimited-informat.max-sample-len** | 2097152 | Integer | The maximal length of a line sample that the compiler takes for delimited inputs. If the length of a single sample exceeds this value \(possible because of misconfiguration of the parser\), the sampling aborts. This value can be overridden for a specific input with the input format’s parameters. |
+| **compiler.delimited-informat.min-line-samples** | 2 | Integer | The minimum number of line samples taken by the compiler for delimited inputs. The samples are used to estimate the number of records. This value can be overridden for a specific input with the input format’s parameters |
+
+ **DataSet API运行时算法**
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **taskmanager.runtime.hashjoin-bloom-filters** | false | Boolean | Flag to activate/deactivate bloom filters in the hybrid hash join implementation. In cases where the hash join needs to spill to disk \(datasets larger than the reserved fraction of memory\), these bloom filters can greatly reduce the number of spilled records, at the cost some CPU cycles. |
+| **taskmanager.runtime.max-fan** | 128 | Integer | The maximal fan-in for external merge joins and fan-out for spilling hash tables. Limits the number of file handles per operator, but may cause intermediate merging/partitioning, if set too small. |
+| **taskmanager.runtime.sort-spilling-threshold** | 0.8 | Float | A sort operation starts spilling when this fraction of its memory budget is full. |
+
+ **DataSet File Sinks**
+
+| 配置项 | 默认值 | 类型 | 描述  |
+| :--- | :--- | :--- | :--- |
+
+
+| **fs.output.always-create-directory** | false | Boolean | File writers running with a parallelism larger than one create a directory for the output file path and put the different result files \(one per parallel writer task\) into that directory. If this option is set to "true", writers with a parallelism of 1 will also create a directory and place a single result file into it. If the option is set to "false", the writer will directly create the file directly at the output path, without creating a containing directory. |
+| :--- | :--- | :--- | :--- |
+
+
+| **fs.overwrite-files** | false | Boolean | Specifies whether file output writers should overwrite existing files by default. Set to "true" to overwrite by default,"false" otherwise. |
+| :--- | :--- | :--- | :--- |
+
+
 ## 备份
 
+**Execution**
 
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **execution.attached** | false | Boolean | Specifies if the pipeline is submitted in attached or detached mode. |
+| **execution.shutdown-on-attached-exit** | false | Boolean | If the job is submitted in attached mode, perform a best-effort cluster shutdown when the CLI is terminated abruptly, e.g., in response to a user interrupt, such as typing Ctrl + C. |
+| **execution.target** | \(none\) | String | The deployment target for the execution, e.g. "local" for local execution. |
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **execution.savepoint.ignore-unclaimed-state** | false | Boolean | Allow to skip savepoint state that cannot be restored. Allow this if you removed an operator from your pipeline after the savepoint was triggered. |
+| **execution.savepoint.path** | \(none\) | String | Path to a savepoint to restore the job from \(for example hdfs:///flink/savepoint-1537\). |
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">&#x914D;&#x7F6E;&#x9879;</th>
+      <th style="text-align:left">&#x9ED8;&#x8BA4;&#x503C;</th>
+      <th style="text-align:left">&#x7C7B;&#x578B;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><b>execution.buffer-timeout</b>
+      </td>
+      <td style="text-align:left">100 ms</td>
+      <td style="text-align:left">Duration</td>
+      <td style="text-align:left">
+        <p>The maximum time frequency (milliseconds) for the flushing of the output
+          buffers. By default the output buffers flush frequently to provide low
+          latency and to aid smooth developer experience. Setting the parameter can
+          result in three logical modes:</p>
+        <ul>
+          <li>A positive value triggers flushing periodically by that interval</li>
+          <li>0 triggers flushing after every record thus minimizing latency</li>
+          <li>-1 ms triggers flushing only when the output buffer is full thus maximizing
+            throughput</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>execution.checkpointing.snapshot-compression</b>
+      </td>
+      <td style="text-align:left">false</td>
+      <td style="text-align:left">Boolean</td>
+      <td style="text-align:left">Tells if we should use compression for the state snapshot data or not</td>
+    </tr>
+  </tbody>
+</table>
+
+**Pipeline**
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">&#x914D;&#x7F6E;&#x9879;</th>
+      <th style="text-align:left">&#x9ED8;&#x8BA4;&#x503C;</th>
+      <th style="text-align:left">&#x7C7B;&#x578B;</th>
+      <th style="text-align:left">&#x63CF;&#x8FF0;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left"><b>pipeline.auto-generate-uids</b>
+      </td>
+      <td style="text-align:left">true</td>
+      <td style="text-align:left">Boolean</td>
+      <td style="text-align:left">When auto-generated UIDs are disabled, users are forced to manually specify
+        UIDs on DataStream applications.
+        <br />
+        <br />It is highly recommended that users specify UIDs before deploying to production
+        since they are used to match state in savepoints to operators in a job.
+        Because auto-generated ID&apos;s are likely to change when modifying a
+        job, specifying custom IDs allow an application to evolve over time without
+        discarding state.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.auto-type-registration</b>
+      </td>
+      <td style="text-align:left">true</td>
+      <td style="text-align:left">Boolean</td>
+      <td style="text-align:left">Controls whether Flink is automatically registering all types in the user
+        programs with Kryo.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.auto-watermark-interval</b>
+      </td>
+      <td style="text-align:left">0 ms</td>
+      <td style="text-align:left">Duration</td>
+      <td style="text-align:left">The interval of the automatic watermark emission. Watermarks are used
+        throughout the streaming system to keep track of the progress of time.
+        They are used, for example, for time based windowing.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.cached-files</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">List&lt;String&gt;</td>
+      <td style="text-align:left">Files to be registered at the distributed cache under the given name.
+        The files will be accessible from any user-defined function in the (distributed)
+        runtime under a local path. Files may be local files (which will be distributed
+        via BlobServer), or files in a distributed file system. The runtime will
+        copy the files temporarily to a local cache, if needed.
+        <br />
+        <br />Example:
+        <br /><code>name:file1,path:</code>file:///tmp/file1<code>;name:file2,path:</code>hdfs:///tmp/file2``</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.classpaths</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">List&lt;String&gt;</td>
+      <td style="text-align:left">A semicolon-separated list of the classpaths to package with the job jars
+        to be sent to the cluster. These have to be valid URLs.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.closure-cleaner-level</b>
+      </td>
+      <td style="text-align:left">RECURSIVE</td>
+      <td style="text-align:left">EnumPossible values: [NONE, TOP_LEVEL, RECURSIVE]</td>
+      <td style="text-align:left">
+        <p>Configures the mode in which the closure cleaner works</p>
+        <ul>
+          <li><code>NONE</code> - disables the closure cleaner completely</li>
+          <li><code>TOP_LEVEL</code> - cleans only the top-level class without recursing
+            into fields</li>
+          <li><code>RECURSIVE</code> - cleans all the fields recursively</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.default-kryo-serializers</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">List&lt;String&gt;</td>
+      <td style="text-align:left">Semicolon separated list of pairs of class names and Kryo serializers
+        class names to be used as Kryo default serializers
+        <br />
+        <br />Example:
+        <br /><code>class:org.example.ExampleClass,serializer:org.example.ExampleSerializer1; class:org.example.ExampleClass2,serializer:org.example.ExampleSerializer2</code>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.force-avro</b>
+      </td>
+      <td style="text-align:left">false</td>
+      <td style="text-align:left">Boolean</td>
+      <td style="text-align:left">Forces Flink to use the Apache Avro serializer for POJOs.
+        <br />
+        <br />Important: Make sure to include the <code>flink-avro</code> module.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.force-kryo</b>
+      </td>
+      <td style="text-align:left">false</td>
+      <td style="text-align:left">Boolean</td>
+      <td style="text-align:left">If enabled, forces TypeExtractor to use Kryo serializer for POJOS even
+        though we could analyze as POJO. In some cases this might be preferable.
+        For example, when using interfaces with subclasses that cannot be analyzed
+        as POJO.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.generic-types</b>
+      </td>
+      <td style="text-align:left">true</td>
+      <td style="text-align:left">Boolean</td>
+      <td style="text-align:left">If the use of generic types is disabled, Flink will throw an <code>UnsupportedOperationException</code> whenever
+        it encounters a data type that would go through Kryo for serialization.
+        <br
+        />
+        <br />Disabling generic types can be helpful to eagerly find and eliminate the
+        use of types that would go through Kryo serialization during runtime. Rather
+        than checking types individually, using this option will throw exceptions
+        eagerly in the places where generic types are used.
+        <br />
+        <br />We recommend to use this option only during development and pre-production
+        phases, not during actual production use. The application program and/or
+        the input data may be such that new, previously unseen, types occur at
+        some point. In that case, setting this option would cause the program to
+        fail.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.global-job-parameters</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">Map</td>
+      <td style="text-align:left">Register a custom, serializable user configuration object. The configuration
+        can be accessed in operators</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.jars</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">List&lt;String&gt;</td>
+      <td style="text-align:left">A semicolon-separated list of the jars to package with the job jars to
+        be sent to the cluster. These have to be valid paths.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.max-parallelism</b>
+      </td>
+      <td style="text-align:left">-1</td>
+      <td style="text-align:left">Integer</td>
+      <td style="text-align:left">The program-wide maximum parallelism used for operators which haven&apos;t
+        specified a maximum parallelism. The maximum parallelism specifies the
+        upper limit for dynamic scaling and the number of key groups used for partitioned
+        state.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.object-reuse</b>
+      </td>
+      <td style="text-align:left">false</td>
+      <td style="text-align:left">Boolean</td>
+      <td style="text-align:left">When enabled objects that Flink internally uses for deserialization and
+        passing data to user-code functions will be reused. Keep in mind that this
+        can lead to bugs when the user-code function of an operation is not aware
+        of this behaviour.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.operator-chaining</b>
+      </td>
+      <td style="text-align:left">true</td>
+      <td style="text-align:left">Boolean</td>
+      <td style="text-align:left">Operator chaining allows non-shuffle operations to be co-located in the
+        same thread fully avoiding serialization and de-serialization.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.registered-kryo-types</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">List&lt;String&gt;</td>
+      <td style="text-align:left">Semicolon separated list of types to be registered with the serialization
+        stack. If the type is eventually serialized as a POJO, then the type is
+        registered with the POJO serializer. If the type ends up being serialized
+        with Kryo, then it will be registered at Kryo to make sure that only tags
+        are written.</td>
+    </tr>
+    <tr>
+      <td style="text-align:left"><b>pipeline.registered-pojo-types</b>
+      </td>
+      <td style="text-align:left">(none)</td>
+      <td style="text-align:left">List&lt;String&gt;</td>
+      <td style="text-align:left">Semicolon separated list of types to be registered with the serialization
+        stack. If the type is eventually serialized as a POJO, then the type is
+        registered with the POJO serializer. If the type ends up being serialized
+        with Kryo, then it will be registered at Kryo to make sure that only tags
+        are written.</td>
+    </tr>
+  </tbody>
+</table>
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **pipeline.time-characteristic** | ProcessingTime | EnumPossible values: \[ProcessingTime, IngestionTime, EventTime\] | The time characteristic for all created streams, e.g., processingtime, event time, or ingestion time.  If you set the characteristic to IngestionTime or EventTime this will set a default watermark update interval of 200 ms. If this is not applicable for your application you should change it using `pipeline.auto-watermark-interval`. |
+
+**Checkpointing**
+
+| 配置项 | 默认值 | 类型 | 描述 |
+| :--- | :--- | :--- | :--- |
+| **execution.checkpointing.externalized-checkpoint-retention** | \(none\) | EnumPossible values: \[DELETE\_ON\_CANCELLATION, RETAIN\_ON\_CANCELLATION\] | Externalized checkpoints write their meta data out to persistent storage and are not automatically cleaned up when the owning job fails or is suspended \(terminating with job status `JobStatus#FAILED` or `JobStatus#SUSPENDED`. In this case, you have to manually clean up the checkpoint state, both the meta data and actual program state.  The mode defines how an externalized checkpoint should be cleaned up on job cancellation. If you choose to retain externalized checkpoints on cancellation you have to handle checkpoint clean up manually when you cancel the job as well \(terminating with job status `JobStatus#CANCELED`\).  The target directory for externalized checkpoints is configured via `state.checkpoints.dir`. |
+| **execution.checkpointing.interval** | \(none\) | Duration | Gets the interval in which checkpoints are periodically scheduled.  This setting defines the base interval. Checkpoint triggering may be delayed by the settings `execution.checkpointing.max-concurrent-checkpoints` and `execution.checkpointing.min-pause` |
+| **execution.checkpointing.max-concurrent-checkpoints** | 1 | Integer | The maximum number of checkpoint attempts that may be in progress at the same time. If this value is n, then no checkpoints will be triggered while n checkpoint attempts are currently in flight. For the next checkpoint to be triggered, one checkpoint attempt would need to finish or expire. |
+| **execution.checkpointing.min-pause** | 0 ms | Duration | The minimal pause between checkpointing attempts. This setting defines how soon thecheckpoint coordinator may trigger another checkpoint after it becomes possible to triggeranother checkpoint with respect to the maximum number of concurrent checkpoints\(see `execution.checkpointing.max-concurrent-checkpoints`\).  If the maximum number of concurrent checkpoints is set to one, this setting makes effectively sure that a minimum amount of time passes where no checkpoint is in progress at all. |
+| **execution.checkpointing.mode** | EXACTLY\_ONCE | EnumPossible values: \[EXACTLY\_ONCE, AT\_LEAST\_ONCE\] | The checkpointing mode \(exactly-once vs. at-least-once\). |
+| **execution.checkpointing.prefer-checkpoint-for-recovery** | false | Boolean | If enabled, a job recovery should fallback to checkpoint when there is a more recent savepoint. |
+| **execution.checkpointing.timeout** | 10 min | Duration | The maximum time that a checkpoint may take before being discarded. |
+| **execution.checkpointing.tolerable-failed-checkpoints** | \(none\) | Integer | The tolerable checkpoint failure number. If set to 0, that meanswe do not tolerance any checkpoint failure. |
 
