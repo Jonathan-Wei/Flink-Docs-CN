@@ -69,15 +69,15 @@ _配置Flink应用程序或集群的常用配置项。_
 
 | 配置项 | 默认值 | 类型 | 描默认 |
 | :--- | :--- | :--- | :--- |
-| **jobmanager.rpc.address** | \(none\) | String | The config parameter defining the network address to connect to for communication with the job manager. This value is only interpreted in setups where a single JobManager with static name or address exists \(simple standalone setups, or container setups with dynamic service name resolution\). It is not used in many high-availability setups, when a leader-election service \(like ZooKeeper\) is used to elect and discover the JobManager leader from potentially multiple standby JobManagers. |
-| **jobmanager.rpc.port** | 6123 | Integer | The config parameter defining the network port to connect to for communication with the job manager. Like jobmanager.rpc.address, this value is only interpreted in setups where a single JobManager with static name/address and port exists \(simple standalone setups, or container setups with dynamic service name resolution\). This config option is not used in many high-availability setups, when a leader-election service \(like ZooKeeper\) is used to elect and discover the JobManager leader from potentially multiple standby JobManagers. |
-| **rest.address** | \(none\) | String | The address that should be used by clients to connect to the server. |
-| **rest.bind-address** | \(none\) | String | The address that the server binds itself. |
-| **rest.bind-port** | "8081" | String | The port that the server binds itself. Accepts a list of ports \(“50100,50101”\), ranges \(“50100-50200”\) or a combination of both. It is recommended to set a range of ports to avoid collisions when multiple Rest servers are running on the same machine. |
-| **rest.port** | 8081 | Integer | The port that the client connects to. If rest.bind-port has not been specified, then the REST server will bind to this port. |
-| **taskmanager.data.port** | 0 | Integer | The task manager’s port used for data exchange operations. |
-| **taskmanager.host** | \(none\) | String | The address of the network interface that the TaskManager binds to. This option can be used to define explicitly a binding address. Because different TaskManagers need different values for this option, usually it is specified in an additional non-shared TaskManager-specific config file. |
-| **taskmanager.rpc.port** | "0" | String | The task manager’s IPC port. Accepts a list of ports \(“50100,50101”\), ranges \(“50100-50200”\) or a combination of both. It is recommended to set a range of ports to avoid collisions when multiple TaskManagers are running on the same machine. |
+| **jobmanager.rpc.address** | \(none\) | String | 配置参数定义了与JobManager进行通信链接的网络地址。此值仅在存在具有静态名称或地址的单个JobManager的设置（简单的独立设置或具有动态服务名称解析的容器设置）中解释。在许多高可用性设置中，当使用leader-election服务（如ZooKeeper）从潜在的多个备用JobManager中选择和发现JobManager leader时，不会使用它。 |
+| **jobmanager.rpc.port** | 6123 | Integer | 配置参数定义了与JobManager进行通信链接的网络端口. 与jobmanager.rpc.address一样，此值仅在存在单个具有静态名称/地址和端口的JobManager的设置（简单的独立设置或具有动态服务名称解析的容器设置）中进行解释。当使用leader-election服务（例如ZooKeeper）来从潜在的多个备用JobManager中选举和发现JobManager领导者时，在许多高可用性设置中不使用此配置选项。 |
+| **rest.address** | \(none\) | String | 客户端用于连接服务器的地址。 |
+| **rest.bind-address** | \(none\) | String | 服务器绑定自身的地址。 |
+| **rest.bind-port** | "8081" | String | 服务器绑定自身的端口。接受端口列表（“ 50100,50101”），范围（“ 50100-50200”）或两者的组合。建议设置一定范围的端口，以防止在同一台计算机上运行多个Rest服务器时发生冲突。 |
+| **rest.port** | 8081 | Integer | 客户端连接到的端口。如果未指定rest.bind-port，则REST服务器将绑定到该端口。 |
+| **taskmanager.data.port** | 0 | Integer | TaskManager的端口，用于数据交换操作。 |
+| **taskmanager.host** | \(none\) | String | TaskManager绑定到的网络接口的地址。此选项可用于显式定义绑定地址。因为不同的TaskManager对此选项需要不同的值，所以通常在其他非共享TaskManager特定的配置文件中指定它。 |
+| **taskmanager.rpc.port** | "0" | String | 任务管理器的IPC端口。接受端口列表（“ 50100,50101”），范围（“ 50100-50200”）或两者的组合。建议设置一定范围的端口，以避免在同一台计算机上运行多个TaskManager时发生冲突。 |
 
 ### 容错能力
 
@@ -101,18 +101,18 @@ _配置Flink应用程序或集群的常用配置项。_
       <td style="text-align:left">(none)</td>
       <td style="text-align:left">String</td>
       <td style="text-align:left">
-        <p>Defines the restart strategy to use in case of job failures.
-          <br />Accepted values are:</p>
+        <p>&#x5B9A;&#x4E49;&#x5728;&#x4F5C;&#x4E1A;&#x5931;&#x8D25;&#x7684;&#x60C5;&#x51B5;&#x4E0B;&#x4F7F;&#x7528;&#x7684;&#x91CD;&#x65B0;&#x542F;&#x52A8;&#x7B56;&#x7565;&#x3002;</p>
+        <p>&#x53EF;&#x63A5;&#x53D7;&#x7684;&#x503C;&#x4E3A;&#xFF1A;</p>
         <ul>
-          <li><code>none</code>, <code>off</code>, <code>disable</code>: No restart strategy.</li>
-          <li><code>fixeddelay</code>, <code>fixed-delay</code>: Fixed delay restart
-            strategy. More details can be found <a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/task_failure_recovery.html#fixed-delay-restart-strategy">here</a>.</li>
-          <li><code>failurerate</code>, <code>failure-rate</code>: Failure rate restart
-            strategy. More details can be found <a href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/task_failure_recovery.html#failure-rate-restart-strategy">here</a>.</li>
+          <li><code>none</code>, <code>off</code>, <code>disable</code>: &#x6CA1;&#x6709;&#x91CD;&#x65B0;&#x542F;&#x52A8;&#x7B56;&#x7565;&#x3002;.</li>
+          <li><code>fixeddelay</code>, <code>fixed-delay</code>: &#x56FA;&#x5B9A;&#x5EF6;&#x8FDF;&#x91CD;&#x65B0;&#x542F;&#x52A8;&#x7B56;&#x7565;&#x3002;&#x53EF;&#x4EE5;&#x5728;
+            <a
+            href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/task_failure_recovery.html#fixed-delay-restart-strategy">&#x6B64;&#x5904;</a>&#x627E;&#x5230;&#x66F4;&#x591A;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#x3002;</li>
+          <li><code>failurerate</code>, <code>failure-rate</code>: &#x5931;&#x8D25;&#x7387;&#x91CD;&#x542F;&#x7B56;&#x7565;&#x3002;&#x53EF;&#x4EE5;&#x5728;
+            <a
+            href="https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/task_failure_recovery.html#failure-rate-restart-strategy">&#x6B64;&#x5904;</a>&#x627E;&#x5230;&#x66F4;&#x591A;&#x8BE6;&#x7EC6;&#x4FE1;&#x606F;&#x3002;</li>
         </ul>
-        <p>If checkpointing is disabled, the default value is <code>none</code>. If
-          checkpointing is enabled, the default value is <code>fixed-delay</code> with <code>Integer.MAX_VALUE</code> restart
-          attempts and &apos;<code>1 s</code>&apos; delay.</p>
+        <p>&#x5982;&#x679C;&#x7981;&#x7528;&#x68C0;&#x67E5;&#x70B9;&#xFF0C;&#x5219;&#x9ED8;&#x8BA4;&#x503C;&#x4E3A;<code>none</code>&#x3002;&#x5982;&#x679C;&#x542F;&#x7528;&#x4E86;&#x68C0;&#x67E5;&#x70B9;&#xFF0C;&#x9ED8;&#x8BA4;&#x503C;&#x662F;Integer.MAX_VALUE&#x7684;<code>fixed-delay</code>&#x548C;&#x201C;1&#x79D2;&#x201D;&#x5EF6;&#x8FDF;&#x3002;</p>
       </td>
     </tr>
   </tbody>
@@ -122,16 +122,16 @@ _配置Flink应用程序或集群的常用配置项。_
 
 | 配置项 | 默认值 | 类型 | 描述 |
 | :--- | :--- | :--- | :--- |
-| **restart-strategy.fixed-delay.attempts** | 1 | Integer | The number of times that Flink retries the execution before the job is declared as failed if `restart-strategy` has been set to `fixed-delay`. |
-| **restart-strategy.fixed-delay.delay** | 1 s | Duration | Delay between two consecutive restart attempts if `restart-strategy` has been set to `fixed-delay`. Delaying the retries can be helpful when the program interacts with external systems where for example connections or pending transactions should reach a timeout before re-execution is attempted. It can be specified using notation: "1 min", "20 s" |
+| **restart-strategy.fixed-delay.attempts** | 1 | Integer | 如果`restart-strategy`已设置为`fixed-delay`，则在作业被声明为失败之前，Flink重试执行的次数。 |
+| **restart-strategy.fixed-delay.delay** | 1 s | Duration | 如果`restart-strategy`已设置为`fixed-delay`，则两次连续重启尝试之间的延迟。当程序与外部系统交互时，延迟重试可能会有所帮助，例如，在尝试重新执行之前，连接或挂起的事务应该达到超时。可以使用符号“1分钟”、“20秒”来指定。 |
 
  **故障率重启策略**
 
 | **配置项** | 默认值 | 类型 | 描述 |
 | :--- | :--- | :--- | :--- |
-| **restart-strategy.failure-rate.delay** | 1 s | Duration | Delay between two consecutive restart attempts if `restart-strategy` has been set to `failure-rate`. It can be specified using notation: "1 min", "20 s" |
-| **restart-strategy.failure-rate.failure-rate-interval** | 1 min | Duration | Time interval for measuring failure rate if `restart-strategy` has been set to `failure-rate`. It can be specified using notation: "1 min", "20 s" |
-| **restart-strategy.failure-rate.max-failures-per-interval** | 1 | Integer | Maximum number of restarts in given time interval before failing a job if `restart-strategy` has been set to `failure-rate`. |
+| **restart-strategy.failure-rate.delay** | 1 s | Duration | 如果restart-strategy已设置为failure-rate，则两个连续重启尝试之间的延迟。可以使用符号“1分钟”、“20秒”来指定。 |
+| **restart-strategy.failure-rate.failure-rate-interval** | 1 min | Duration | 如果restart-strategy已设置为failure-rate，则测量故障率的时间间隔。可以使用符号“1分钟”、“20秒”来指定。 |
+| **restart-strategy.failure-rate.max-failures-per-interval** | 1 | Integer | 如果restart-strategy已设置为failure-rate，则在作业失败前给定时间间隔内的最大重启次数。 |
 
 ### 检查点及状态后端
 
@@ -141,13 +141,13 @@ _配置Flink应用程序或集群的常用配置项。_
 
 | 配置项 | 默认值 | 类型 | 描述 |
 | :--- | :--- | :--- | :--- |
-| **state.backend** | \(none\) | String | The state backend to be used to store and checkpoint state. |
-| **state.checkpoints.dir** | \(none\) | String | The default directory used for storing the data files and meta data of checkpoints in a Flink supported filesystem. The storage path must be accessible from all participating processes/nodes\(i.e. all TaskManagers and JobManagers\). |
-| **state.savepoints.dir** | \(none\) | String | The default directory for savepoints. Used by the state backends that write savepoints to file systems \(MemoryStateBackend, FsStateBackend, RocksDBStateBackend\). |
-| **state.backend.incremental** | false | Boolean | Option whether the state backend should create incremental checkpoints, if possible. For an incremental checkpoint, only a diff from the previous checkpoint is stored, rather than the complete checkpoint state. Some state backends may not support incremental checkpoints and ignore this option. |
-| **state.backend.local-recovery** | false | Boolean | This option configures local recovery for this state backend. By default, local recovery is deactivated. Local recovery currently only covers keyed state backends. Currently, MemoryStateBackend does not support local recovery and ignore this option. |
-| **state.checkpoints.num-retained** | 1 | Integer | The maximum number of completed checkpoints to retain. |
-| **taskmanager.state.local.root-dirs** | \(none\) | String | The config parameter defining the root directories for storing file-based state for local recovery. Local recovery currently only covers keyed state backends. Currently, MemoryStateBackend does not support local recovery and ignore this option |
+| **state.backend** | \(none\) | String | 用于存储和检查点状态的状态后端。 |
+| **state.checkpoints.dir** | \(none\) | String | 用于在Flink支持的文件系统中存储检查点的数据文件和元数据的默认目录。必须从所有参与的进程/节点（即所有TaskManager和JobManager）访问存储路径。 |
+| **state.savepoints.dir** | \(none\) | String | 保存点的默认目录。由状态后端用于将保存点写入文件系统（MemoryStateBackend，FsStateBackend，RocksDBStateBackend）。 |
+| **state.backend.incremental** | false | Boolean | 选择状态后端是否应创建增量检查点（如果可能）。对于增量检查点，仅存储与前一个检查点的差异，而不存储完整的检查点状态。某些状态后端可能不支持增量检查点，因此会忽略此选项。 |
+| **state.backend.local-recovery** | false | Boolean | 此选项配置状态后端的本地恢复。默认情况下，本地恢复是停用的。本地恢复目前只覆盖键控状态后端。目前，MemoryStateBackend不支持本地恢复并忽略此选项。 |
+| **state.checkpoints.num-retained** | 1 | Integer | 要保留的最大已完成检查点数。 |
+| **taskmanager.state.local.root-dirs** | \(none\) | String | 定义根目录的配置参数用于存储本地恢复的基于文件的状态。本地恢复当前仅覆盖键控状态后端。当前，MemoryStateBackend不支持本地恢复并忽略此选项 |
 
 ### 高可用性
 
@@ -157,16 +157,16 @@ JobManager确保跨TaskManager恢复期间的一致性。为了使JobManager自�
 
 | 配置项 | 默认值 | 类型 | 描述 |
 | :--- | :--- | :--- | :--- |
-| **high-availability** | "NONE" | String | Defines high-availability mode used for the cluster execution. To enable high-availability, set this mode to "ZOOKEEPER" or specify FQN of factory class. |
-| **high-availability.cluster-id** | "/default" | String | The ID of the Flink cluster, used to separate multiple Flink clusters from each other. Needs to be set for standalone clusters but is automatically inferred in YARN and Mesos. |
-| **high-availability.storageDir** | \(none\) | String | File system path \(URI\) where Flink persists metadata in high-availability setups. |
+| **high-availability** | "NONE" | String | 定义用于集群执行的高可用性模式。要启用高可用性，请将此模式设置为“ ZOOKEEPER”或指定的FQN工厂类。 |
+| **high-availability.cluster-id** | "/default" | String | Flink群集的ID，用于将多个Flink群集彼此分开。需要为独立群集设置，但是会在YARN和Mesos中自动推断出来。 |
+| **high-availability.storageDir** | \(none\) | String | Flink将元数据保留在高可用性设置中的文件系统路径（URI）。 |
 
  **ZooKeeper的高可用性配置选项**
 
 | **配置项** | 默认值 | 类型 | 描述 |
 | :--- | :--- | :--- | :--- |
-| **high-availability.zookeeper.path.root** | "/flink" | String | The root path under which Flink stores its entries in ZooKeeper. |
-| **high-availability.zookeeper.quorum** | \(none\) | String | The ZooKeeper quorum to use, when running Flink in a high-availability mode with ZooKeeper. |
+| **high-availability.zookeeper.path.root** | "/flink" | String | Flink将其条目存储在ZooKeeper中的根路径。 |
+| **high-availability.zookeeper.quorum** | \(none\) | String | 使用ZooKeeper在高可用性模式下运行Flink时要使用的ZooKeeper quorum。. |
 
 ### 内存配置
 
@@ -178,10 +178,10 @@ Flink尝试使用户免受配置JVM进行数据密集型处理的复杂性的影
 
 | 配置项 | 默认值 | 类型 | 描述 |
 | :--- | :--- | :--- | :--- |
-| **taskmanager.memory.flink.size** | \(none\) | MemorySize | Total Flink Memory size for the TaskExecutors. This includes all the memory that a TaskExecutor consumes, except for JVM Metaspace and JVM Overhead. It consists of Framework Heap Memory, Task Heap Memory, Task Off-Heap Memory, Managed Memory, and Network Memory. See also 'taskmanager.memory.process.size' for total process memory size configuration. |
-| **taskmanager.memory.framework.heap.size** | 128 mb | MemorySize | Framework Heap Memory size for TaskExecutors. This is the size of JVM heap memory reserved for TaskExecutor framework, which will not be allocated to task slots. |
-| **taskmanager.memory.framework.off-heap.size** | 128 mb | MemorySize | Framework Off-Heap Memory size for TaskExecutors. This is the size of off-heap memory \(JVM direct memory and native memory\) reserved for TaskExecutor framework, which will not be allocated to task slots. The configured value will be fully counted when Flink calculates the JVM max direct memory size parameter. |
-| **taskmanager.memory.jvm-metaspace.size** | 256 mb | MemorySize | JVM Metaspace Size for the TaskExecutors. |
+| **taskmanager.memory.flink.size** | \(none\) | MemorySize | TaskExecutor的总Flink内存大小。这包括TaskExecutor占用的所有内存，但JVM Metaspace和JVM Overhead除外。它由框架堆内存，任务堆内存，任务堆外内存，托管内存和网络内存组成。另请参阅“ taskmanager.memory.process.size”以获取总进程内存大小配置。 |
+| **taskmanager.memory.framework.heap.size** | 128 mb | MemorySize | TaskExecutor的框架堆内存大小。这是为TaskExecutor框架保留的JVM堆内存的大小，不会分配给任务插槽。 |
+| **taskmanager.memory.framework.off-heap.size** | 128 mb | MemorySize | TaskExecutor的框架外堆内存大小。这是为TaskExecutor框架保留的堆外内存（JVM直接内存和本机内存）的大小，不会分配给任务插槽。当Flink计算JVM最大直接内存大小参数时，将完全计算配置的值。 |
+| **taskmanager.memory.jvm-metaspace.size** | 256 mb | MemorySize | TaskExecutor的JVM元空间大小。 |
 | **taskmanager.memory.jvm-overhead.fraction** | 0.1 | Float | Fraction of Total Process Memory to be reserved for JVM Overhead. This is off-heap memory reserved for JVM overhead, such as thread stack space, compile cache, etc. This includes native memory but not direct memory, and will not be counted when Flink calculates JVM max direct memory size parameter. The size of JVM Overhead is derived to make up the configured fraction of the Total Process Memory. If the derived size is less/greater than the configured min/max size, the min/max size will be used. The exact size of JVM Overhead can be explicitly specified by setting the min/max size to the same value. |
 | **taskmanager.memory.jvm-overhead.max** | 1 gb | MemorySize | Max JVM Overhead size for the TaskExecutors. This is off-heap memory reserved for JVM overhead, such as thread stack space, compile cache, etc. This includes native memory but not direct memory, and will not be counted when Flink calculates JVM max direct memory size parameter. The size of JVM Overhead is derived to make up the configured fraction of the Total Process Memory. If the derived size is less/greater than the configured min/max size, the min/max size will be used. The exact size of JVM Overhead can be explicitly specified by setting the min/max size to the same value. |
 | **taskmanager.memory.jvm-overhead.min** | 192 mb | MemorySize | Min JVM Overhead size for the TaskExecutors. This is off-heap memory reserved for JVM overhead, such as thread stack space, compile cache, etc. This includes native memory but not direct memory, and will not be counted when Flink calculates JVM max direct memory size parameter. The size of JVM Overhead is derived to make up the configured fraction of the Total Process Memory. If the derived size is less/greater than the configured min/max size, the min/max size will be used. The exact size of JVM Overhead can be explicitly specified by setting the min/max size to the same value. |
