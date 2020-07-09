@@ -157,6 +157,7 @@
     * [NiFi](connectors/connectors/nifi.md)
     * [Google Cloud PubSub](connectors/connectors/google-cloud-pubsub.md)
     * [Twitter](connectors/connectors/twitter.md)
+    * [JDBC](connectors/connectors/jdbc.md)
   * [Table & SQL Connentors](connectors/table-and-sql-connentors.md)
   * [DataSet Connectors](connectors/dataset-connectors.md)
 * [部署-操作](06-bu-shu-cao-zuo/README.md)
