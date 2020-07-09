@@ -1,8 +1,7 @@
 # Table of contents
 
 * [README（已更新至1.11版本）](README.md)
-* [Home](home.md)
-* [Try Flink](try-flink/README.md)
+* [尝试 Flink](try-flink/README.md)
   * [本地安装](try-flink/ben-di-an-zhuang.md)
   * [利用数据流API进行欺诈检测](try-flink/li-yong-shu-ju-liu-api-jin-hang-qi-zha-jian-ce.md)
   * [使用Table API进行实时报告](try-flink/shi-yong-table-api-jin-hang-shi-shi-bao-gao.md)

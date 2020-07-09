@@ -1,10 +1,64 @@
+---
+description: >-
+  Apache Flink提供了一个DataStream
+  API，用于构建健壮的、有状态的流应用程序。它提供了对状态和时间的细粒度控制，从而允许实现高级事件驱动系统。在这个分步指导中，您将学习如何使用Flink的DataStream
+  API构建一个有状态流应用程序。
+---
+
 # 利用数据流API进行欺诈检测
 
 ## 你在构建什么?
 
+在数字时代，信用卡诈骗越来越令人担忧。犯罪分子通过行骗或入侵不安全的系统来窃取信用卡号码。通过一次或多次小的购买来测试被盗号码，通常是一美元或更少。如果这可行的话，他们就会购买更重要的物品来出售或保留自己的物品。
+
+在本教程中，将构建一个欺诈检测系统，用于对可疑的信用卡交易发出警报。通过使用一组简单的规则，你将看到Flink如何允许我们实现高级业务逻辑和实时操作。
+
 ## 先决条件
 
+本演练假设你熟悉Java或Scala，但是即使你来自不同的编程语言，你也应该能够跟上。
+
 ## 救命，我卡住了！
+
+如果你想跟随着一起实现这个程序，你需要在电脑上安装以下组件:
+
+* Java 8 or 11
+* Maven
+
+提供的Flink Maven原型将快速创建包含所有必要依赖项的框架项目，因此你只需要专注于填充业务逻辑。这些依赖项包括`Flink -stream -java`，它是所有Flink流应用程序的核心依赖项;还有`Flink -walkthrough-common`，它具有特定于此演练的数据生成器和其他类。
+
+{% hint style="info" %}
+**注意**:为简洁起见，本演练中的每个代码块可能不包含周围的完整类。完整的代码可以在页面的底部找到。
+{% endhint %}
+
+{% tabs %}
+{% tab title="Java" %}
+```text
+$ mvn archetype:generate \
+    -DarchetypeGroupId=org.apache.flink \
+    -DarchetypeArtifactId=flink-walkthrough-datastream-java \
+    -DarchetypeVersion=1.11.0 \
+    -DgroupId=frauddetection \
+    -DartifactId=frauddetection \
+    -Dversion=0.1 \
+    -Dpackage=spendreport \
+    -DinteractiveMode=false
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```text
+$ mvn archetype:generate \
+    -DarchetypeGroupId=org.apache.flink \
+    -DarchetypeArtifactId=flink-walkthrough-datastream-scala \
+    -DarchetypeVersion=1.11.0 \
+    -DgroupId=frauddetection \
+    -DartifactId=frauddetection \
+    -Dversion=0.1 \
+    -Dpackage=spendreport \
+    -DinteractiveMode=false
+```
+{% endtab %}
+{% endtabs %}
 
 ## 如何跟进
 
