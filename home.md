@@ -10,8 +10,8 @@ description: >-
 
 If you’re interested in playing around with Flink, try one of our tutorials:
 
-* [L](https://ci.apache.org/projects/flink/flink-docs-release-1.11/try-flink/local_installation.html)安装本地
-* [Fraud Detection with the DataStream API](https://ci.apache.org/projects/flink/flink-docs-release-1.11/try-flink/datastream_api.html)
+* [安装本地](https://ci.apache.org/projects/flink/flink-docs-release-1.11/try-flink/local_installation.html)
+* [利用](https://ci.apache.org/projects/flink/flink-docs-release-1.11/try-flink/datastream_api.html)API进行欺诈检测流数据
 * [Real Time Reporting with the Table API](https://ci.apache.org/projects/flink/flink-docs-release-1.11/try-flink/table_api.html)
 * [Intro to the Python Table API](https://ci.apache.org/projects/flink/flink-docs-release-1.11/try-flink/python_table_api.html)
 * [Flink Operations Playground](https://ci.apache.org/projects/flink/flink-docs-release-1.11/try-flink/flink-operations-playground.html)
