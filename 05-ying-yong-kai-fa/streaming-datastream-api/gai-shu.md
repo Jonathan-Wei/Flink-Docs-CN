@@ -4,7 +4,124 @@ Flink中的DataStream程序是常规程序，可对数据流执行转换（例�
 
 请参阅[基本概念](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/api_concepts.html)，以了解Flink API的基本概念。
 
-为了创建自己的Flink DataStream程序，我们建议您从[Flink程序的解剖](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/api_concepts.html#anatomy-of-a-flink-program)开始， 并逐步添加自己的 [流转换](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/stream/operators/index.html)。其余部分用作其他操作和高级功能的参考。
+为了创建自己的Flink DataStream程序，我们建议您从Flink程序的解剖开始， 并逐步添加自己的流转换。其余部分用作其他操作和高级功能的参考。
+
+## 什么是数据流
+
+DataStream API的名称来自于`DataStream`类，DataStream类用于表示Flink程序中的一组数据。你可以将它们视为可包含重复项的不可变数据集合。这些数据可以是有限的，也可以是无限的，用于处理它们的API是相同的。
+
+就用法而言，DataStream与常规Java集合类似，但在一些关键方面有很大不同。它们是不可变的，这意味着一旦创建了它们，你就不能添加或删除元素。你也可以不能检查内部的元素，而是只能使用DataStream API操作对它们进行操作，这些操作也称为转换。
+
+你可以通过在Flink程序中添加源来创建初始DataStream。然后可以从中派生出新的流，并通过使用诸如map、filter等API方法将它们组合起来。
+
+## Flink程序剖析
+
+Flink程序看起来就像转换数据表的常规程序。每个程序都由相同的基本部分组成:
+
+1. 获得`execution environment`，
+2. 加载/创建初始数据，
+3. 指定对此数据的转换，
+4. 指定将计算结果放在何处，
+5. 触发程序执行
+
+{% tabs %}
+{% tab title="Java" %}
+现在，我们将对每个步骤进行概述，有关更多详细信息，请参阅相应的章节。请注意，可以在[org.apache.flink.streaming.api中](https://github.com/apache/flink/blob/master//flink-streaming-java/src/main/java/org/apache/flink/streaming/api)找到Java DataStream API的所有核心类。
+
+`StreamExecutionEnvironment`是所有Flink程序的基础。可以使用以下静态方法获得一个`StreamExecutionEnvironment`：
+
+```text
+getExecutionEnvironment()
+
+createLocalEnvironment()
+
+createRemoteEnvironment(String host, int port, String... jarFiles)
+```
+
+
+
+```text
+final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+DataStream<String> text = env.readTextFile("file:///path/to/file");
+```
+
+
+
+```text
+DataStream<String> input = ...;
+
+DataStream<Integer> parsed = input.map(new MapFunction<String, Integer>() {
+    @Override
+    public Integer map(String value) {
+        return Integer.parseInt(value);
+    }
+});
+```
+
+
+
+```text
+writeAsText(String path)
+
+print()
+```
+
+
+
+```text
+final JobClient jobClient = env.executeAsync();
+
+final JobExecutionResult jobExecutionResult = jobClient.getJobExecutionResult(userClassloader).get();
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+现在，我们将对每个步骤进行概述，有关更多详细信息，请参阅相应的章节。请注意，可以在[org.apache.flink.streaming.api.scala中](https://github.com/apache/flink/blob/master//flink-streaming-scala/src/main/scala/org/apache/flink/streaming/api/scala)找到Scala DataStream API的所有核心类。
+
+`StreamExecutionEnvironment`是所有Flink程序的基础。可以使用以下静态方法获得一个`StreamExecutionEnvironment`：
+
+```text
+getExecutionEnvironment()
+
+createLocalEnvironment()
+
+createRemoteEnvironment(host: String, port: Int, jarFiles: String*)
+```
+
+
+
+```text
+val env = StreamExecutionEnvironment.getExecutionEnvironment()
+
+val text: DataStream[String] = env.readTextFile("file:///path/to/file")
+```
+
+
+
+```text
+val input: DataSet[String] = ...
+
+val mapped = input.map { x => x.toInt }
+```
+
+
+
+```text
+writeAsText(path: String)
+
+print()
+```
+
+
+
+```text
+final JobClient jobClient = env.executeAsync();
+
+final JobExecutionResult jobExecutionResult = jobClient.getJobExecutionResult(userClassloader).get();
+```
+{% endtab %}
+{% endtabs %}
 
 ## 示例程序
 

@@ -1685,6 +1685,8 @@ DataStream<Alert> alerts = patternStream.select(new PatternSelectFunction<Event,
 
 在Flink-1.4中放弃了CEP库与&lt;= Flink 1.2的向后兼容性。不幸的是，无法恢复曾经在1.2.x中运行的CEP作业
 
+### 迁移到1.3.x
+
 Flink-1.3中的CEP库附带了许多新功能，这些功能导致了API的一些变化。在这里，我们描述了您需要对旧CEP作业进行的更改，以便能够使用Flink-1.3运行它们。完成这些更改并重新编译作业后，您将能够从使用旧版本作业的保存点恢复执行，_即_无需重新处理过去的数据。
 
 所需的更改是：

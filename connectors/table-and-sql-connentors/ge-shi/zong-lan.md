@@ -4,7 +4,7 @@ Flink提供了一组表格式，可与表连接器一起使用。表格式是一
 
 Flink支持以下格式：
 
-| 格式 | 支持的连接 |
+| 格式 | 支持的连接器 |
 | :--- | :--- |
 | [CSV](https://ci.apache.org/projects/flink/flink-docs-release-1.11/dev/table/connectors/formats/csv.html) | [Apache Kafka](https://ci.apache.org/projects/flink/flink-docs-release-1.11/dev/table/connectors/kafka.html), [Filesystem](https://ci.apache.org/projects/flink/flink-docs-release-1.11/dev/table/connectors/filesystem.html) |
 | [JSON](https://ci.apache.org/projects/flink/flink-docs-release-1.11/dev/table/connectors/formats/json.html) | [Apache Kafka](https://ci.apache.org/projects/flink/flink-docs-release-1.11/dev/table/connectors/kafka.html), [Filesystem](https://ci.apache.org/projects/flink/flink-docs-release-1.11/dev/table/connectors/filesystem.html), [Elasticsearch](https://ci.apache.org/projects/flink/flink-docs-release-1.11/dev/table/connectors/elasticsearch.html) |
