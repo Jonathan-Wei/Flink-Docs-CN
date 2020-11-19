@@ -940,8 +940,8 @@ metrics.reporter.slf4j.interval: 60 SECONDS
       <td style="text-align:left"></td>
       <td style="text-align:left">currentInputWatermark</td>
       <td style="text-align:left">
-        <p>&#x6B64;&#x64CD;&#x4F5C;&#x7B26;/&#x4EFB;&#x52A1;&#x6536;&#x5230;&#x7684;&#x200B;&#x200B;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x6C34;&#x5370;&#xFF08;&#x4EE5;&#x6BEB;&#x79D2;&#x4E3A;&#x5355;&#x4F4D;&#xFF09;&#x3002;</p>
-        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x5BF9;&#x4E8E;&#x5177;&#x6709;2&#x4E2A;&#x8F93;&#x5165;&#x7684;&#x64CD;&#x4F5C;&#x7B26;/&#x4EFB;&#x52A1;&#xFF0C;&#x8FD9;&#x662F;&#x6700;&#x540E;&#x6536;&#x5230;&#x7684;&#x6C34;&#x5370;&#x7684;&#x6700;&#x5C0F;&#x503C;&#x3002;</p>
+        <p>&#x6B64;&#x64CD;&#x4F5C;&#x7B26;/&#x4EFB;&#x52A1;&#x6536;&#x5230;&#x7684;&#x200B;&#x200B;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x6C34;&#x4F4D;&#x7EBF;&#xFF08;&#x4EE5;&#x6BEB;&#x79D2;&#x4E3A;&#x5355;&#x4F4D;&#xFF09;&#x3002;</p>
+        <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x5BF9;&#x4E8E;&#x5177;&#x6709;2&#x4E2A;&#x8F93;&#x5165;&#x7684;&#x64CD;&#x4F5C;&#x7B26;/&#x4EFB;&#x52A1;&#xFF0C;&#x8FD9;&#x662F;&#x6700;&#x540E;&#x6536;&#x5230;&#x7684;&#x6C34;&#x4F4D;&#x7EBF;&#x7684;&#x6700;&#x5C0F;&#x503C;&#x3002;</p>
       </td>
       <td style="text-align:left">Gauge</td>
     </tr>
@@ -950,7 +950,7 @@ metrics.reporter.slf4j.interval: 60 SECONDS
       </td>
       <td style="text-align:left">currentInput1Watermark</td>
       <td style="text-align:left">
-        <p>&#x6B64;&#x64CD;&#x4F5C;&#x7B26;&#x5728;&#x5176;&#x7B2C;&#x4E00;&#x4E2A;&#x8F93;&#x5165;&#x4E2D;&#x63A5;&#x6536;&#x7684;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x6C34;&#x5370;&#xFF08;&#x4EE5;&#x6BEB;&#x79D2;&#x4E3A;&#x5355;&#x4F4D;&#xFF09;&#x3002;</p>
+        <p>&#x6B64;&#x64CD;&#x4F5C;&#x7B26;&#x5728;&#x5176;&#x7B2C;&#x4E00;&#x4E2A;&#x8F93;&#x5165;&#x4E2D;&#x63A5;&#x6536;&#x7684;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x6C34;&#x4F4D;&#x7EBF;&#xFF08;&#x4EE5;&#x6BEB;&#x79D2;&#x4E3A;&#x5355;&#x4F4D;&#xFF09;&#x3002;</p>
         <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x4EC5;&#x9002;&#x7528;&#x4E8E;&#x5177;&#x6709;2&#x4E2A;&#x8F93;&#x5165;&#x7684;&#x64CD;&#x4F5C;&#x7B26;&#x3002;</p>
       </td>
       <td style="text-align:left">Gauge</td>
@@ -959,7 +959,7 @@ metrics.reporter.slf4j.interval: 60 SECONDS
       <td style="text-align:left"></td>
       <td style="text-align:left">currentInput2Watermark</td>
       <td style="text-align:left">
-        <p>&#x6B64;&#x64CD;&#x4F5C;&#x7B26;&#x5728;&#x5176;&#x7B2C;&#x4E8C;&#x4E2A;&#x8F93;&#x5165;&#x4E2D;&#x63A5;&#x6536;&#x7684;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x6C34;&#x5370;&#xFF08;&#x4EE5;&#x6BEB;&#x79D2;&#x4E3A;&#x5355;&#x4F4D;&#xFF09;&#x3002;</p>
+        <p>&#x6B64;&#x64CD;&#x4F5C;&#x7B26;&#x5728;&#x5176;&#x7B2C;&#x4E8C;&#x4E2A;&#x8F93;&#x5165;&#x4E2D;&#x63A5;&#x6536;&#x7684;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x6C34;&#x4F4D;&#x7EBF;&#xFF08;&#x4EE5;&#x6BEB;&#x79D2;&#x4E3A;&#x5355;&#x4F4D;&#xFF09;&#x3002;</p>
         <p><b>&#x6CE8;&#x610F;&#xFF1A;</b>&#x4EC5;&#x9002;&#x7528;&#x4E8E;&#x5177;&#x6709;2&#x4E2A;&#x8F93;&#x5165;&#x7684;&#x64CD;&#x4F5C;&#x7B26;&#x3002;</p>
       </td>
       <td style="text-align:left">Gauge</td>
@@ -967,7 +967,7 @@ metrics.reporter.slf4j.interval: 60 SECONDS
     <tr>
       <td style="text-align:left"></td>
       <td style="text-align:left">currentOutputWatermark</td>
-      <td style="text-align:left">&#x6B64;&#x64CD;&#x4F5C;&#x7B26;&#x53D1;&#x51FA;&#x7684;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x6C34;&#x5370;&#xFF08;&#x4EE5;&#x6BEB;&#x79D2;&#x4E3A;&#x5355;&#x4F4D;&#xFF09;&#x3002;</td>
+      <td style="text-align:left">&#x6B64;&#x64CD;&#x4F5C;&#x7B26;&#x53D1;&#x51FA;&#x7684;&#x6700;&#x540E;&#x4E00;&#x4E2A;&#x6C34;&#x4F4D;&#x7EBF;&#xFF08;&#x4EE5;&#x6BEB;&#x79D2;&#x4E3A;&#x5355;&#x4F4D;&#xFF09;&#x3002;</td>
       <td
       style="text-align:left">Gauge</td>
     </tr>
