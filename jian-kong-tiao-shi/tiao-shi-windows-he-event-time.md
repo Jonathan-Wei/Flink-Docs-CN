@@ -6,7 +6,7 @@ Flink的[事件时间](https://ci.apache.org/projects/flink/flink-docs-master/de
 
 每个任务的低Watermark可以通过Flink web接口或[Metrics系统](https://ci.apache.org/projects/flink/flink-docs-master/monitoring/metrics.html)访问。
 
-Flink中的每个任务都公开一个名为`CurrentInputWatermark`的`Metrics`，该`Metrics`表示该任务接收到的最低Watermark。这个Long值表示“当前事件时间”。该值是通过取上游操作符接收到的所有Watermark的最小值来计算的。这意味着使用水位线跟踪的事件时间总是由最后面的源控制。
+Flink中的每个任务都公开一个名为`CurrentInputWatermark`的`Metrics`，该`Metrics`表示该任务接收到的最低Watermark。这个Long值表示“当前事件时间”。该值是通过取上游操作符接收到的所有Watermark的最小值来计算的。这意味着使用Watermark跟踪的事件时间总是由最后面的源控制。
 
 可以**使用Web界面**，通过在“度量标准”选项卡中选择任务并选择`<taskNr>.currentInputWatermark`Metrics 标准来访问低Watermark度量标准。在新框中，就可以看到任务的当前低Watermark。
 
