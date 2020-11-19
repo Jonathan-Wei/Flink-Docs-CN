@@ -30,7 +30,7 @@ Flink程序看起来就像转换数据表的常规程序。每个程序都由相
 
 `StreamExecutionEnvironment`是所有Flink程序的基础。可以使用以下静态方法获得一个`StreamExecutionEnvironment`：
 
-```text
+```java
 getExecutionEnvironment()
 
 createLocalEnvironment()
@@ -38,17 +38,21 @@ createLocalEnvironment()
 createRemoteEnvironment(String host, int port, String... jarFiles)
 ```
 
+通常，你只需要使用`getExecutionEnvironment()`，因为程序会根据上下文执行正确的操作：如果你是在IDE中执行程序或作为常规Java程序执行，它将创建一个本地环境，该环境将在本地计算机上执行你的程序。如果您是通过程序创建的JAR文件，并通过[命令行](https://ci.apache.org/projects/flink/flink-docs-release-1.11/ops/cli.html)调用它，则Flink集群管理器将执行您的main方法， `getExecutionEnvironment()`并返回一个用于在集群上执行程序的执行环境。
 
+为了指定数据源，执行环境有很多方法可以使用各种方法从文件中读取：可以逐行，以CSV文件的形式，或使用任何其他提供的源。要将文本文件读取为一系列行，可以使用：
 
-```text
+```java
 final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
 DataStream<String> text = env.readTextFile("file:///path/to/file");
 ```
 
+此处提供一个DataStream，然后你可以在其上应用转换以创建新的派生DataStream。
 
+你可以通过调用转换函数对数据流应用转换。例如，map转换如下所示：
 
-```text
+```java
 DataStream<String> input = ...;
 
 DataStream<Integer> parsed = input.map(new MapFunction<String, Integer>() {
@@ -59,21 +63,31 @@ DataStream<Integer> parsed = input.map(new MapFunction<String, Integer>() {
 });
 ```
 
+通过将原始集合中的每个String转换为Integer，创建一个新的DataStream。
 
+一旦有了包含最终结果的DataStream，就可以通过创建接收器将其写入外部系统。以下是创建接收器的一些示例方法：
 
-```text
+```java
 writeAsText(String path)
 
 print()
 ```
 
+一旦指定了完整的程序，您需要通过在StreamExecutionEnvironment上调用execute\(\)来触发程序执行。根据执行环境的类型，将在本地计算机上触发执行或将程序提交到群集上执行。
 
+execute\(\)方法将等待作业完成，然后返回JobExecutionResult，其中包含执行时间和累加器结果。
 
-```text
+如果不想等待作业完成，可以通过在StreamExecutionEnvironment上调用executeAysnc\(\)来触发异步作业执行。 这将返回一个可以与你刚提交的作业进行通讯的`JobClient`。例如，下面是如何使用executeAsync\(\)实现execute\(\)的语义。
+
+```java
 final JobClient jobClient = env.executeAsync();
 
 final JobExecutionResult jobExecutionResult = jobClient.getJobExecutionResult(userClassloader).get();
 ```
+
+关于程序执行的最后一部分对于理解何时以及如何执行Flink操作至关重要。所有Flink程序都是延迟执行的：执行程序的main方法时，不会直接进行数据加载和转换。而是，将创建每个操作并将其添加到数据流图。当通过`execute()`执行环境上的调用显式触发执行时，才会实际去执行这些操作。程序是在本地执行还是在群集上执行取决于执行环境的类型
+
+延迟计算使你可以构建复杂的程序，Flink将其作为一个整体计划的单元来执行
 {% endtab %}
 
 {% tab title="Scala" %}
@@ -81,7 +95,7 @@ final JobExecutionResult jobExecutionResult = jobClient.getJobExecutionResult(us
 
 `StreamExecutionEnvironment`是所有Flink程序的基础。可以使用以下静态方法获得一个`StreamExecutionEnvironment`：
 
-```text
+```scala
 getExecutionEnvironment()
 
 createLocalEnvironment()
@@ -89,37 +103,51 @@ createLocalEnvironment()
 createRemoteEnvironment(host: String, port: Int, jarFiles: String*)
 ```
 
+通常，你只需要使用`getExecutionEnvironment()`，因为程序会根据上下文执行正确的操作：如果你是在IDE中执行程序或作为常规Java程序执行，它将创建一个本地环境，该环境将在本地计算机上执行你的程序。如果您是通过程序创建的JAR文件，并通过[命令行](https://ci.apache.org/projects/flink/flink-docs-release-1.11/ops/cli.html)调用它，则Flink集群管理器将执行您的main方法， `getExecutionEnvironment()`并返回一个用于在集群上执行程序的执行环境。
 
+为了指定数据源，执行环境有很多方法可以使用各种方法从文件中读取：可以逐行，以CSV文件的形式，或使用任何其他提供的源。要将文本文件读取为一系列行，可以使用：
 
-```text
+```scala
 val env = StreamExecutionEnvironment.getExecutionEnvironment()
 
 val text: DataStream[String] = env.readTextFile("file:///path/to/file")
 ```
 
+此处提供一个DataStream，然后你可以在其上应用转换以创建新的派生DataStream。
 
+你可以通过调用转换函数对数据流应用转换。例如，map转换如下所示：
 
-```text
+```scala
 val input: DataSet[String] = ...
 
 val mapped = input.map { x => x.toInt }
 ```
 
+通过将原始集合中的每个String转换为Integer，创建一个新的DataStream。
 
+一旦有了包含最终结果的DataStream，就可以通过创建接收器将其写入外部系统。以下是创建接收器的一些示例方法：
 
-```text
+```scala
 writeAsText(path: String)
 
 print()
 ```
 
+一旦指定了完整的程序，您需要通过在StreamExecutionEnvironment上调用execute\(\)来触发程序执行。根据执行环境的类型，将在本地计算机上触发执行或将程序提交到群集上执行。
 
+execute\(\)方法将等待作业完成，然后返回JobExecutionResult，其中包含执行时间和累加器结果。
 
-```text
+如果不想等待作业完成，可以通过在StreamExecutionEnvironment上调用executeAysnc\(\)来触发异步作业执行。 这将返回一个可以与你刚提交的作业进行通讯的`JobClient`。例如，下面是如何使用executeAsync\(\)实现execute\(\)的语义。
+
+```scala
 final JobClient jobClient = env.executeAsync();
 
 final JobExecutionResult jobExecutionResult = jobClient.getJobExecutionResult(userClassloader).get();
 ```
+
+关于程序执行的最后一部分对于理解何时以及如何执行Flink操作至关重要。所有Flink程序都是延迟执行的：执行程序的main方法时，不会直接进行数据加载和转换。而是，将创建每个操作并将其添加到数据流图。当通过`execute()`执行环境上的调用显式触发执行时，才会实际去执行这些操作。程序是在本地执行还是在群集上执行取决于执行环境的类型
+
+延迟计算使你可以构建复杂的程序，Flink将其作为一个整体计划的单元来执行
 {% endtab %}
 {% endtabs %}
 
