@@ -1,4 +1,4 @@
-# 生成时间戳/水位线\(Watermarks\)
+# 生成水印\(Watermarks\)
 
 此部分与在**事件时间**运行的程序相关。有关_事件时间_， _处理时间_和_摄入时间_的[介绍](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_time.html)，请参阅[事件时间简介](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_time.html)。
 

@@ -12,6 +12,33 @@
 
 ## Maven快速入门
 
+### **要求**
+
+唯一的要求是需要**Maven 3.0.4**（或更高版本）和**Java8.x**。
+
+### 创建项目
+
+ 使用以下命令之一**创建项目**：
+
+{% tabs %}
+{% tab title="使用maven原型" %}
+```bash
+$ mvn archetype:generate                               \
+  -DarchetypeGroupId=org.apache.flink              \
+  -DarchetypeArtifactId=flink-quickstart-java      \
+  -DarchetypeVersion=1.11.2
+```
+{% endtab %}
+
+{% tab title="运行quickstart脚本" %}
+```bash
+$ curl https://flink.apache.org/q/quickstart.sh | bash -s 1.11.2
+```
+{% endtab %}
+{% endtabs %}
+
+### 构建项目
+
 ## Gradle
 
 ### 要求
