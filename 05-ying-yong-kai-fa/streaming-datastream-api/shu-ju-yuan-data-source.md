@@ -44,7 +44,7 @@
 
 ## 
 
-![](../../.gitbook/assets/image%20%2847%29.png)
+![](../../.gitbook/assets/image%20%2848%29.png)
 
 ## Split Reader API
 
@@ -56,7 +56,7 @@
 
 ### SplitFetcherManager
 
-![](../../.gitbook/assets/image%20%2849%29.png)
+![](../../.gitbook/assets/image%20%2851%29.png)
 
 以下代码段实现了此线程模型。
 
@@ -155,5 +155,5 @@ public class FixedFetcherSizeSourceReader<E, T, SplitT extends SourceSplit, Spli
 
 **Watermark 生成器**
 
-![](../../.gitbook/assets/image%20%2848%29.png)
+![](../../.gitbook/assets/image%20%2849%29.png)
 
