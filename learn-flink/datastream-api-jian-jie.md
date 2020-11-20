@@ -105,7 +105,7 @@ public class Example {
 
 ### 基本流Source
 
-
+上述的例子使用env.fromElements\(…\)构造了一个DataStream。这是在原型或测试中创建简单流的一种方便方法。StreamExecutionEnvironment上还有一个fromCollection\(Collection\)方法。所以，你可以这样做:
 
 ```text
 List<Person> people = new ArrayList<Person>();
@@ -117,17 +117,19 @@ people.add(new Person("Pebbles", 2));
 DataStream<Person> flintstones = env.fromCollection(people);
 ```
 
-
+在原型设计时，另一种方便的方法是使用scoket
 
 ```text
 DataStream<String> lines = env.socketTextStream("localhost", 9999)
 ```
 
-
+或一个文件
 
 ```text
 DataStream<String> lines = env.readTextFile("file:///path");
 ```
+
+在真实的应用程序中，最常用的数据源是那些支持低延迟、高吞吐量并行读并支持倒带和重放\(高性能和容错的先决条件\)的数据源，比如Apache Kafka、Kinesis和各种文件系统。REST api和数据库也经常用于充实流。
 
 ### 基本流Sink
 
