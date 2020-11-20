@@ -18,6 +18,8 @@
   * [概述](gai-nian/shu-ju-liu-bian-cheng-mo-xing.md)
   * [有状态的流处理](gai-nian/you-zhuang-tai-de-liu-chu-li.md)
   * [分布式运行环境](gai-nian/fen-bu-shi-yun-hang-huan-jing.md)
+  * [Flink架构](gai-nian/flink-jia-gou.md)
+  * [词汇表](gai-nian/ci-hui-biao.md)
 * [介绍](01-jie-shao/README.md)
   * [运维](01-jie-shao/apache-flink-yun-wei-jie-shao.md)
   * [应用](01-jie-shao/apache-flink-ying-yong-jie-shao.md)
