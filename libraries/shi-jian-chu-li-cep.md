@@ -100,16 +100,16 @@ val result: DataStream[Alert] = patternStream.select(createAlert(_))
 
 ## Pattern API
 
-Pattern API允许你定义希望从输入流中提取的复杂模式序列。
+Pattern API可以让你定义想从输入流中抽取的复杂模式序列。
 
-每个复杂的Pattern序列由多个简单的Pattern组成，即寻找具有相同属性的单个事件的Pattern。从现在起，我们将调用这些简单Pattern，以及我们在流中搜索的最终复杂模式序列，即**模式序列**。您可以将模式序列视为此类模式的图形，其中根据用户指定的条件\(例如event.getName\(\).equals\(“end”\)\)从一个模式转换到下一个模式。匹配是一系列输入事件，它们通过一系列有效的模式转换访问复杂模式图的所有模式。
+每个复杂的模式序列包括多个简单的模式，比如，寻找拥有相同属性事件序列的模式。从现在开始，我们把这些简单的模式称作**模式**， 把我们在数据流中最终寻找的复杂模式序列称作**模式序列**，你可以把模式序列看作是这样的模式构成的图， 这些模式基于用户指定的**条件**从一个转换到另外一个，比如 `event.getName().equals("end")`。 一个**匹配**是输入事件的一个序列，这些事件通过一系列有效的模式转换，能够访问到复杂模式图中的所有模式。
 
 {% hint style="danger" %}
-每个Pattern必须具有唯一的名称，稍后您可以使用该名称来标识匹配的事件。
+注意：每个模式必须有一个独一无二的名字，你可以在后面使用它来识别匹配到的事件。
 {% endhint %}
 
 {% hint style="danger" %}
-Pattern名称**不能**包含该字符`":"`。
+注意：模式的名字不能包含字符`":"`.
 {% endhint %}
 
 在本节的其余部分，我们将首先介绍如何定义[个体模式](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/libs/cep.html#individual-patterns)，然后如何将各个模式组合到[复杂模式中](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/libs/cep.html#combining-patterns)。
