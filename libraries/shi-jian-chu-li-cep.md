@@ -2,13 +2,13 @@
 
 
 
-FlinkCEP是在Flink之上实现的复杂事件处理（CEP）库。它允许您在无休止的事件流中检测事件模式，让你有机会掌握数据中重要的事物。
+FlinkCEP是在Flink上层实现的复杂事件处理库。 它可以让你在无限事件流中检测出特定的事件模型，有机会掌握数据中重要的那部分。
 
-此页面描述了Flink CEP中可用的API调用。我们首先介绍[Pattern API](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/libs/cep.html#the-pattern-api)，它允许您指定要在流中检测的模式，然后介绍如何 [检测匹配事件序列并对其进行操作](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/libs/cep.html#detecting-patterns)。然后，我们将介绍CEP库在[处理](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/libs/cep.html#handling-lateness-in-event-time)事件时间[延迟](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/libs/cep.html#handling-lateness-in-event-time)时所做的假设，以及如何 [将作业](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/libs/cep.html#migrating-from-an-older-flink-versionpre-13)从较旧的Flink版本[迁移](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/libs/cep.html#migrating-from-an-older-flink-versionpre-13)到Flink-1.3。
+本页讲述了Flink CEP中可用的API，我们首先讲述[模式API](https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/dev/libs/cep.html#%E6%A8%A1%E5%BC%8Fapi)，它可以让你指定想在数据流中检测的模式，然后讲述如何[检测匹配的事件序列并进行处理](https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/dev/libs/cep.html#%E6%A3%80%E6%B5%8B%E6%A8%A1%E5%BC%8F)。 再然后我们讲述Flink在按照事件时间[处理迟到事件](https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/dev/libs/cep.html#%E6%8C%89%E7%85%A7%E4%BA%8B%E4%BB%B6%E6%97%B6%E9%97%B4%E5%A4%84%E7%90%86%E8%BF%9F%E5%88%B0%E4%BA%8B%E4%BB%B6)时的假设， 以及如何从旧版本的Flink向1.3之后的版本[迁移作业](https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/dev/libs/cep.html#%E4%BB%8E%E6%97%A7%E7%89%88%E6%9C%AC%E8%BF%81%E7%A7%BB13%E4%B9%8B%E5%89%8D)。
 
 ## Getting Started
 
-如果想使用CEP，请[设置Flink程序](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/linking_with_flink.html)并将FlinkCEP依赖项添加到`pom.xml`项目中。
+如果你想现在开始尝试，[创建一个Flink程序](https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/dev/project-configuration.html)， 添加FlinkCEP的依赖到项目的`pom.xml`文件中。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -36,10 +36,10 @@ FlinkCEP是在Flink之上实现的复杂事件处理（CEP）库。它允许您�
 FlinkCEP不包含在二进制发布包中。[点此处](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/linking.html)了解如何与集群执行相关联。
 {% endhint %}
 
-现在，您可以使用Pattern API开始编写第一个CEP程序。
+现在可以开始使用Pattern API写你的第一个CEP程序了。
 
 {% hint style="danger" %}
-要应用模式匹配的DataStream中的Events必须实现适当的equals\(\)和hashCode\(\)方法，因为FlinkCEP使用它们来比较和匹配事件。
+注意：`DataStream`中的事件，如果你想在上面进行模式匹配的话，必须实现合适的 `equals()`和`hashCode()`方法， 因为FlinkCEP使用它们来比较和匹
 {% endhint %}
 
 {% tabs %}

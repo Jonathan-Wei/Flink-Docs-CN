@@ -1,21 +1,25 @@
 # 概述
 
+[实践练习](https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/learn-flink/)章节介绍了作为 Flink API 根基的有状态实时流处理的基本概念，并且举例说明了如何在 Flink 应用中使用这些机制。其中 [Data Pipelines & ETL](https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/learn-flink/etl.html#stateful-transformations) 小节介绍了有状态流处理的概念，并且在 [Fault Tolerance](https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/learn-flink/fault_tolerance.html) 小节中进行了深入介绍。[Streaming Analytics](https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/learn-flink/streaming_analytics.html) 小节介绍了实时流处理的概念。
+
+本章将深入分析 Flink 分布式运行时架构如何实现这些概念。
+
 ## 抽象层次
 
-Flink提供不同级别的抽象来开发流/批处理应用程序。
+Flink 为流式/批式处理应用程序的开发提供了不同级别的抽象。
 
-![](../.gitbook/assets/levels_of_abstraction.svg)
+![Programming levels of abstraction](https://ci.apache.org/projects/flink/flink-docs-release-1.11/fig/levels_of_abstraction.svg)
 
-* 最低层次的抽象只提供有状态流。它通过流程函数嵌入到DataStream API中。它允许用户自由地处理来自一个或多个流的事件，并使用一致的容错状态。此外，用户可以注册事件时间和处理时间回调，让程序实现复杂的计算。
-* 在实践中，大多数应用程序不需要上述低层抽象，而是根据核心API\(如_DataStream API_\(有界/无界流\)和_DataSet API_\(有界数据集\)进行编程。这些连贯的api为数据处理提供了常见的构建块，比如各种形式的用户指定转换、连接、聚合、窗口、状态等。在这些api中处理的数据类型表示为各自编程语言中的类。
+* Flink API 最底层的抽象为**有状态实时流处理**。其抽象实现是 [Process Function](https://ci.apache.org/projects/flink/flink-docs-release-1.11//ci.apache.org/projects/flink/flink-docs-release-1.11/zh/dev/stream/operators/process_function.html)，并且 **Process Function** 被 Flink 框架集成到了 [DataStream API](https://ci.apache.org/projects/flink/flink-docs-release-1.11//ci.apache.org/projects/flink/flink-docs-release-1.11/zh/dev/datastream_api.html) 中来为我们使用。它允许用户在应用程序中自由地处理来自单流或多流的事件（数据），并提供具有全局一致性和容错保障的_状态_。此外，用户可以在此层抽象中注册事件时间（event time）和处理时间（processing time）回调方法，从而允许程序可以实现复杂计算。
+* Flink API 第二层抽象是 **Core APIs**。实际上，许多应用程序不需要使用到上述最底层抽象的 API，而是可以使用 **Core APIs** 进行编程：其中包含 [DataStream API](https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/dev/datastream_api.html)（应用于有界/无界数据流场景）和 [DataSet API](https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/dev/batch/)（应用于有界数据集场景）两部分。Core APIs 提供的流式 API（Fluent API）为数据处理提供了通用的模块组件，例如各种形式的用户自定义转换（transformations）、联接（joins）、聚合（aggregations）、窗口（windows）和状态（state）操作等。此层 API 中处理的数据类型在每种编程语言中都有其对应的类。
 
-  低级流程功能与_DataStream API_集成，使得仅对某些操作进行低级抽象成为可能。数据集API在有界数据集上提供了额外的原语，比如循环/迭代。
+  _Process Function_ 这类底层抽象和 _DataStream API_ 的相互集成使得用户可以选择使用更底层的抽象 API 来实现自己的需求。_DataSet API_ 还额外提供了一些原语，比如循环/迭代（loop/iteration）操作。
 
-* _Table API_是以表为中心的声明性DSL，表可以是动态更改的表\(在表示流时\)。_Table API_遵循\(扩展\)关系模型:表有一个附加模式\(类似于关系数据库表\)和API提供了类似的操作,如_select, project, join, group-by, aggregate_等。表API程序以声明的方式定义逻辑操作应该做什么，而不是指定操作的代码看起来如何。尽管表API可由各种类型的用户定义函数扩展，但它的表达能力不如_Core API_，但使用起来更简洁\(编写的代码更少\)。此外，_Table API_程序还会通过优化程序，在执行之前应用优化规则。
+* Flink API 第三层抽象是 **Table API**。**Table API** 是以表（Table）为中心的声明式编程（DSL）API，例如在流式数据场景下，它可以表示一张正在动态改变的表。[Table API](https://ci.apache.org/projects/flink/flink-docs-release-1.11/zh/dev/table/) 遵循（扩展）关系模型：即表拥有 schema（类似于关系型数据库中的 schema），并且 Table API 也提供了类似于关系模型中的操作，比如 select、project、join、group-by 和 aggregate 等。Table API 程序是以声明的方式定义_应执行的逻辑操作_，而不是确切地指定程序_应该执行的代码_。尽管 Table API 使用起来很简洁并且可以由各种类型的用户自定义函数扩展功能，但还是比 Core API 的表达能力差。此外，Table API 程序在执行之前还会使用优化器中的优化规则对用户编写的表达式进行优化。
 
-  Table和_DataStream/DataSet_之间可以无缝转换，允许程序混合_Table API_和_DataStream_和_DataSet API_。
+  表和 _DataStream_/_DataSet_ 可以进行无缝切换，Flink 允许用户在编写应用程序时将 _Table API_ 与 _DataStream_/_DataSet_ API 混合使用。
 
-* Flink提供的最高级抽象是**SQL**。这种抽象在语义和表达方面类似于_Table API_，但是将程序表示为SQL查询表达式。在[SQL](https://ci.apache.org/projects/flink/flink-docs-master/dev/table_api.html#sql)抽象与表API紧密地相互作用，SQL查询可以通过定义表来执行_Table API_。
+* Flink API 最顶层抽象是 **SQL**。这层抽象在语义和程序表达式上都类似于 _Table API_，但是其程序实现都是 SQL 查询表达式。[SQL](https://ci.apache.org/projects/flink/flink-docs-release-1.11//ci.apache.org/projects/flink/flink-docs-release-1.11/zh/dev/table/#sql) 抽象与 Table API 抽象之间的关联是非常紧密的，并且 SQL 查询语句可以在 _Table API_ 中定义的表上执行。
 
 ## 程序和数据流
 

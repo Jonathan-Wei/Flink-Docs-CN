@@ -1,4 +1,4 @@
-# Logging
+# 日志
 
 Flink中的日志记录是使用slf4j日志记录界面实现的。作为底层日志记录框架，使用log4j。我们还提供了logback配置文件，并将它们作为属性传递给JVM。愿意使用logback而不是log4j的用户可以只排除log4j（或从lib /文件夹中删除它）。
 
