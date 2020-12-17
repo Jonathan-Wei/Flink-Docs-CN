@@ -53,6 +53,7 @@
     * [Java Lambda表达式](05-ying-yong-kai-fa/api-ji-chu-gai-nian/java-lambda-biao-da-shi.md)
   * [Streaming\(DataStream API\)](05-ying-yong-kai-fa/streaming-datastream-api/README.md)
     * [概述](05-ying-yong-kai-fa/streaming-datastream-api/gai-shu.md)
+    * [执行模式\(批/流\)](05-ying-yong-kai-fa/streaming-datastream-api/zhi-hang-mo-shi-pi-liu.md)
     * [Event Time](05-ying-yong-kai-fa/streaming-datastream-api/event-time/README.md)
       * [概述](05-ying-yong-kai-fa/streaming-datastream-api/event-time/gai-shu-1.md)
       * [生成水位线\(Watermarks\)](05-ying-yong-kai-fa/streaming-datastream-api/event-time/sheng-cheng-timestamps-watermarks.md)
