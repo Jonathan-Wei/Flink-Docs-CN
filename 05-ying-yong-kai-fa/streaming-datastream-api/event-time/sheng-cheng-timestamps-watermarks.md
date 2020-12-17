@@ -1,14 +1,70 @@
 # 生成水位线\(Watermarks\)
 
-此部分与在**事件时间**运行的程序相关。有关_事件时间_， _处理时间_和_摄入时间_的[介绍](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_time.html)，请参阅[事件时间简介](https://ci.apache.org/projects/flink/flink-docs-master/dev/event_time.html)。
+在本节中，你将了解Flink提供的用于处理**事件时间**时间戳和Watermarks的API 。有关_事件时间_，_处理时间_和_摄取时间的简介_，请参阅 [事件时间的简介](https://ci.apache.org/projects/flink/flink-docs-release-1.11/dev/event_time.html)。
 
-要处理_事件时间_，流式传输程序需要设置相应地_时间特性_。
+## Watermarks策略介绍
+
+
+
+```java
+public interface WatermarkStrategy<T> extends TimestampAssignerSupplier<T>, WatermarkGeneratorSupplier<T>{
+
+    /**
+     * Instantiates a {@link TimestampAssigner} for assigning timestamps according to this
+     * strategy.
+     */
+    @Override
+    TimestampAssigner<T> createTimestampAssigner(TimestampAssignerSupplier.Context context);
+
+    /**
+     * Instantiates a WatermarkGenerator that generates watermarks according to this strategy.
+     */
+    @Override
+    WatermarkGenerator<T> createWatermarkGenerator(WatermarkGeneratorSupplier.Context context);
+}
+```
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+WatermarkStrategy
+        .<Tuple2<Long, String>>forBoundedOutOfOrderness(Duration.ofSeconds(20))
+        .withTimestampAssigner((event, timestamp) -> event.f0);
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+WatermarkStrategy
+  .forBoundedOutOfOrderness[(Long, String)](Duration.ofSeconds(20))
+  .withTimestampAssigner(new SerializableTimestampAssigner[(Long, String)] {
+    override def extractTimestamp(element: (Long, String), recordTimestamp: Long): Long = element._1
+  })
+```
+{% endtab %}
+{% endtabs %}
+
+## 使用Watermarks策略
 
 {% tabs %}
 {% tab title="Java" %}
 ```java
 final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+
+DataStream<MyEvent> stream = env.readFile(
+        myFormat, myFilePath, FileProcessingMode.PROCESS_CONTINUOUSLY, 100,
+        FilePathFilter.createDefaultFilter(), typeInfo);
+
+DataStream<MyEvent> withTimestampsAndWatermarks = stream
+        .filter( event -> event.severity() == WARNING )
+        .assignTimestampsAndWatermarks(<watermark strategy>);
+
+withTimestampsAndWatermarks
+        .keyBy( (event) -> event.getGroup() )
+        .timeWindow(Time.seconds(10))
+        .reduce( (a, b) -> a.add(b) )
+        .addSink(...);
 ```
 {% endtab %}
 
@@ -16,16 +72,25 @@ env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 ```scala
 val env = StreamExecutionEnvironment.getExecutionEnvironment
 env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
-```
-{% endtab %}
 
-{% tab title="" %}
-```python
-env = StreamExecutionEnvironment.get_execution_environment()
-env.set_stream_time_characteristic(TimeCharacteristic.EventTime)
+val stream: DataStream[MyEvent] = env.readFile(
+         myFormat, myFilePath, FileProcessingMode.PROCESS_CONTINUOUSLY, 100,
+         FilePathFilter.createDefaultFilter())
+
+val withTimestampsAndWatermarks: DataStream[MyEvent] = stream
+        .filter( _.severity == WARNING )
+        .assignTimestampsAndWatermarks(<watermark strategy>)
+
+withTimestampsAndWatermarks
+        .keyBy( _.getGroup )
+        .timeWindow(Time.seconds(10))
+        .reduce( (a, b) => a.add(b) )
+        .addSink(...)
 ```
 {% endtab %}
 {% endtabs %}
+
+使用`WatermarkStrategy`方式获取一个流，并产生带有时间戳记的元素和水印的新流。如果原始流已经具有时间戳和/或水印，则时间戳分配器将覆盖它们。
 
 ## 分配时间戳
 
@@ -285,7 +350,7 @@ class PunctuatedAssigner extends AssignerWithPunctuatedWatermarks[MyEvent] {
 _注意：_可以在每个事件上生成水位线。然而，因为每个水位线在下游引起一些计算，所以过多的水位线会降低性能。
 {% endhint %}
 
-## 每个Kafka分区的时间戳
+## Watermarks策略和Kafka连接器
 
 当使用Apache Kafka作为数据源时，每个Kafka分区可能有一个简单的事件时间模式\(升序时间戳或有界的无序\)。然而，当使用来自Kafka的流时，多个分区常常被并行地使用，将来自分区的事件交织在一起，并破坏每个分区的模式\(这是Kafka的消费者客户端工作方式所固有的\)
 
