@@ -57,11 +57,11 @@ env.setRuntimeMode(RuntimeExecutionMode.BATCH);
 
 Flink作业由在数据流图中连接在一起的不同算子组成。系统决定如何安排在不同进程/机器（TaskManager）上执行这些操作的方式，以及如何在它们之间对数据进行随机（发送）。
 
+多个操作/操作符可以使用一个称为链接的特性链接在一起。一组由一个或多个\(链接的\)操作符组成的、Flink认为是一个调度单元的操作符称为任务。术语子任务通常用于指在多个任务管理器上并行运行的任务的单个实例，但我们在这里只使用术语任务。
 
+对于批处理和流执行模式，任务调度和网络shuffles的工作方式是不同的。主要是由于我们知道我们的输入数据受`BATCH`执行模式限制，这使得Flink可以使用更有效的数据结构和算法。
 
-另一方面，诸如`keyBy()`或`rebalance()`之类的操作要求在任务的不同并行实例之间对数据进行混洗。这会引起网络混乱。
-
-我们将使用此示例来说明任务调度和网络传输中的差异：
+我们将使用这个例子来解释任务调度和网络传输的区别:
 
 ```java
 StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -80,7 +80,9 @@ source.name("source")
 	.sinkTo(...).name("sink");
 ```
 
+像`map()`、`flatMap()`或`filter()`这样的操作意味着操作之间的1-to-1连接模式，它们可以直接将数据转发给下一个操作，从而允许将这些操作链接在一起。这意味着Flink通常不会在它们之间插入网络shuffles。
 
+另一方面，诸如`keyBy()`或`rebalance()`之类的操作要求在任务的不同并行实例之间对数据进行混洗。这会引起网络混乱。
 
 对于上面的示例，Flink将操作分组为如下任务：
 
