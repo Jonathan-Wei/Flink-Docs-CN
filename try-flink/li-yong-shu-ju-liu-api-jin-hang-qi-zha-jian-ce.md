@@ -19,6 +19,10 @@ description: >-
 
 ## 救命，我卡住了！
 
+ 如果遇到困难，请查看[社区支持资源](https://flink.apache.org/gettinghelp.html)。特别是，Apache Flink的[用户邮件列表](https://flink.apache.org/community.html#mailing-lists)一直被评为所有Apache项目中最活跃的[邮件列表](https://flink.apache.org/community.html#mailing-lists)之一，并且是快速获得帮助的好方法。
+
+## 如何跟进
+
 如果你想跟随着一起实现这个程序，你需要在电脑上安装以下组件:
 
 * Java 8 or 11
@@ -60,9 +64,293 @@ $ mvn archetype:generate \
 {% endtab %}
 {% endtabs %}
 
-## 如何跟进
+{% tabs %}
+{% tab title="Java" %}
+**FraudDetectionJob.java**
+
+```java
+package spendreport;
+
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.walkthrough.common.sink.AlertSink;
+import org.apache.flink.walkthrough.common.entity.Alert;
+import org.apache.flink.walkthrough.common.entity.Transaction;
+import org.apache.flink.walkthrough.common.source.TransactionSource;
+
+public class FraudDetectionJob {
+
+    public static void main(String[] args) throws Exception {
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+        DataStream<Transaction> transactions = env
+            .addSource(new TransactionSource())
+            .name("transactions");
+        
+        DataStream<Alert> alerts = transactions
+            .keyBy(Transaction::getAccountId)
+            .process(new FraudDetector())
+            .name("fraud-detector");
+
+        alerts
+            .addSink(new AlertSink())
+            .name("send-alerts");
+
+        env.execute("Fraud Detection");
+    }
+}
+```
+
+**FraudDetector.java**
+
+```java
+package spendreport;
+
+import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
+import org.apache.flink.util.Collector;
+import org.apache.flink.walkthrough.common.entity.Alert;
+import org.apache.flink.walkthrough.common.entity.Transaction;
+
+public class FraudDetector extends KeyedProcessFunction<Long, Transaction, Alert> {
+
+    private static final long serialVersionUID = 1L;
+
+    private static final double SMALL_AMOUNT = 1.00;
+    private static final double LARGE_AMOUNT = 500.00;
+    private static final long ONE_MINUTE = 60 * 1000;
+
+    @Override
+    public void processElement(
+            Transaction transaction,
+            Context context,
+            Collector<Alert> collector) throws Exception {
+
+        Alert alert = new Alert();
+        alert.setId(transaction.getAccountId());
+
+        collector.collect(alert);
+    }
+}
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+**FraudDetectionJob.scala**
+
+```scala
+package spendreport
+
+import org.apache.flink.streaming.api.scala._
+import org.apache.flink.walkthrough.common.sink.AlertSink
+import org.apache.flink.walkthrough.common.entity.Alert
+import org.apache.flink.walkthrough.common.entity.Transaction
+import org.apache.flink.walkthrough.common.source.TransactionSource
+
+object FraudDetectionJob {
+
+  @throws[Exception]
+  def main(args: Array[String]): Unit = {
+    val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
+
+    val transactions: DataStream[Transaction] = env
+      .addSource(new TransactionSource)
+      .name("transactions")
+
+    val alerts: DataStream[Alert] = transactions
+      .keyBy(transaction => transaction.getAccountId)
+      .process(new FraudDetector)
+      .name("fraud-detector")
+
+    alerts
+      .addSink(new AlertSink)
+      .name("send-alerts")
+
+    env.execute("Fraud Detection")
+  }
+}
+```
+
+**FraudDetector.scala**
+
+```scala
+package spendreport
+
+import org.apache.flink.streaming.api.functions.KeyedProcessFunction
+import org.apache.flink.util.Collector
+import org.apache.flink.walkthrough.common.entity.Alert
+import org.apache.flink.walkthrough.common.entity.Transaction
+
+object FraudDetector {
+  val SMALL_AMOUNT: Double = 1.00
+  val LARGE_AMOUNT: Double = 500.00
+  val ONE_MINUTE: Long     = 60 * 1000L
+}
+
+@SerialVersionUID(1L)
+class FraudDetector extends KeyedProcessFunction[Long, Transaction, Alert] {
+
+  @throws[Exception]
+  def processElement(
+      transaction: Transaction,
+      context: KeyedProcessFunction[Long, Transaction, Alert]#Context,
+      collector: Collector[Alert]): Unit = {
+
+    val alert = new Alert
+    alert.setId(transaction.getAccountId)
+
+    collector.collect(alert)
+  }
+}
+```
+{% endtab %}
+{% endtabs %}
+
+
 
 ## 破解代码
+
+### 执行环境
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
+```
+{% endtab %}
+{% endtabs %}
+
+### 创建Source
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+DataStream<Transaction> transactions = env
+    .addSource(new TransactionSource())
+    .name("transactions");
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+val transactions: DataStream[Transaction] = env
+  .addSource(new TransactionSource)
+  .name("transactions")
+```
+{% endtab %}
+{% endtabs %}
+
+### 划分事件和检测欺诈
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+DataStream<Alert> alerts = transactions
+    .keyBy(Transaction::getAccountId)
+    .process(new FraudDetector())
+    .name("fraud-detector");
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+val alerts: DataStream[Alert] = transactions
+  .keyBy(transaction => transaction.getAccountId)
+  .process(new FraudDetector)
+  .name("fraud-detector")
+```
+{% endtab %}
+{% endtabs %}
+
+### 输出结果
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+alerts.addSink(new AlertSink());
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+alerts.addSink(new AlertSink)
+```
+{% endtab %}
+{% endtabs %}
+
+### 执行Job
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+env.execute("Fraud Detection");
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+env.execute("Fraud Detection")
+```
+{% endtab %}
+{% endtabs %}
+
+### 欺诈探测器
+
+{% tabs %}
+{% tab title="Java" %}
+```java
+public class FraudDetector extends KeyedProcessFunction<Long, Transaction, Alert> {
+
+    private static final double SMALL_AMOUNT = 1.00;
+    private static final double LARGE_AMOUNT = 500.00;
+    private static final long ONE_MINUTE = 60 * 1000;
+
+    @Override
+    public void processElement(
+            Transaction transaction,
+            Context context,
+            Collector<Alert> collector) throws Exception {
+  
+        Alert alert = new Alert();
+        alert.setId(transaction.getAccountId());
+
+        collector.collect(alert);
+    }
+}
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```scala
+object FraudDetector {
+  val SMALL_AMOUNT: Double = 1.00
+  val LARGE_AMOUNT: Double = 500.00
+  val ONE_MINUTE: Long     = 60 * 1000L
+}
+
+@SerialVersionUID(1L)
+class FraudDetector extends KeyedProcessFunction[Long, Transaction, Alert] {
+
+  @throws[Exception]
+  def processElement(
+      transaction: Transaction,
+      context: KeyedProcessFunction[Long, Transaction, Alert]#Context,
+      collector: Collector[Alert]): Unit = {
+
+    val alert = new Alert
+    alert.setId(transaction.getAccountId)
+
+    collector.collect(alert)
+  }
+}
+```
+{% endtab %}
+{% endtabs %}
 
 ## 编写一个真正的应用程序\(v1\)
 
