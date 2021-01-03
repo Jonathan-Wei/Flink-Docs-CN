@@ -94,13 +94,53 @@ source.name("source")
 
 ![](../../.gitbook/assets/datastream-example-job-graph.svg)
 
+#### **流执行模式**
+
+在`STREAMING`执行模式下，所有任务都必须一直在线/正在运行。这使Flink可以立即通过整个管道处理新记录，这是我们进行连续和低延迟流处理所需要的。这也意味着分配给任务的TaskManager需要具有足够的资源来同时运行所有任务。
+
+网络**Shuffer**是流水线的，这意味着记录被立即发送到下游任务，在网络层上有一些缓冲。同样，这是必需的，因为在处理连续的数据流时，没有自然的点\(时间点\)可以在任务\(或任务管道\)之间物化数据。这与批处理执行模式形成对比，批处理模式可以实现中间结果，如下所述。
+
+#### **批处理执行模式**
+
+在`BATCH`执行模式下，作业的任务可以分为几个阶段，一个接一个地执行。我们这样做是因为输入是有界的，因此Flink可以在继续进行下一步之前完全处理管道的一个阶段。在上面的示例中，该作业将具有三个阶段，分别对应于由**Shuffer** Barriers分隔的三个任务。
+
+不像上面解释的`STREAMING`模式，分段处理需要Flink将任务的中间结果实体到一些非短暂存储，允许下游任务在上游任务脱机后读取它们，而不是直接发送记录到下游任务。这将增加处理的延迟，但是会带来其他有趣的特性。首先，这允许Flink在失败发生时回溯到最新的可用结果，而不是重新启动整个作业。另一个副作用是批处理作业可以在更少的资源\(就任务管理器的可用插槽而言\)上执行，因为系统可以一个接一个地依次执行任务。
+
+只要下游任务没有使用中间结果，任务管理器至少会保留中间结果。\(从技术上讲，它们将被保留，直到消耗的流水线区域生产出它们的产出。\)在此之后，它们将在空间允许的情况下保持尽可能长的时间，以便在出现故障时允许前面提到的回溯到更早的结果。
+
 ### 状态后端/状态
+
+在`STREAMING`模式下，Flink使用[StateBackend](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/stream/state/state_backends.html)来控制状态的存储方式以及检查点的工作方式。
+
+在`BATCH`模式下，已配置的[StateBackend](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/stream/state/state_backends.html)将被忽略。而是将键操作的输入按键分组（使用排序），然后我们依次处理键的所有记录。这允许同时仅仅保留一个键的状态。当转到下一个键时，给定键的状态将被丢弃。
+
+有关此背景信息，请参见[FLIP-140](https://cwiki.apache.org/confluence/x/kDh4CQ)。
 
 ### EventTime/Watermarks
 
+在支持[EventTim](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/event_time.html)[e方面](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/event_time.html)，Flink的流运行时基于一个悲观的假设，即事件可能是无序的，例如一个时间戳t的事件可能出现在时间戳`t+1`的事件之后。由于这个原因，系统永远不能确保将来不会再有针对给定时间戳t的时间戳`t < t`的元素出现。为了平摊这种无序对最终结果的影响，同时使系统变得实用，在流模式下，Flink使用了一种称为水印的启发式方法。带有时间戳`T`的水印表示没有时间戳`T < T`的元素跟随。
+
+在批处理模式中，输入数据集是预先知道的，不需要这样的启发式，至少可以通过时间戳对元素进行排序，以便按照时间顺序处理它们。对于熟悉流媒体的读者，我们可以批量假设“`Perfect Watermarks`”。
+
+如上所述，在`BATCH`模式下，我们只需要在与每个键相关联的输入末尾添加`MAX_WATERMARK`，如果输入流没有键控，则在输入末尾添加`MAX_WATERMARK`。基于此方案，所有注册的计时器将在时间结束时触发，用户定义的`WatermarkAssigners`或`WatermarkGenerators`将被忽略。但是，指定`Watermarks`策略仍然很重要，因为它的`TimestampAssigner`仍将用于为记录分配时间戳。
+
 ### 处理事件
 
+处理时间是处理记录的计算机上的挂钟时间，在特定的情况下记录正在处理。基于此定义，我们看到基于处理时间的计算结果不可重现。这是因为处理两次的同一记录将具有两个不同的时间戳。
+
+尽管如此，在`STREAMING`模式下使用处理时间还是有用的。原因与以下事实有关：流传输管道经常_实时_获取其无限制的输入，因此事件时间与处理时间之间存在相关性。此外，由于上述原因，在事件`STREAMING`模式`1h`下的时间通常可能几乎等于`1h`处理时间或挂钟时间。因此，可以使用处理时间来进行早期（不完整）触发，从而提供有关预期结果的提示。
+
+在输入数据为静态且事先已知的批处理环境中，不存在这种关联。鉴于此，在`BATCH`模式下，我们允许用户请求当前处理时间并注册处理时间计时器，但是，与事件时间一样，所有计时器都将在输入结束时触发。
+
+从概念上讲，我们可以想象在执行作业期间处理时间不会增加，而在处理完所有输入后我们会快进到_结束时间_。
+
 ### 故障恢复
+
+在`STREAMING`执行模式下，Flink使用检查点进行故障恢复。查看有关此操作以及如何配置它的动手[文档](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/stream/state/checkpointing.html)的[检查点文档](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/stream/state/checkpointing.html)。关于[状态容错的容错性，](https://ci.apache.org/projects/flink/flink-docs-release-1.12/learn-flink/fault_tolerance.html)还有一个更入门的部分，它在更高级别上解释了这些概念。
+
+故障恢复检查点的特征之一是，如果出现故障，Flink将从检查点重新启动所有正在运行的任务。这可能比我们必须在`BATCH`模式下执行的操作\(如下所述\)成本更高，这是如果您的作业允许使用批处理执行模式的原因之一。
+
+在`BATCH`执行模式下，Flink将尝试回溯到之前的处理阶段，在这些阶段中仍可获得中间结果。潜在地，只有失败的任务（或其图中的前任任务）才需要重新启动，与从检查点重新启动所有任务相比，这可以提高处理效率和作业的总体处理时间。
 
 ## 重要注意事项
 
