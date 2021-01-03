@@ -134,13 +134,42 @@ Flink当前具有以下**内置累加器**。它们每个都实现 [累加器](h
 
 **如何使用累加器：**
 
-首先，您必须在要使用它的用户定义的转换函数中创建一个累加器对象（此处是一个计数器）。
+首先，必须在要使用它的用户定义的转换函数中创建一个累加器对象（此处是一个计数器）。
 
-```text
+```java
 private IntCounter numLines = new IntCounter();
 ```
 
-其次，您必须通常在**RichFunc**法中 注册累加器对象。您还可以在此处定义名称。  
+其次，必须通常在**RichFunction**的`open()`方法中 注册累加器对象。还可以在此处定义名称。
+
+```java
+getRuntimeContext().addAccumulator("num-lines", this.numLines);
+```
+
+现在，可以在运算函数中的任何位置（包括`open()`和 `close()`方法中）使用累加器。
+
+```java
+this.numLines.add(1);
+```
+
+总体结果将存储在`JobExecutionResult`从`execute()`执行环境的方法返回的对象中（当前，只有在执行等待作业完成时才起作用）。
+
+```java
+myJobExecutionResult.getAccumulatorResult("num-lines")
+```
+
+每个作业的所有累加器共享一个名称空间。因此，可以在作业的不同操作函数中使用相同的累加器。Flink将在内部合并所有具有相同名称的累加器。
+
+关于累加器和迭代的说明:目前累加器的结果只有在整个作业结束后才可用。我们还计划让上一个迭代的结果在下一个迭代中可用。您可以使用[聚合器](https://github.com/apache/flink/blob/master//flink-java/src/main/java/org/apache/flink/api/java/operators/IterativeDataSet.java#L98) 来计算每次迭代的统计信息，并根据这些统计信息来确定迭代的终止。
+
+**自定义累加器：**
+
+要实现自己的累加器，只需编写累加器接口的实现。如果你认为你的自定义累加器应该与Flink一起发布，可以创建一个pull请求。
+
+你可以选择实现 [Accumulator](https://github.com/apache/flink/blob/master//flink-core/src/main/java/org/apache/flink/api/common/accumulators/Accumulator.java) 或[SimpleAccumulator](https://github.com/apache/flink/blob/master//flink-core/src/main/java/org/apache/flink/api/common/accumulators/SimpleAccumulator.java)。
+
+`Accumulator<V,R>`是最灵活的:它为要添加的值定义了一个类型V，为最终结果定义了一个结果类型R。例如，对于直方图，V是一个数字，R是一个直方图。`SimpleAccumulator`用于两种类型相同的情况，例如用于计数器。
+
   
 
 
