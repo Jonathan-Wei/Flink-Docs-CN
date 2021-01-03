@@ -14,7 +14,7 @@ Apache Flink 的一种常见应用场景是 ETL（抽取、转换、加载）管
 
 现在让我们为每个出租车行程时间的数据对象增加 `startCell` 和 `endCell` 字段。你可以创建一个继承 `TaxiRide` 的 `EnrichedRide` 类，添加这些字段：
 
-```text
+```java
 public static class EnrichedRide extends TaxiRide {
     public int startCell;
     public int endCell;
@@ -39,7 +39,7 @@ public static class EnrichedRide extends TaxiRide {
 
 然后你可以创建一个应用来转换这个流
 
-```text
+```java
 DataStream<TaxiRide> rides = env.addSource(new TaxiRideSource(...));
 
 DataStream<EnrichedRide> enrichedNYCRides = rides
@@ -51,7 +51,7 @@ enrichedNYCRides.print();
 
 使用这个 `MapFunction`:
 
-```text
+```java
 public static class Enrichment implements MapFunction<TaxiRide, EnrichedRide> {
 
     @Override
@@ -65,7 +65,7 @@ public static class Enrichment implements MapFunction<TaxiRide, EnrichedRide> {
 
 `MapFunction` 只适用于一对一的转换：对每个进入算子的流元素，`map()` 将仅输出一个转换后的元素。对于除此以外的场景，你将要使用 `flatmap()`。
 
-```text
+```java
 DataStream<TaxiRide> rides = env.addSource(new TaxiRideSource(...));
 
 DataStream<EnrichedRide> enrichedNYCRides = rides
@@ -76,7 +76,7 @@ enrichedNYCRides.print();
 
 其中用到的 `FlatMapFunction` :
 
-```text
+```java
 public static class NYCEnrichment implements FlatMapFunction<TaxiRide, EnrichedRide> {
 
     @Override
@@ -97,7 +97,7 @@ public static class NYCEnrichment implements FlatMapFunction<TaxiRide, EnrichedR
 
 将一个流根据其中的一些属性来进行分区是十分有用的，这样我们可以使所有具有相同属性的事件分到相同的组里。例如，如果你想找到从每个网格单元出发的最远的出租车行程。按 SQL 查询的方式来考虑，这意味着要对 `startCell` 进行 GROUP BY 再排序，在 Flink 中这部分可以用 `keyBy(KeySelector)` 实现。
 
-```text
+```java
 rides
     .flatMap(new NYCEnrichment())
     .keyBy(value -> value.startCell)
@@ -109,7 +109,7 @@ rides
 
 在上面的例子中，将 “startCell” 这个字段定义为键。这种选择键的方式有个缺点，就是编译器无法推断用作键的字段的类型，所以 Flink 会将键值作为元组传递，这有时候会比较难处理。所以最好还是使用一个合适的 KeySelector，
 
-```text
+```java
 rides
     .flatMap(new NYCEnrichment())
     .keyBy(
@@ -124,7 +124,7 @@ rides
 
 也可以使用更简洁的 lambda 表达式：
 
-```text
+```java
 rides
     .flatMap(new NYCEnrichment())
     .keyBy(enrichedRide -> enrichedRide.startCell)
@@ -138,13 +138,13 @@ KeySelector 不仅限于从事件中抽取键。你也可以按想要的方式�
 
 例如，比起创建一个新的带有 `startCell` 字段的 `EnrichedRide` 类，用这个字段作为 key：
 
-```text
+```java
 keyBy(enrichedRide -> enrichedRide.startCell)
 ```
 
 我们更倾向于这样做：
 
-```text
+```java
 keyBy(ride -> GeoUtils.mapToGridCell(ride.startLon, ride.startLat))
 ```
 
@@ -152,7 +152,7 @@ keyBy(ride -> GeoUtils.mapToGridCell(ride.startLon, ride.startLat))
 
 以下代码为每个行程结束事件创建了一个新的包含 `startCell` 和时长（分钟）的元组流：
 
-```text
+```java
 import org.joda.time.Interval;
 
 DataStream<Tuple2<Integer, Minutes>> minutesByStartCell = enrichedNYCRides
@@ -174,7 +174,7 @@ DataStream<Tuple2<Integer, Minutes>> minutesByStartCell = enrichedNYCRides
 
 有很多种方法表示使用哪个字段作为键。前面使用 `EnrichedRide` POJO 的例子，用字段名来指定键。而这个使用 `Tuple2` 对象的例子中，用字段在元组中的序号（从0开始）来指定键。
 
-```text
+```java
 minutesByStartCell
   .keyBy(value -> value.f0) // .keyBy(value -> value.startCell)
   .maxBy(1) // duration
@@ -243,7 +243,7 @@ minutesByStartCell
 
 在这个例子里，想象你有一个要去重的事件数据流，对每个键只保留第一个事件。下面是完成这个功能的应用，使用一个名为 `Deduplicator` 的 `RichFlatMapFunction` ：
 
-```text
+```java
 private static class Event {
     public final String key;
     public final long timestamp;
@@ -270,7 +270,7 @@ Flink 支持几种不同方式的 keyed state，这个例子使用的是最简�
 
 我们的 `Deduplicator` 类有两个方法：`open()` 和 `flatMap()`。`open()` 方法通过定义 `ValueStateDescriptor<Boolean>` 建立了管理状态的使用。构造器的参数定义了这个状态的名字（“keyHasBeenSeen”），并且为如何序列化这些对象提供了信息（在这个例子中的 `Types.BOOLEAN`）。
 
-```text
+```java
 public static class Deduplicator extends RichFlatMapFunction<Event, Event> {
     ValueState<Boolean> keyHasBeenSeen;
 
@@ -296,7 +296,7 @@ public static class Deduplicator extends RichFlatMapFunction<Event, Event> {
 
 部署在分布式集群时，将会有很多 `Deduplicator` 的实例，每一个实例将负责整个键空间的互斥子集中的一个。所以，当你看到一个单独的 `ValueState`，比如
 
-```text
+```java
 ValueState<Boolean> keyHasBeenSeen;
 ```
 
@@ -334,7 +334,7 @@ connected stream 也可以被用来实现流的关联。
 
 在这个例子中，一个控制流是用来指定哪些词需要从 `streamOfWords` 里过滤掉的。 一个称为 `ControlFunction` 的 `RichCoFlatMapFunction` 作用于连接的流来实现这个功能。
 
-```text
+```java
 public static void main(String[] args) throws Exception {
     StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
@@ -354,7 +354,7 @@ public static void main(String[] args) throws Exception {
 
 在这个例子中，两个流都是 `DataStream<String>` 类型的，并且都将字符串作为键。正如你将在下面看到的，`RichCoFlatMapFunction` 在状态中存了一个布尔类型的变量，这个变量被两个流共享。
 
-```text
+```java
 public static class ControlFunction extends RichCoFlatMapFunction<String, String, String> {
     private ValueState<Boolean> blocked;
       

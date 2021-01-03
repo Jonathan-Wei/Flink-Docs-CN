@@ -21,7 +21,7 @@ Flink 的原生序列化器可以高效地操作 tuples 和 POJOs
 
 对于 Java，Flink 自带有 `Tuple0` 到 `Tuple25` 类型。
 
-```text
+```java
 Tuple2<String, Integer> person = Tuple2.of("Fred", 35);
 
 // zero based index!  
@@ -39,7 +39,7 @@ Integer age = person.f1;
 
 示例：
 
-```text
+```java
 public class Person {
     public String name;  
     public Integer age;  
@@ -64,7 +64,7 @@ Flink 的序列化器[支持的 POJO 类型数据结构升级](https://ci.apache
 
 该示例将关于人的记录流作为输入，并且过滤后只包含成年人。
 
-```text
+```java
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.api.common.functions.FilterFunction;
@@ -125,7 +125,7 @@ DataStream API 将你的应用构建为一个 job graph，并附加到 `StreamEx
 
 上述示例用 `env.fromElements(...)` 方法构造 `DataStream<Person>` 。这样将简单的流放在一起是为了方便用于原型或测试。`StreamExecutionEnvironment` 上还有一个 `fromCollection(Collection)` 方法。因此，你可以这样做：
 
-```text
+```java
 List<Person> people = new ArrayList<Person>();
 
 people.add(new Person("Fred", 35));
@@ -137,13 +137,13 @@ DataStream<Person> flintstones = env.fromCollection(people);
 
 另一个获取数据到流中的便捷方法是用 socket
 
-```text
+```java
 DataStream<String> lines = env.socketTextStream("localhost", 9999)
 ```
 
 或读取文件
 
-```text
+```java
 DataStream<String> lines = env.readTextFile("file:///path");
 ```
 

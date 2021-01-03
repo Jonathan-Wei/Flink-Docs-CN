@@ -1,6 +1,6 @@
 # 流分析
 
-## 事件时间和Watermarks
+## Event Time和Watermarks
 
 ### 介绍
 
@@ -12,7 +12,7 @@ Flink明确支持三种不同的时间概念：
 
 ### 使用事件时间
 
-```text
+```java
 final StreamExecutionEnvironment env =
     StreamExecutionEnvironment.getExecutionEnvironment();
 env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
@@ -32,7 +32,7 @@ env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
 ### 使用Watermarks
 
-```text
+```java
 DataStream<Event> stream = ...
 
 WatermarkStrategy<Event> strategy = WatermarkStrategy
@@ -63,7 +63,7 @@ Flink具有非常有表现力的窗口语义。
 
 
 
-```text
+```java
 stream.
     .keyBy(<key selector>)
     .window(<window assigner>)    
@@ -72,7 +72,7 @@ stream.
 
 
 
-```text
+```java
 stream.
     .windowAll(<window assigner>)
     .reduce|aggregate|process(<window function>)
@@ -86,7 +86,7 @@ stream.
 
 
 
-```text
+```java
 DataStream<SensorReading> input = ...
 
 input
@@ -118,7 +118,7 @@ public static class MyWastefulMax extends ProcessWindowFunction<
 
 
 
-```text
+```java
 public abstract class Context implements java.io.Serializable {
     public abstract W window();
     
@@ -132,7 +132,7 @@ public abstract class Context implements java.io.Serializable {
 
 
 
-```text
+```java
 DataStream<SensorReading> input = ...
 
 input
@@ -166,7 +166,7 @@ private static class MyWindowFunction extends ProcessWindowFunction<
 
 
 
-```text
+```java
 OutputTag<Event> lateTag = new OutputTag<Event>("late"){};
 
 SingleOutputStreamOperator<Event> result = stream.
@@ -180,7 +180,7 @@ DataStream<Event> lateStream = result.getSideOutput(lateTag);
 
 
 
-```text
+```java
 stream.
     .keyBy(...)
     .window(...)
