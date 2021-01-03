@@ -4,11 +4,63 @@
 
 ## Flink核心和应用程序依赖性
 
+与大多数运行用户定义应用程序的系统一样，Flink中有两大类依赖项和库：
+
 ## 项目配置：基本依赖性
+
+每个Flink应用程序都需要最少的API依赖来进行开发。
+
+手动设置项目时，您需要为Java / Scala API添加以下依赖项（此处以Maven语法显示），但是相同的依赖项也适用于其他构建工具（Gradle，SBT等）。
+
+{% tabs %}
+{% tab title="Java" %}
+```markup
+<dependency>
+  <groupId>org.apache.flink</groupId>
+  <artifactId>flink-streaming-java_2.11</artifactId>
+  <version>1.12.0</version>
+  <scope>provided</scope>
+</dependency>
+```
+{% endtab %}
+
+{% tab title="Scala" %}
+```markup
+<dependency>
+  <groupId>org.apache.flink</groupId>
+  <artifactId>flink-streaming-scala_2.11</artifactId>
+  <version>1.12.0</version>
+  <scope>provided</scope>
+</dependency>
+```
+{% endtab %}
+{% endtabs %}
+
+## 添加连接器和库依赖关系
+
+大多数应用程序需要特定的连接器或库来运行，例如，连接到Kafka，Cassandra等的连接器。这些连接器不是Flink核心依赖项的一部分，必须作为依赖项添加到应用程序中。
+
+下面是添加Kafka连接器作为依赖项的示例（Maven语法）：
+
+```markup
+<dependency>
+    <groupId>org.apache.flink</groupId>
+    <artifactId>flink-connector-kafka_2.11</artifactId>
+    <version>1.12.0</version>
+</dependency>
+```
 
 ## Scala版本
 
+Scala版本（2.11、2.12等）不是二进制兼容的。因此，Scala 2.11的Flink不能与使用Scala 2.12的应用程序一起使用。
+
 ## Hadoop依赖关系
+
+ **一般规则：永远不必将Hadoop依赖项直接添加到您的应用程序。** _（唯一的例外是将现有的Hadoop输入/输出格式与Flink的Hadoop兼容性包装器一起使用时）_
+
+```text
+export HADOOP_CLASSPATH=`hadoop classpath`
+```
 
 ## Maven快速入门
 
