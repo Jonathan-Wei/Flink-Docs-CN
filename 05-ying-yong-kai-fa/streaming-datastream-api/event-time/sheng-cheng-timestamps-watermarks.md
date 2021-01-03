@@ -1,4 +1,4 @@
-# 生成水位线\(Watermarks\)
+# 生成Watermarks
 
 在本节中，你将了解Flink提供的用于处理**事件时间**时间戳和Watermarks的API 。有关_事件时间_，_处理时间_和_摄取时间的简介_，请参阅 [事件时间的简介](https://ci.apache.org/projects/flink/flink-docs-release-1.11/dev/event_time.html)。
 
@@ -108,13 +108,13 @@ withTimestampsAndWatermarks
 {% endtab %}
 {% endtabs %}
 
-使用`WatermarkStrategy`方式获取一个流，并产生带有时间戳记的元素和水印的新流。如果原始流已经具有时间戳和/或水印，则时间戳分配器将覆盖它们。
+使用`WatermarkStrategy`方式获取一个流，并产生带有时间戳记的元素和`Watermark`的新流。如果原始流已经具有时间戳和/或`Watermark`，则时间戳分配器将覆盖它们。
 
 ## 处理空闲源
 
 如果一个输入`split`/`partitions`/`shards`在一段时间内不携带事件，这意味着`WatermarkGenerator`也不会获得任何新的信息来作为Watermark的基础。我们称之为空闲输入或空闲源。这是一个问题，因为您的某些分区可能仍然承载事件。在这种情况下，`Watermark`将被抑制，因为它被计算为所有不同并行`Watermark`的最小值。
 
-要处理这个问题，您可以使用一个水印策略来检测闲置并将输入标记为闲置。WatermarkStrategy为这提供了一个方便的助手:
+要处理这个问题，您可以使用一个`WatermarkStrategy`来检测闲置并将输入标记为闲置。`WatermarkStrategy`为这提供了一个方便的助手:
 
 {% tabs %}
 {% tab title="Java" %}
@@ -165,9 +165,9 @@ public interface WatermarkGenerator<T> {
 }
 ```
 
-有两种不同的水印生成方式:_`periodic`\(_周期型\)和\(_`punctuated`_\)标点型。
+有两种不同的`Watermark`生成方式:_`periodic`\(_周期型\)和\(_`punctuated`_\)标点型。
 
-周期型生成器通常通过观察传入事件`onEvent()` ，然后在框架调用时发出水印`onPeriodicEmit()`。
+周期型生成器通常通过观察传入事件`onEvent()` ，然后在框架调用`onPeriodicEmit()`时发出`Watermark`。
 
 标点型生成器将查看事件`onEvent()`并等待特殊的 _标记事件_或_标点_，这些_事件_或_标点_在流中携带`Watermark`信息。当看到这些事件之一时，它将立即发出`Watermark`。通常，标点型生成器不会发出来自`onPeriodicEmit()`的`Watermark`。
 
@@ -175,11 +175,11 @@ public interface WatermarkGenerator<T> {
 
 ### 编写周期型Watermark
 
-周期型生成器观察流事件并周期性地生成`Watermark`水印（可能取决于流元素，或者纯粹基于处理时间）。
+周期型生成器观察流事件并周期性地生成`Watermark`（可能取决于流元素，或者纯粹基于处理时间）。
 
 通过`ExecutionConfig.setAutoWatermarkInterval(...)`定义生成`Watermark`的间隔（每_n_毫秒）。生成器的`onPeriodicEmit()`方法每次都会被调用，并且如果返回的`Watermark`非空且大于先前的`Watermark`，则将发出新的`Watermark`。
 
-在这里，我们显示了两个使用定期水印生成的`Watermark`生成器的简单示例。请注意，Flink附带了 `BoundedOutOfOrdernessWatermarks`，它的`WatermarkGenerator`工作原理与以下`BoundedOutOfOrdernessGenerator`所示类似。您可以[在这里](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/event_timestamp_extractors.html#assigners-allowing-a-fixed-amount-of-lateness)阅读有关使用它的[信息](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/event_timestamp_extractors.html#assigners-allowing-a-fixed-amount-of-lateness)。
+在这里，我们显示了两个使用周期型`onPeriodicEmit()`生成的`Watermark`生成器的简单示例。请注意，Flink附带了 `BoundedOutOfOrdernessWatermarks`，它的`WatermarkGenerator`工作原理与以下`BoundedOutOfOrdernessGenerator`所示类似。您可以[在这里](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/event_timestamp_extractors.html#assigners-allowing-a-fixed-amount-of-lateness)阅读有关使用它的[信息](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/event_timestamp_extractors.html#assigners-allowing-a-fixed-amount-of-lateness)。
 
 {% tabs %}
 {% tab title="Java" %}
@@ -363,9 +363,9 @@ val stream: DataStream[MyType] = env.addSource(kafkaSource)
 
 ## 操作符如何处理Watermarks
 
-作为一般规则，操作符在将给定的`Watermark`转发到下游之前需要完全处理它。例如，`WindowOperator`将首先评估应触发的所有窗口，只有在产生了所有由水印触发的输出之后，水印本身才会被发送到下游。换句话说，由于`Watermark`的出现而产生的所有元素都将在`Watermark`之前发出。
+作为一般规则，操作符在将给定的`Watermark`转发到下游之前需要完全处理它。例如，`WindowOperator`将首先评估应触发的所有窗口，只有在产生了所有由`Watermark`触发的输出之后，`Watermark`本身才会被发送到下游。换句话说，由于`Watermark`的出现而产生的所有元素都将在`Watermark`之前发出。
 
-相同的规则适用于`TwoInputStreamOperator`。但是，在这种情况下，操作符的当前水印被定义为其两个输入的最小值。
+相同的规则适用于`TwoInputStreamOperator`。但是，在这种情况下，操作符的当前`Watermark`被定义为其两个输入的最小值。
 
 该行为的细节由 `OneInputStreamOperator#processWatermark`， `TwoInputStreamOperator#processWatermark1`和 `TwoInputStreamOperator#processWatermark2`方法的实现定义。
 

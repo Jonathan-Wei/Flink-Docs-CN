@@ -28,7 +28,7 @@ env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
 ### 延迟
 
- 延迟是相对于Watermarks定义的。`Watermark(t)`断言流在时间_t之前_已完成；时间戳≤t的水印后的任何事件都是迟到的。
+ 延迟是相对于Watermarks定义的。`Watermark(t)`断言流在时间_t之前_已完成；时间戳≤t的`Watermark`后的任何事件都是迟到的。
 
 ### 使用Watermarks
 
