@@ -2709,3 +2709,5 @@ Flink Table API和SQL为用户提供了一组用于数据转换的内置函数�
 |  | `SQL_TSI_MINUTE` _\(SQL-only\)_ |
 |  | `SQL_TSI_SECOND` _\(SQL-only\)_ |
 
+## 列函数
+
