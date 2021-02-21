@@ -16,6 +16,12 @@
 
 数据源具有三个核心组件：_Splits_，_SplitEnumerator_和_SourceReader_。
 
+[Source](https://github.com/apache/flink/blob/master/flink-core/src/main/java/org/apache/flink/api/connector/source/Source.java)类是API的入口点，联系上述三个组件连接在一起。
+
+![](../../.gitbook/assets/image%20%2868%29.png)
+
+数据源具有三个核心组件：_Splits_，_SplitEnumerator_和_SourceReader_。
+
 * **Splits**是是源使用的数据的一部分，如文件或日志分区。**Splits**是`Source`分配工作和并行数据读取的粒度。
 * **SourceReader**请求对它们进行拆分和处理，例如通过读取拆分所表示的文件或日志分区。该`SourceReader`在`SourceOperators`中的任务管理器上并行运行，并产生并行的事件/记录流。
 * **SplitEnumerator**生成`Split`并将它们分配给_`SourceReaders`_。它在作业管理器上作为单个实例运行，并负责维护待处理的`Split`的待办事项，并以平衡的方式将其分配给读者。
