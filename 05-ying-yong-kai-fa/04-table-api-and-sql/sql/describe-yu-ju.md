@@ -4,7 +4,7 @@ DESCRIBE语句用于描述表或视图的结构。
 
 ## 运行DESCRIBE语句
 
-description语句可以通过TableEnvironment的executeSql\(\)方法执行。executeSql\(\)方法为成功的描述操作返回给定表的模式，否则将抛出异常。
+DESCRIBE语句可以通过TableEnvironment的executeSql\(\)方法执行。executeSql\(\)方法为成功的描述操作返回给定表的模式，否则将抛出异常。
 
 下面的示例演示如何在TableEnvironment中运行description语句。
 
