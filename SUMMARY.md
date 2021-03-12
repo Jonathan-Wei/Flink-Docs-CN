@@ -198,7 +198,7 @@
       * [读取和写入Hive表](connectors/table-and-sql-connentors/hive/du-qu-he-xie-ru-hive-biao.md)
       * [Hive函数](connectors/table-and-sql-connentors/hive/hive-han-shu.md)
       * [在scala shell中使用Hive连接器](connectors/table-and-sql-connentors/hive/zai-scala-shell-zhong-shi-yong-hive-lian-jie-qi.md)
-    * [下载](connectors/table-and-sql-connentors/xia-zai.md)
+    * [SQL连接器下载](connectors/table-and-sql-connentors/xia-zai.md)
   * [DataSet Connectors](connectors/dataset-connectors.md)
 * [部署-操作](06-bu-shu-cao-zuo/README.md)
   * [集群和部署](06-bu-shu-cao-zuo/ji-qun-he-bu-shu/README.md)
