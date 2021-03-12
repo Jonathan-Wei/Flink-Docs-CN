@@ -67,7 +67,7 @@ t_env.get_config().set_sql_dialect(SqlDialect.DEFAULT)
 
 ### CATALOG
 
-**显示**
+#### SHOW
 
 ```text
 SHOW CURRENT CATALOG;
@@ -75,14 +75,14 @@ SHOW CURRENT CATALOG;
 
 ### DATABASE
 
-**显示**
+#### SHOW
 
 ```text
 SHOW DATABASES;
 SHOW CURRENT DATABASE;
 ```
 
-**创建**
+#### CREATE
 
 ```text
 CREATE (DATABASE|SCHEMA) [IF NOT EXISTS] database_name
@@ -91,7 +91,7 @@ CREATE (DATABASE|SCHEMA) [IF NOT EXISTS] database_name
   [WITH DBPROPERTIES (property_name=property_value, ...)];
 ```
 
-**修改**
+#### **ALTER**
 
 **更新属性**
 
@@ -125,13 +125,13 @@ USE database_name;
 
 ### TABLE
 
-**Show**
+#### **Show**
 
 ```text
 SHOW TABLES;
 ```
 
-**Create**
+#### **Create**
 
 ```text
 CREATE [EXTERNAL] TABLE [IF NOT EXISTS] table_name
@@ -167,21 +167,21 @@ table_constraint:
   : [CONSTRAINT constraint_name] PRIMARY KEY (col_name, ...) [[ENABLE|DISABLE] [VALIDATE|NOVALIDATE] [RELY|NORELY]]
 ```
 
-**Alter**
+#### **Alter**
 
-**Rename**
+**重命名**
 
 ```text
 ALTER TABLE table_name RENAME TO new_table_name;
 ```
 
-**Update Properties**
+**更新属性**
 
 ```text
 ALTER TABLE table_name SET TBLPROPERTIES (property_name = property_value, property_name = property_value, ... );
 ```
 
-**Update Location**
+**更新位置**
 
 ```text
 ALTER TABLE table_name [PARTITION partition_spec] SET LOCATION fs_path;
