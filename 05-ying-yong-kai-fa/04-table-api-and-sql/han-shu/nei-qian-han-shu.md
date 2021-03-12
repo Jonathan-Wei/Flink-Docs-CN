@@ -1,4 +1,4 @@
-# 内嵌函数
+# 内置函数
 
 Flink Table API和SQL为用户提供了一组用于数据转换的内置函数。本页简要概述了它们。如果尚不支持您需要的函数，则可以实现[用户定义的](https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/table/udfs.html)函数。如果您认为自定义的函数足够通用，请[打开一个Jira问题](https://issues.apache.org/jira/secure/CreateIssue!default.jspa)，并附上详细说明。
 
@@ -2710,4 +2710,48 @@ Flink Table API和SQL为用户提供了一组用于数据转换的内置函数�
 |  | `SQL_TSI_SECOND` _\(SQL-only\)_ |
 
 ## 列函数
+
+列函数用于选择或取消选择表列。
+
+| 语法 | 描述 |
+| :--- | :--- |
+| withColumns\(…\) | 选择指定的列 |
+| withoutColumns\(…\) | 取消选择指定的列 |
+
+详细语法如下：
+
+```text
+columnFunction:
+    withColumns(columnExprs)
+    withoutColumns(columnExprs)
+
+columnExprs:
+    columnExpr [, columnExpr]*
+
+columnExpr:
+    columnRef | columnIndex to columnIndex | columnName to columnName
+
+columnRef:
+    columnName(The field name that exists in the table) | columnIndex(a positive integer starting from 1)
+```
+
+下表说明了column函数的用法。（假设我们有一个包含5列的表格：）`(a: Int, b: Long, c: String, d:String, e: String)`：
+
+{% tabs %}
+{% tab title="Java" %}
+| Api | 用法 | 描述 |
+| :--- | :--- | :--- |
+| withColumns\(\*\)\|\* | `select("withColumns()") | select("") = select("a, b, c, d, e")` | 所有列 |
+| withColumns\(m to n\) | `select("withColumns(2 to 4)") = select("b, c, d")` | 从m到n的列 |
+| withColumns\(m, n, k\) | `select("withColumns(1, 3, e)") = select("a, c, e")` | 第m，n，k列 |
+| withColumns\(m, n to k\) | `select("withColumns(1, 3 to 5)") = select("a, c, d ,e")` | 上面两种表示的混合 |
+| withoutColumns\(m to n\) | `select("withoutColumns(2 to 4)") = select("a, e")` | 取消选择从m到n的列 |
+| withoutColumns\(m, n, k\) | `select("withoutColumns(1, 3, 5)") = select("b, d")` | 取消选择列m，n，k |
+| withoutColumns\(m, n to k\) | `select("withoutColumns(1, 3 to 5)") = select("b")` | 上面两种表示的混合 |
+{% endtab %}
+
+{% tab title="Second Tab" %}
+
+{% endtab %}
+{% endtabs %}
 

@@ -117,7 +117,7 @@
     * [连接外部系统](05-ying-yong-kai-fa/04-table-api-and-sql/lian-jie-wai-bu-xi-tong.md)
     * [函数](05-ying-yong-kai-fa/04-table-api-and-sql/han-shu/README.md)
       * [总览](05-ying-yong-kai-fa/04-table-api-and-sql/han-shu/zong-lan.md)
-      * [内嵌函数](05-ying-yong-kai-fa/04-table-api-and-sql/han-shu/nei-qian-han-shu.md)
+      * [内置函数](05-ying-yong-kai-fa/04-table-api-and-sql/han-shu/nei-qian-han-shu.md)
       * [用户自定义函数](05-ying-yong-kai-fa/04-table-api-and-sql/han-shu/yong-hu-zi-ding-yi-han-shu.md)
     * [模块\(Module\)](05-ying-yong-kai-fa/04-table-api-and-sql/module.md)
     * [Catalogs](05-ying-yong-kai-fa/04-table-api-and-sql/catalogs.md)
