@@ -10,7 +10,7 @@ Flink当前支持两种SQL方言：`default`和`hive`。必须先切换到Hive �
 
 可以通过`table.sql-dialect`属性指定SQL Dialect。因此，您可以在yaml文件的`configuration`部分中为SQL客户端设置要使用的初始方言。
 
-```text
+```yaml
 execution:
   planner: blink
   type: batch
@@ -22,7 +22,7 @@ configuration:
 
 也可以在启动SQL Client后设置方言。
 
-```text
+```sql
 Flink SQL> set table.sql-dialect=hive; -- to use hive dialect
 [INFO] Session property has been set.
 
@@ -69,7 +69,7 @@ t_env.get_config().set_sql_dialect(SqlDialect.DEFAULT)
 
 #### SHOW
 
-```text
+```sql
 SHOW CURRENT CATALOG;
 ```
 
@@ -77,14 +77,14 @@ SHOW CURRENT CATALOG;
 
 #### SHOW
 
-```text
+```sql
 SHOW DATABASES;
 SHOW CURRENT DATABASE;
 ```
 
 #### CREATE
 
-```text
+```sql
 CREATE (DATABASE|SCHEMA) [IF NOT EXISTS] database_name
   [COMMENT database_comment]
   [LOCATION fs_path]
@@ -95,31 +95,31 @@ CREATE (DATABASE|SCHEMA) [IF NOT EXISTS] database_name
 
 **更新属性**
 
-```text
+```sql
 ALTER (DATABASE|SCHEMA) database_name SET DBPROPERTIES (property_name=property_value, ...);
 ```
 
 **更新责任人**
 
-```text
+```sql
 ALTER (DATABASE|SCHEMA) database_name SET OWNER [USER|ROLE] user_or_role;
 ```
 
 **更新位置**
 
-```text
+```sql
 ALTER (DATABASE|SCHEMA) database_name SET LOCATION fs_path;
 ```
 
 **删除**
 
-```text
+```sql
 DROP (DATABASE|SCHEMA) [IF EXISTS] database_name [RESTRICT|CASCADE];
 ```
 
 **Use**
 
-```text
+```sql
 USE database_name;
 ```
 
@@ -127,13 +127,13 @@ USE database_name;
 
 #### **Show**
 
-```text
+```sql
 SHOW TABLES;
 ```
 
 #### **Create**
 
-```text
+```sql
 CREATE [EXTERNAL] TABLE [IF NOT EXISTS] table_name
   [(col_name data_type [column_constraint] [COMMENT col_comment], ... [table_constraint])]
   [COMMENT table_comment]
@@ -171,19 +171,19 @@ table_constraint:
 
 **重命名**
 
-```text
+```sql
 ALTER TABLE table_name RENAME TO new_table_name;
 ```
 
 **更新属性**
 
-```text
+```sql
 ALTER TABLE table_name SET TBLPROPERTIES (property_name = property_value, property_name = property_value, ... );
 ```
 
 **更新位置**
 
-```text
+```sql
 ALTER TABLE table_name [PARTITION partition_spec] SET LOCATION fs_path;
 ```
 
@@ -191,7 +191,7 @@ ALTER TABLE table_name [PARTITION partition_spec] SET LOCATION fs_path;
 
 **更新文件格式**
 
-```text
+```sql
 ALTER TABLE table_name [PARTITION partition_spec] SET FILEFORMAT file_format;
 ```
 
@@ -199,7 +199,7 @@ ALTER TABLE table_name [PARTITION partition_spec] SET FILEFORMAT file_format;
 
 **更新 SerDe 属性**
 
-```text
+```sql
 ALTER TABLE table_name [PARTITION partition_spec] SET SERDE serde_class_name [WITH SERDEPROPERTIES serde_properties];
 
 ALTER TABLE table_name [PARTITION partition_spec] SET SERDEPROPERTIES serde_properties;
@@ -212,19 +212,19 @@ serde_properties:
 
 **Add Partitions**
 
-```text
+```sql
 ALTER TABLE table_name ADD [IF NOT EXISTS] (PARTITION partition_spec [LOCATION fs_path])+;
 ```
 
 **Drop Partitions**
 
-```text
+```sql
 ALTER TABLE table_name DROP [IF EXISTS] PARTITION partition_spec[, PARTITION partition_spec, ...];
 ```
 
 **Add/Replace Columns**
 
-```text
+```sql
 ALTER TABLE table_name
   ADD|REPLACE COLUMNS (col_name data_type [COMMENT col_comment], ...)
   [CASCADE|RESTRICT]
@@ -232,14 +232,14 @@ ALTER TABLE table_name
 
 **Change Column**
 
-```text
+```sql
 ALTER TABLE table_name CHANGE [COLUMN] col_old_name col_new_name column_type
   [COMMENT col_comment] [FIRST|AFTER column_name] [CASCADE|RESTRICT];
 ```
 
 #### **Drop**
 
-```text
+```sql
 DROP TABLE [IF EXISTS] table_name;
 ```
 
@@ -247,7 +247,7 @@ DROP TABLE [IF EXISTS] table_name;
 
 #### **Create**
 
-```text
+```sql
 CREATE VIEW [IF NOT EXISTS] view_name [(column_name, ...) ]
   [COMMENT view_comment]
   [TBLPROPERTIES (property_name = property_value, ...)]
@@ -256,49 +256,49 @@ CREATE VIEW [IF NOT EXISTS] view_name [(column_name, ...) ]
 
 #### **Alter**
 
-**NOTE**: Altering view only works in Table API, but not supported via SQL client.
+**NOTE**: 修改视图只能在Table API中工作，不支持通过SQL客户端。
 
 **重命名**
 
-```text
+```sql
 ALTER VIEW view_name RENAME TO new_view_name;
 ```
 
 **更新 Properties**
 
-```text
+```sql
 ALTER VIEW view_name SET TBLPROPERTIES (property_name = property_value, ... );
 ```
 
 **通过Select更新**
 
-```text
+```sql
 ALTER VIEW view_name AS select_statement;
 ```
 
 #### **Drop**
 
-```text
+```sql
 DROP VIEW [IF EXISTS] view_name;
 ```
 
 ### FUNCTION
 
-**Show**
+#### **Show**
 
-```text
+```sql
 SHOW FUNCTIONS;
 ```
 
-**Create**
+#### **Create**
 
-```text
+```sql
 CREATE FUNCTION function_name AS class_name;
 ```
 
-**Drop**
+#### **Drop**
 
-```text
+```sql
 DROP FUNCTION [IF EXISTS] function_name;
 ```
 
@@ -306,22 +306,22 @@ DROP FUNCTION [IF EXISTS] function_name;
 
 ### INSERT
 
-```text
+```sql
 INSERT (INTO|OVERWRITE) [TABLE] table_name [PARTITION partition_spec] SELECT ...;
 ```
 
-The `partition_spec`, if present, can be either a full spec or partial spec. If the `partition_spec` is a partial spec, the dynamic partition column names can be omitted.
+`partition_spec`如果存在，可以是完整的规范，也可以是部分的规范。如果`partition_spec`是部分的规范，可以省略动态分区列名。
 
 ## DQL
 
-At the moment, Hive dialect supports the same syntax as Flink SQL for DQLs. Refer to [Flink SQL queries](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/sql/queries.html) for more details. And it’s recommended to switch to `default` dialect to execute DQLs.
+目前，Hive方言支持与DQL的Flink SQL相同的语法。有关更多详细信息，请参考 [Flink SQL查询](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/sql/queries.html)。并且建议切换到 `default`方言以执行DQL。
 
 ## 注意点
 
-The following are some precautions for using the Hive dialect.
+以下是使用Hive方言的一些注意事项。
 
-* Hive dialect should only be used to manipulate Hive tables, not generic tables. And Hive dialect should be used together with a [HiveCatalog](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/connectors/hive/hive_catalog.html).
-* While all Hive versions support the same syntax, whether a specific feature is available still depends on the [Hive version](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/connectors/hive/#supported-hive-versions) you use. For example, updating database location is only supported in Hive-2.4.0 or later.
-* Hive and Calcite have different sets of reserved keywords. For example, `default` is a reserved keyword in Calcite and a non-reserved keyword in Hive. Even with Hive dialect, you have to quote such keywords with backtick \( \` \) in order to use them as identifiers.
-* Due to expanded query incompatibility, views created in Flink cannot be queried in Hive.
+* Hive方言只能用于操作Hive表，不能用于一般表。Hive方言应与[HiveCatalog](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/connectors/hive/hive_catalog.html)一起使用。
+* 虽然所有Hive版本都支持相同的语法，但是是否有特定功能仍然取决于您使用的 [Hive版本](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/connectors/hive/#supported-hive-versions)。例如，仅在Hive-2.4.0或更高版本中支持更新数据库位置。
+* Hive和方解石具有不同的保留关键字集。例如，`default`在Calcite中是保留关键字，在Hive中是非保留关键字。即使使用Hive方言，也必须使用反引号（\`）引用此类关键字，才能将其用作标识符。
+* 由于扩大了查询的不兼容性，因此无法在Hive中查询在Flink中创建的视图。
 
