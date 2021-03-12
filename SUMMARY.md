@@ -195,6 +195,7 @@
     * [Hive](connectors/table-and-sql-connentors/hive/README.md)
       * [概述](connectors/table-and-sql-connentors/hive/gai-shu.md)
       * [HiveCatalog](connectors/table-and-sql-connentors/hive/hivecatalog.md)
+      * [Hive方言](connectors/table-and-sql-connentors/hive/hive-fang-yan.md)
       * [读取和写入Hive表](connectors/table-and-sql-connentors/hive/du-qu-he-xie-ru-hive-biao.md)
       * [Hive函数](connectors/table-and-sql-connentors/hive/hive-han-shu.md)
       * [在scala shell中使用Hive连接器](connectors/table-and-sql-connentors/hive/zai-scala-shell-zhong-shi-yong-hive-lian-jie-qi.md)

@@ -268,5 +268,11 @@ HiveCatalog支持Flink所有通用表类型。
 * `UNION`不支持Hive的类型
 * Hive `TIMESTAMP`始终具有9精度，不支持其他精度。另一方面，配置单元UDF可以处理`TIMESTAMP`精度&lt;= 9的值。
 * Hive不支持Flink的`TIMESTAMP_WITH_TIME_ZONE`，`TIMESTAMP_WITH_LOCAL_TIME_ZONE`和`MULTISET`
-* Flink的类型尚`INTERVAL`不能映射到Hive `INTERVAL`类型
+* Flink的`INTERVAL`类型尚不能映射到Hive `INTERVAL`类型
+
+## Scala Shell
+
+{% hint style="info" %}
+注意：由于Scala Shell目前不支持blink planner，因此**不**建议在Scala Shell中使用Hive连接器。
+{% endhint %}
 
