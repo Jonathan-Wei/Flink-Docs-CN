@@ -67,24 +67,22 @@ t_env.get_config().set_sql_dialect(SqlDialect.DEFAULT)
 
 ### CATALOG
 
-
-
-**Show**
+**显示**
 
 ```text
 SHOW CURRENT CATALOG;
 ```
 
-#### DATABASE <a id="database"></a>
+### DATABASE
 
-**Show**
+**显示**
 
 ```text
 SHOW DATABASES;
 SHOW CURRENT DATABASE;
 ```
 
-**Create**
+**创建**
 
 ```text
 CREATE (DATABASE|SCHEMA) [IF NOT EXISTS] database_name
@@ -93,27 +91,27 @@ CREATE (DATABASE|SCHEMA) [IF NOT EXISTS] database_name
   [WITH DBPROPERTIES (property_name=property_value, ...)];
 ```
 
-**Alter**
+**修改**
 
-**Update Properties**
+**更新属性**
 
 ```text
 ALTER (DATABASE|SCHEMA) database_name SET DBPROPERTIES (property_name=property_value, ...);
 ```
 
-**Update Owner**
+**更新责任人**
 
 ```text
 ALTER (DATABASE|SCHEMA) database_name SET OWNER [USER|ROLE] user_or_role;
 ```
 
-**Update Location**
+**更新位置**
 
 ```text
 ALTER (DATABASE|SCHEMA) database_name SET LOCATION fs_path;
 ```
 
-**Drop**
+**删除**
 
 ```text
 DROP (DATABASE|SCHEMA) [IF EXISTS] database_name [RESTRICT|CASCADE];
@@ -125,7 +123,7 @@ DROP (DATABASE|SCHEMA) [IF EXISTS] database_name [RESTRICT|CASCADE];
 USE database_name;
 ```
 
-#### TABLE <a id="table"></a>
+### TABLE
 
 **Show**
 
@@ -245,7 +243,7 @@ ALTER TABLE table_name CHANGE [COLUMN] col_old_name col_new_name column_type
 DROP TABLE [IF EXISTS] table_name;
 ```
 
-#### VIEW <a id="view"></a>
+### VIEW
 
 **Create**
 
@@ -284,7 +282,7 @@ ALTER VIEW view_name AS select_statement;
 DROP VIEW [IF EXISTS] view_name;
 ```
 
-#### FUNCTION <a id="function"></a>
+### FUNCTION
 
 **Show**
 
@@ -306,7 +304,7 @@ DROP FUNCTION [IF EXISTS] function_name;
 
 ## DML
 
-#### INSERT <a id="insert"></a>
+### INSERT
 
 ```text
 INSERT (INTO|OVERWRITE) [TABLE] table_name [PARTITION partition_spec] SELECT ...;
@@ -318,7 +316,7 @@ The `partition_spec`, if present, can be either a full spec or partial spec. If 
 
 At the moment, Hive dialect supports the same syntax as Flink SQL for DQLs. Refer to [Flink SQL queries](https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/sql/queries.html) for more details. And it’s recommended to switch to `default` dialect to execute DQLs.
 
-### 注意点 <a id="notice"></a>
+## 注意点
 
 The following are some precautions for using the Hive dialect.
 
