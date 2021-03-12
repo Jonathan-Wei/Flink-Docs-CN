@@ -187,17 +187,17 @@ ALTER TABLE table_name SET TBLPROPERTIES (property_name = property_value, proper
 ALTER TABLE table_name [PARTITION partition_spec] SET LOCATION fs_path;
 ```
 
-The `partition_spec`, if present, needs to be a full spec, i.e. has values for all partition columns. And when it’s present, the operation will be applied to the corresponding partition instead of the table.
+如果`partition_spec`存在，那么它必须是一个完整的spec，也就是说，它有所有分区列的值。当它存在时，运算就会被应用到相应的分区上而不是表上。
 
-**Update File Format**
+**更新文件格式**
 
 ```text
 ALTER TABLE table_name [PARTITION partition_spec] SET FILEFORMAT file_format;
 ```
 
-The `partition_spec`, if present, needs to be a full spec, i.e. has values for all partition columns. And when it’s present, the operation will be applied to the corresponding partition instead of the table.
+如果`partition_spec`存在，那么它必须是一个完整的spec，也就是说，它有所有分区列的值。当它存在时，运算就会被应用到相应的分区上而不是表上。
 
-**Update SerDe Properties**
+**更新 SerDe 属性**
 
 ```text
 ALTER TABLE table_name [PARTITION partition_spec] SET SERDE serde_class_name [WITH SERDEPROPERTIES serde_properties];
@@ -208,7 +208,7 @@ serde_properties:
   : (property_name = property_value, property_name = property_value, ... )
 ```
 
-The `partition_spec`, if present, needs to be a full spec, i.e. has values for all partition columns. And when it’s present, the operation will be applied to the corresponding partition instead of the table.
+如果`partition_spec`存在，那么它必须是一个完整的spec，也就是说，它有所有分区列的值。当它存在时，运算就会被应用到相应的分区上而不是表上。
 
 **Add Partitions**
 
@@ -237,7 +237,7 @@ ALTER TABLE table_name CHANGE [COLUMN] col_old_name col_new_name column_type
   [COMMENT col_comment] [FIRST|AFTER column_name] [CASCADE|RESTRICT];
 ```
 
-**Drop**
+#### **Drop**
 
 ```text
 DROP TABLE [IF EXISTS] table_name;
@@ -245,7 +245,7 @@ DROP TABLE [IF EXISTS] table_name;
 
 ### VIEW
 
-**Create**
+#### **Create**
 
 ```text
 CREATE VIEW [IF NOT EXISTS] view_name [(column_name, ...) ]
@@ -254,29 +254,29 @@ CREATE VIEW [IF NOT EXISTS] view_name [(column_name, ...) ]
   AS SELECT ...;
 ```
 
-**Alter**
+#### **Alter**
 
 **NOTE**: Altering view only works in Table API, but not supported via SQL client.
 
-**Rename**
+**重命名**
 
 ```text
 ALTER VIEW view_name RENAME TO new_view_name;
 ```
 
-**Update Properties**
+**更新 Properties**
 
 ```text
 ALTER VIEW view_name SET TBLPROPERTIES (property_name = property_value, ... );
 ```
 
-**Update As Select**
+**通过Select更新**
 
 ```text
 ALTER VIEW view_name AS select_statement;
 ```
 
-**Drop**
+#### **Drop**
 
 ```text
 DROP VIEW [IF EXISTS] view_name;
