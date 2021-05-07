@@ -8,9 +8,9 @@ description: 支持批
 
 下面的示例选择`Orders`表中的前3行。
 
-```text
+```sql
 SELECT *
-FROM Orders
+FROM Orsqders
 ORDER BY orderTime
 LIMIT 3
 ```

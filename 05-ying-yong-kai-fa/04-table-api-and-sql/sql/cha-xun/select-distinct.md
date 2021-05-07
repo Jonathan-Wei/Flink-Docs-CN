@@ -6,7 +6,7 @@ description: 支持批、流
 
 如果指定了SELECT DISTINCT，则从结果集中删除所有重复的行\(每组重复的行保留一行\)。
 
-```text
+```sql
 SELECT DISTINCT id FROM Orders
 ```
 

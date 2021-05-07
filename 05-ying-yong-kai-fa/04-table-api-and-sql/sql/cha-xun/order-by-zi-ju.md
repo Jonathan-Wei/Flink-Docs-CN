@@ -8,7 +8,7 @@ description: 支持批、流
 
 在流模式下运行时，表的主要排序顺序必须在[时间属性](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/concepts/time_attributes/)上升序。后续所有的排序可以自由选择。但是在批处理模式下没有此限制。
 
-```text
+```sql
 SELECT *
 FROM Orders
 ORDER BY order_time, order_id
