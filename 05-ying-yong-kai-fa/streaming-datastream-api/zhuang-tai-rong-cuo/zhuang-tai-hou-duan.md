@@ -11,7 +11,8 @@ Flink提供了不同的State Backends，用于指定状态的存储方式和位�
 {% tabs %}
 {% tab title="Java" %}
 ```java
-StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+StreamExecutionEnvironment env 
+    = StreamExecutionEnvironment.getExecutionEnvironment();
 env.setStateBackend(...);
 ```
 {% endtab %}

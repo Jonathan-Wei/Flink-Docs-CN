@@ -54,3 +54,17 @@ Flink 完全支持 Avro 状态类型的升级，只要数据结构的修改是�
 
 一个例外是如果新的 Avro 数据 schema 生成的类无法被重定位或者使用了不同的命名空间，在作业恢复时状态数据会被认为是不兼容的。
 
+## 模式迁移限制
+
+ Flink的模式迁移具有一些限制，以确保正确性。对于需要解决这些限制并了解它们在特定用例中是安全的用户，请考虑使用[自定义序列化程序](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/datastream/fault-tolerance/custom_serialization/)或 [状态处理器api](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/libs/state_processor_api/)。
+
+### 不支持密钥的模式演变
+
+密钥的结构无法迁移，因为这可能导致不确定的行为。例如，如果将POJO用作键，并且丢弃了一个字段，则可能突然有多个单独的键现在相同。Flink无法合并相应的值。
+
+此外，RocksDB状态后端依赖于二进制对象身份，而不是`hashCode`方法。密钥对象结构的任何更改都可能导致不确定的行为。
+
+### **Kryo**不能用于模式演变
+
+使用Kryo时，模式无法验证是否进行了任何不兼容的更改。
+
