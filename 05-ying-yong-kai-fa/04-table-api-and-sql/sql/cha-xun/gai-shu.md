@@ -120,6 +120,20 @@ table_env \
 
 ## 执行查询
 
+可以执行SELECT语句或VALUES语句，通过TableEnvironment.executeSql\(\)方法将内容收集到本地。该方法将SELECT语句\(或VALUES语句\)的结果作为TableResult返回。与SELECT语句类似，可以使用Table.execute\(\)方法执行Table对象，将查询的内容收集到本地客户端。collect\(\)方法返回一个可关闭的行迭代器。除非已收集所有结果数据，否则选择作业将不会完成。我们应该主动关闭作业，以避免通过CloseableIterator\#close\(\)方法泄漏资源。我们还可以通过`TableResult.print()`方法将选择结果打印到客户端控制台。TableResult中的结果数据只能访问一次。因此， `collect()` 和`print()` 不能相互调用。
+
+在不同的检查点设置下， `TableResult.collect()` 和  `TableResult.print()`的行为略有不同\(要为流作业启用检查点，请参阅 [checkpointing config](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/deployment/config/#checkpointing)\)。
+
+* 对于没有检查点的批处理作业或流作业，`TableResult.collect()` 和`TableResult.print()`
+
+  既不能精确地保证一次，也不能至少保证一次。查询结果生成后，客户端可以立即访问它们，但当作业失败并重新启动时将引发异常。
+
+* 对于具有精确一次检查点的流作业，`TableResult.collect()` 和`TableResult.print()`
+
+  保证端到端精确一次的记录传递。只有在相应的检查点完成后，客户端才能访问结果。
+
+* 对于具有至少一次检查点的流作业，  `TableResult.collect()` 和`TableResult.print()`保证端到端至少一次的记录传递。查询结果一旦产生，客户端就可以立即访问它们，但同样的结果也可能被多次交付。
+
 {% tabs %}
 {% tab title="Java" %}
 ```java
