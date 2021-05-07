@@ -4,11 +4,17 @@
 
 此页面列出了目前Flink SQL支持的所有受支持的语句：
 
-* [SELECT \(Queries\)](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/sql/queries.html)
-* [CREATE TABLE, DATABASE, FUNCTION](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/sql/create.html)
-* [DROP TABLE, DATABASE, FUNCTION](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/sql/drop.html)
-* [ALTER TABLE, DATABASE, FUNCTION](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/sql/alter.html)
-* [INSERT](https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/table/sql/insert.html)
+* [SELECT \(Queries\)](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/sql/queries/)
+* [CREATE TABLE, DATABASE, VIEW, FUNCTION](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/sql/create/)
+* [DROP TABLE, DATABASE, VIEW, FUNCTION](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/sql/drop/)
+* [ALTER TABLE, DATABASE, FUNCTION](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/sql/alter/)
+* [INSERT](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/sql/insert/)
+* [DESCRIBE](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/sql/describe/)
+* [EXPLAIN](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/sql/explain/)
+* [USE](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/sql/use/)
+* [SHOW](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/sql/show/)
+* [LOAD](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/sql/load/)
+* [UNLOAD](https://ci.apache.org/projects/flink/flink-docs-release-1.13/docs/dev/table/sql/unload/)
 
 ## 数据类型
 

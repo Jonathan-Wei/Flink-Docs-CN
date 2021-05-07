@@ -106,6 +106,7 @@
     * [Table API](05-ying-yong-kai-fa/04-table-api-and-sql/table-api.md)
     * [SQL](05-ying-yong-kai-fa/04-table-api-and-sql/sql/README.md)
       * [总览](05-ying-yong-kai-fa/04-table-api-and-sql/sql/zong-lan.md)
+      * [Getting Started](05-ying-yong-kai-fa/04-table-api-and-sql/sql/getting-started.md)
       * [查询](05-ying-yong-kai-fa/04-table-api-and-sql/sql/cha-xun/README.md)
         * [概述](05-ying-yong-kai-fa/04-table-api-and-sql/sql/cha-xun/gai-shu.md)
         * [SQL提示](05-ying-yong-kai-fa/04-table-api-and-sql/sql/cha-xun/sql-ti-shi.md)
