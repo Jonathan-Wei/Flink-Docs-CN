@@ -1,4 +1,4 @@
-# 读取和写入Hive表
+# Hive读取和写入
 
 使用`HiveCatalog`和Flink连接到Hive，Flink可以从Hive数据读取和写入，作为Hive批处理引擎的替代。请务必按照说明在您的应用程序中包含正确的[依赖项](https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/table/hive/#depedencies)。
 
